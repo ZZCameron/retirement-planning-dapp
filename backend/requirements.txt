@@ -20,6 +20,3 @@ python-dotenv==1.0.1
 
 # HTTP Client
 httpx==0.26.0
-
-# CORS
-python-cors==1.0.0
