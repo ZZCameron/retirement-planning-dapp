@@ -13,8 +13,9 @@ testpaths = ["backend/tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 python_functions = "test_*"
+pythonpath = ["."]
 addopts = """
-    --cov=backend/src
+    --cov=backend
     --cov-report=html
     --cov-report=term-missing
     --strict-markers
@@ -33,7 +34,12 @@ exclude_dirs = ["tests", "venv"]
 skips = ["B101"]
 
 [tool.coverage.run]
-omit = ["*/tests/*", "*/venv/*"]
+source = ["backend"]
+omit = [
+    "*/tests/*",
+    "*/venv/*",
+    "*/__init__.py"
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -42,4 +48,5 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
 ]
