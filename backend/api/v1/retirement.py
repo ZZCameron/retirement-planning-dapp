@@ -7,11 +7,11 @@ import logging
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 
-from backendmodels.retirement_plan import (
+from backend.models.retirement_plan import (
     RetirementPlanInput,
     RetirementPlanOutput,
 )
-from backendservices.retirement_calculator import calculator
+from backend.services.retirement_calculator import calculator
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ async def get_retirement_rules():
     - RRIF minimum withdrawal factors
     - Tax withholding rates
     """
-    from backendmodels.canadian_rules import CanadianRetirementRules
+    from backend.models.canadian_rules import CanadianRetirementRules
     
     return JSONResponse({
         "year": "2024/2025",
