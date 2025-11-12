@@ -2,19 +2,12 @@
 Pytest configuration and fixtures.
 """
 
-import sys
-from pathlib import Path
-
-# Add backend/src to path
-backend_src = Path(__file__).parent.parent / "src"
-sys.path.insert(0, str(backend_src))
-
 import pytest
 from fastapi.testclient import TestClient
 
-from main import app
-from models.retirement_plan import RetirementPlanInput
-from models.canadian_rules import Province
+from backend.main import app
+from backend.models.retirement_plan import RetirementPlanInput
+from backend.models.canadian_rules import Province
 
 
 @pytest.fixture

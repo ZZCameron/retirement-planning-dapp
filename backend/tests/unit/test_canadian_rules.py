@@ -2,15 +2,8 @@
 Unit tests for Canadian retirement rules.
 """
 
-import sys
-from pathlib import Path
-
-# Add backend/src to path
-backend_src = Path(__file__).parent.parent.parent / "src"
-sys.path.insert(0, str(backend_src))
-
 import pytest
-from models.canadian_rules import canadian_rules, Province
+from backend.models.canadian_rules import canadian_rules, Province
 
 
 class TestRRIFRules:

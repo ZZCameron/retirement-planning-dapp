@@ -10,9 +10,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from .api.v1 import retirement
-from .config import settings
-from .models.retirement_plan import HealthCheckResponse
+from backend.api.v1 import retirement
+from backend.config import settings
+from backend.models.retirement_plan import HealthCheckResponse
 
 # Configure logging
 logging.basicConfig(
@@ -91,7 +91,7 @@ if __name__ == "__main__":
     import uvicorn
     
     uvicorn.run(
-        "main:app",
+        "backend.main:app",
         host=settings.api_host,
         port=settings.api_port,
         reload=settings.api_reload,

@@ -2,12 +2,6 @@
 Integration tests for API endpoints.
 """
 
-import sys
-from pathlib import Path
-
-backend_src = Path(__file__).parent.parent.parent / "src"
-sys.path.insert(0, str(backend_src))
-
 import pytest
 from fastapi import status
 

@@ -2,14 +2,8 @@
 Unit tests for retirement calculator.
 """
 
-import sys
-from pathlib import Path
-
-backend_src = Path(__file__).parent.parent.parent / "src"
-sys.path.insert(0, str(backend_src))
-
 import pytest
-from services.retirement_calculator import calculator
+from backend.services.retirement_calculator import calculator
 
 
 class TestRetirementCalculator:

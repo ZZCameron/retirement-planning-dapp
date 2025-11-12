@@ -6,12 +6,12 @@ Implements Canadian retirement rules and projections.
 from typing import List
 import logging
 
-from ..models.retirement_plan import (
+from backendmodels.retirement_plan import (
     RetirementPlanInput,
     RetirementPlanOutput,
     YearlyProjection
 )
-from ..models.canadian_rules import canadian_rules
+from backendmodels.canadian_rules import canadian_rules
 
 logger = logging.getLogger(__name__)
 
