@@ -2,6 +2,12 @@
 Integration tests for API endpoints.
 """
 
+import sys
+from pathlib import Path
+
+backend_src = Path(__file__).parent.parent.parent / "src"
+sys.path.insert(0, str(backend_src))
+
 import pytest
 from fastapi import status
 
@@ -37,19 +43,16 @@ class TestRetirementAPI:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         
-        # Check response structure
         assert "projections" in data
         assert "final_balance" in data
         assert "success" in data
         assert "recommendations" in data
-        
-        # Check projections
         assert len(data["projections"]) > 0
     
     def test_calculate_endpoint_invalid_age(self, client, sample_plan_input):
         """Test calculation with invalid retirement age."""
         invalid_input = sample_plan_input.model_copy()
-        invalid_input.retirement_age = 30  # Before current age
+        invalid_input.retirement_age = 30
         
         response = client.post(
             "/api/v1/retirement/calculate",
@@ -63,7 +66,6 @@ class TestRetirementAPI:
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         
-        # Check key fields exist
         assert "rrsp_contribution_limit" in data
         assert "cpp_max_monthly_at_65" in data
         assert "oas_max_monthly_65_74" in data

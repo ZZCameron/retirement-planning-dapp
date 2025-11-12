@@ -2,8 +2,15 @@
 Unit tests for Canadian retirement rules.
 """
 
+import sys
+from pathlib import Path
+
+# Add backend/src to path
+backend_src = Path(__file__).parent.parent.parent / "src"
+sys.path.insert(0, str(backend_src))
+
 import pytest
-from backend.src.models.canadian_rules import canadian_rules, Province
+from models.canadian_rules import canadian_rules, Province
 
 
 class TestRRIFRules:
@@ -47,7 +54,6 @@ class TestCPPRules:
         """Test CPP taken at age 60 (36% reduction)."""
         base_amount = 1000
         adjusted = canadian_rules.calculate_cpp_adjustment(60, base_amount)
-        # 60 months early * 0.6% = 36% reduction
         expected = base_amount * (1 - 0.36)
         assert abs(adjusted - expected) < 1.0
     
@@ -55,7 +61,6 @@ class TestCPPRules:
         """Test CPP delayed to age 70 (42% increase)."""
         base_amount = 1000
         adjusted = canadian_rules.calculate_cpp_adjustment(70, base_amount)
-        # 60 months late * 0.7% = 42% increase
         expected = base_amount * (1 + 0.42)
         assert abs(adjusted - expected) < 1.0
     
