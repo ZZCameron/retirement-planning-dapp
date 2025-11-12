@@ -1,0 +1,49 @@
+retirement-planning-dapp/
+── .vscode/                      # .json files unique to thie app
+│   └── extensions.json
+│   └── settings.json
+├── .github/                      # GitHub workflows and templates
+│   └── workflows/
+│       ├── ci.yml               # Continuous Integration
+│       └── security.yml         # Security scanning
+├── backend/                     # Python backend (FastAPI)
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── main.py              # FastAPI entry point
+│   │   ├── api/                 # API routes
+│   │   │   ├── __init__.py
+│   │   │   └── v1/
+│   │   │       ├── __init__.py
+│   │   │       └── retirement.py
+│   │   ├── models/              # Data models
+│   │   │   ├── __init__.py
+│   │   │   ├── country_rules.py
+│   │   │   └── retirement_plan.py
+│   │   ├── services/            # Business logic
+│   │   │   ├── __init__.py
+│   │   │   ├── canadian_rules.py
+│   │   │   └── monte_carlo.py
+│   │   └── utils/               # Utilities
+│   │       ├── __init__.py
+│   │       └── validators.py
+│   ├── tests/                   # Test suite
+│   │   ├── __init__.py
+│   │   ├── unit/
+│   │   ├── integration/
+│   │   └── conftest.py
+│   ├── requirements.txt         # Production dependencies
+│   ├── requirements-dev.txt     # Development dependencies
+│   └── Dockerfile              # Container configuration
+├── frontend/                    # React frontend (future)
+├── contracts/                   # Solana smart contracts (future)
+├── docs/                        # Documentation
+│   ├── API.md
+│   └── DEVELOPMENT.md
+├── scripts/                     # Utility scripts
+│   └── setup_dev.sh
+├── .env.example                # Environment variables template
+├── .gitignore
+├── .pre-commit-config.yaml     # Code quality hooks
+├── docker-compose.yml          # Local development stack
+├── pyproject.toml              # Python project config
+└── README.md
