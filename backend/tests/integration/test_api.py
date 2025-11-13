@@ -71,7 +71,7 @@ class TestRetirementAPIErrorHandling:
     def test_calculate_negative_age(self, client):
         """Test API rejects negative age (ValueError path)."""
         invalid_data = {
-            "current_age": -5,  # Invalid!
+            "current_age": -5,
             "retirement_age": 65,
             "life_expectancy": 90,
             "province": "Ontario",
@@ -85,7 +85,7 @@ class TestRetirementAPIErrorHandling:
             "cpp_start_age": 65,
             "oas_start_age": 65,
             "desired_annual_spending": 50000,
-            "has_spouse": false
+            "has_spouse": False  # ← Changed to capital F
         }
         
         response = client.post(
@@ -93,14 +93,12 @@ class TestRetirementAPIErrorHandling:
             json=invalid_data
         )
         
-        # Should return 422 Unprocessable Entity
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-        # This tests lines 56-60!
     
     def test_calculate_retirement_before_current_age(self, client, sample_plan_input):
         """Test API rejects retirement age before current age."""
         invalid_input = sample_plan_input.model_copy()
-        invalid_input.retirement_age = 30  # Before current_age of 35
+        invalid_input.retirement_age = 30
         
         response = client.post(
             "/api/v1/retirement/calculate",
@@ -108,12 +106,11 @@ class TestRetirementAPIErrorHandling:
         )
         
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-        # Also tests lines 56-60
     
     def test_calculate_invalid_return_rate(self, client, sample_plan_input):
         """Test API rejects invalid return rate."""
         invalid_input = sample_plan_input.model_copy()
-        invalid_input.expected_return = 1.5  # 150% return - unrealistic!
+        invalid_input.expected_return = 1.5
         
         response = client.post(
             "/api/v1/retirement/calculate",
@@ -121,4 +118,3 @@ class TestRetirementAPIErrorHandling:
         )
         
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
-        # Tests validation error handling
