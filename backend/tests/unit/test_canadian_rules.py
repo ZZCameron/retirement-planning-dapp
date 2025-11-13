@@ -83,3 +83,19 @@ class TestWithholdingTax:
         tax = canadian_rules.calculate_rrif_withholding_tax(20000, Province.ON)
         expected = 20000 * 0.30
         assert tax == expected
+
+
+class TestTFSARules:
+    """Test TFSA contribution rules (NEW FEATURE)."""
+    
+    def test_tfsa_contribution_room_2024(self):
+        """Test TFSA contribution room calculation."""
+        # This test will FAIL because function doesn't exist yet
+        room = canadian_rules.calculate_tfsa_room(
+            birth_year=1990,
+            current_year=2024,
+            previous_contributions=50000
+        )
+        
+        # Expected: 95000 (cumulative limit) - 50000 (used) = 45000
+        assert room == 45000
