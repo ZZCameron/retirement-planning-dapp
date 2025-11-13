@@ -213,6 +213,28 @@ class CanadianRetirementRules:
         
         # Clawback cannot exceed total OAS
         return min(clawback, base_oas)
+    
+    @classmethod
+    def calculate_tfsa_room(cls, birth_year: int, current_year: int, previous_contributions: float) -> float:
+        """
+        Calculate available TFSA contribution room.
+        
+        Args:
+            birth_year: Year person was born
+            current_year: Current year
+            previous_contributions: Total contributions made so far
+            
+        Returns:
+            Available contribution room
+        """
+        # TFSA started in 2009, must be 18+
+        eligible_year = max(2009, birth_year + 18)
+        years_eligible = current_year - eligible_year + 1
+        
+        # Cumulative limit (simplified - actual varies by year)
+        cumulative_limit = cls.TFSA_CUMULATIVE_LIMIT_2024
+        
+        return max(0, cumulative_limit - previous_contributions)
 
 
 # Singleton instance
