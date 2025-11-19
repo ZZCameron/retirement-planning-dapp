@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retirement Planning Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏦 Canadian Retirement Planning Calculator</h1>
+            <p class="subtitle">Plan your financial future with confidence</p>
+        </header>
+
+        <!-- Wallet Connection Section -->
+        <div class="wallet-section">
+            <button id="connectWallet" class="btn btn-primary">
+                Connect Phantom Wallet
+            </button>
+            <div id="walletInfo" class="wallet-info hidden">
+                <span>Connected: <strong id="walletAddress"></strong></span>
+                <button id="disconnectWallet" class="btn btn-secondary">Disconnect</button>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="status-message hidden"></div>
+        <div id="errorMessage" class="error-message hidden"></div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Input Form -->
+            <div class="form-section">
+                <h2>Your Retirement Plan</h2>
+                <form id="retirementForm">
+                    
+                    <!-- Timeline -->
+                    <h3>Timeline & Location</h3>
+                    <div class="form-grid-4">
+                        <div class="form-group">
+                            <label for="currentAge">Current Age</label>
+                            <input type="number" id="currentAge" min="18" max="100" value="35" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="retirementAge">Retirement Age</label>
+                            <input type="number" id="retirementAge" min="55" max="75" value="65" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="lifeExpectancy">Life Expectancy</label>
+                            <input type="number" id="lifeExpectancy" min="65" max="120" value="90" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="province">Province</label>
+                            <select id="province" required>
+                                <option value="Ontario">Ontario</option>
+                                <option value="British Columbia">British Columbia</option>
+                                <option value="Alberta">Alberta</option>
+                                <option value="Quebec">Quebec</option>
+                                <option value="Manitoba">Manitoba</option>
+                                <option value="Saskatchewan">Saskatchewan</option>
+                                <option value="Nova Scotia">Nova Scotia</option>
+                                <option value="New Brunswick">New Brunswick</option>
+                                <option value="Prince Edward Island">PEI</option>
+                                <option value="Newfoundland and Labrador">Newfoundland</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Current Savings -->
+                    <h3>Current Savings</h3>
+                    <div class="form-grid-3">
+                        <div class="form-group">
+                            <label for="rrspBalance">RRSP Balance ($)</label>
+                            <input type="number" id="rrspBalance" min="0" step="1000" value="100000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tfsaBalance">TFSA Balance ($)</label>
+                            <input type="number" id="tfsaBalance" min="0" step="1000" value="30000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nonRegistered">Non-Registered ($)</label>
+                            <input type="number" id="nonRegistered" min="0" step="1000" value="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Contributions & Assumptions -->
+                    <h3>Contributions & Investment Assumptions</h3>
+                    <div class="form-grid-4">
+                        <div class="form-group">
+                            <label for="monthlyContribution">Monthly Savings ($)</label>
+                            <input type="number" id="monthlyContribution" min="0" step="100" value="1500" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expectedReturn">Expected Return (%)</label>
+                            <input type="number" id="expectedReturn" min="0" max="25" step="0.1" value="7" required>
+                            <span class="info-text">Historical avg: 7-8%</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="expectedInflation">Inflation Rate (%)</label>
+                            <input type="number" id="expectedInflation" min="0" max="10" step="0.1" value="2.5" required>
+                            <span class="info-text">BoC target: 2%</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="desiredSpending">Annual Spending ($)</label>
+                            <input type="number" id="desiredSpending" min="0" step="1000" value="60000" required>
+                            <span class="info-text">In today's dollars</span>
+                        </div>
+                    </div>
+
+                    <!-- Government Benefits with Calculator -->
+                    <h3>Government Benefits <span class="info-badge">2024 Rates</span></h3>
+                    
+                    <div class="form-grid-2">
+                        <!-- CPP Section -->
+                        <div>
+                            <div class="form-grid-2">
+                                <div class="form-group">
+                                    <label for="cppStartAge">CPP Start Age</label>
+                                    <input type="number" id="cppStartAge" min="60" max="70" value="65" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="cppMonthly">CPP at Age 65 ($)</label>
+                                    <input type="number" id="cppMonthly" min="0" max="2000" step="50" value="1200" required>
+                                </div>
+                            </div>
+                            
+                            <div class="benefit-box">
+                                <h4>📊 Your CPP Projection</h4>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Monthly at start age:</span>
+                                    <span class="benefit-value" id="cppAdjusted">$1,200</span>
+                                </div>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Annual amount:</span>
+                                    <span class="benefit-value" id="cppAnnual">$14,400</span>
+                                </div>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Adjustment:</span>
+                                    <span class="benefit-value" id="cppAdjustment">0%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OAS Section -->
+                        <div>
+                            <div class="form-group">
+                                <label for="oasStartAge">OAS Start Age</label>
+                                <input type="number" id="oasStartAge" min="65" max="70" value="65" required>
+                                <span class="info-text">Max monthly: $713 (65-74), $785 (75+)</span>
+                            </div>
+                            
+                            <div class="benefit-box">
+                                <h4>📊 Your OAS Projection</h4>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Monthly (65-74):</span>
+                                    <span class="benefit-value">$713</span>
+                                </div>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Monthly (75+):</span>
+                                    <span class="benefit-value">$785</span>
+                                </div>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Annual (65-74):</span>
+                                    <span class="benefit-value">$8,556</span>
+                                </div>
+                                <div class="benefit-info">
+                                    <span class="benefit-label">Clawback starts at:</span>
+                                    <span class="benefit-value">$90,997</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="form-actions">
+                        <button type="button" id="testCalculate" class="btn btn-secondary">
+                            🧪 Test Calculate (Free)
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            💰 Calculate with Payment (0.01 SOL)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section hidden">
+                <h2>📈 Your Retirement Projection</h2>
+                
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h3>Years to Retirement</h3>
+                        <p class="big-number" id="yearsToRetirement">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Final Balance</h3>
+                        <p class="big-number" id="finalBalance">-</p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Plan Status</h3>
+                        <p class="big-number" id="planStatus">-</p>
+                    </div>
+                </div>
+
+                <div class="recommendations">
+                    <h3>💡 Recommendations</h3>
+                    <ul id="recommendationsList"></ul>
+                </div>
+
+                <div class="warnings hidden" id="warningsSection">
+                    <h3>⚠️ Warnings</h3>
+                    <ul id="warningsList"></ul>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Balance Over Time</h3>
+                    <canvas id="balanceChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

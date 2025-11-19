@@ -33,8 +33,11 @@ retirement-planning-dapp/
 │   │   └── conftest.py
 │   ├── requirements.txt         # Production dependencies
 │   ├── requirements-dev.txt     # Development dependencies
-│   └── Dockerfile              # Container configuration
+│   └── Dockerfile               # Container configuration
 ├── frontend/                    # React frontend (future)
+│   ├── index.html
+│   └── app.js
+|   └── styles.css
 ├── contracts/                   # Solana smart contracts (future)
 ├── docs/                        # Documentation
 │   ├── API.md
