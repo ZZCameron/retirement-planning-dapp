@@ -52,7 +52,7 @@ class RetirementPlanInput(BaseModel):
     # Personal Information
     current_age: int = Field(ge=18, le=100, description="Current age")
     retirement_age: int = Field(ge=55, le=75, description="Planned retirement age")
-    life_expectancy: int = Field(ge=65, le=120, description="Expected lifespan")
+    life_expectancy: int = Field(ge=65, le=150, description="Expected lifespan")
     province: Province = Field(description="Province of residence")
     
     # Current Balances
