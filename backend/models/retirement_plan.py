@@ -8,6 +8,43 @@ from pydantic import BaseModel, Field, field_validator
 
 from .canadian_rules import Province
 
+class PensionIncome(BaseModel):
+    """
+    Single pension income stream with indexing.
+    
+    For current pensions: Set start_year to current year (2024/2025)
+    For future pensions: Set start_year to when pension begins
+    Indexing applies from start_year forward using compound interest.
+    """
+    monthly_amount: float = Field(
+        gt=0,
+        description="Current or expected monthly pension amount (CAD, gross)"
+    )
+    start_year: int = Field(
+        ge=2024,
+        le=2100,
+        description="Year pension starts (use current year if already receiving)"
+    )
+    end_year: Optional[int] = Field(
+        default=None,
+        description="Year pension ends (None = lifetime pension)"
+    )
+    indexing_rate: float = Field(
+        default=0.0,
+        ge=-5.0,
+        le=10.0,
+        description="Annual indexing rate (decimal, e.g., 0.02 for 2%)"
+    )
+    
+    @field_validator("end_year")
+    @classmethod
+    def validate_end_year(cls, v: Optional[int], info) -> Optional[int]:
+        """Ensure end year is after start year if provided."""
+        if v is not None:
+            start_year = info.data.get("start_year")
+            if start_year and v <= start_year:
+                raise ValueError("Pension end_year must be after start_year")
+        return v
 
 class RetirementPlanInput(BaseModel):
     """Input data for retirement planning calculations."""
@@ -61,7 +98,13 @@ class RetirementPlanInput(BaseModel):
         le=70,
         description="Age to start OAS"
     )
-    
+        
+    # Pension Income (Optional)
+    pension: Optional[PensionIncome] = Field(
+        default=None,
+        description="Optional pension income stream"
+    )
+
     # Retirement Spending
     desired_annual_spending: float = Field(
         ge=0,
