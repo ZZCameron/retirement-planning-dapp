@@ -1,4 +1,4 @@
-// Configuration
+// Configuration -->added to ensure the github repo was aligned
 const API_BASE_URL = 'http://localhost:8000';
 const SOLANA_NETWORK = 'devnet';
 const PAYMENT_AMOUNT = 0.01;
