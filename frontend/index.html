@@ -172,6 +172,48 @@
                         </div>
                     </div>
 
+                    <!-- Pension Income (Optional) -->
+                    <h3>🏛️ Pension Income <span class="info-badge">Optional</span></h3>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="includePension">
+                            Include pension income in calculations
+                        </label>
+                    </div>
+                    
+                    <div id="pensionFields" class="hidden">
+                        <div class="form-grid-4">
+                            <div class="form-group">
+                                <label for="pensionMonthly">Monthly Amount ($)</label>
+                                <input type="number" id="pensionMonthly" min="0" step="100" value="4300">
+                                <span class="info-text">Current or expected amount</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="pensionStartYear">Start Year</label>
+                                <input type="number" id="pensionStartYear" min="2024" max="2100" value="2024">
+                                <span class="info-text">Use current year if receiving now</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="pensionIndexing">Annual Indexing (%)</label>
+                                <input type="number" id="pensionIndexing" min="-5" max="10" step="0.1" value="2.0">
+                                <span class="info-text">0 for fixed, 2% typical</span>
+                            </div>
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="pensionHasEndYear">
+                                    Pension ends at specific year
+                                </label>
+                                <input type="number" id="pensionEndYear" class="hidden" min="2024" max="2150" placeholder="End year">
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-box">
+                            <h4>ℹ️ Example</h4>
+                            <p>Military pension $4,300/mo starting 2024, indexed at 2% annually</p>
+                        </div>
+                    </div>
+
                     <!-- Action Buttons -->
                     <div class="form-actions">
                         <button type="button" id="testCalculate" class="btn btn-secondary">
