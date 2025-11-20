@@ -31,6 +31,11 @@ function setupEventListeners() {
     // CPP dynamic calculation
     document.getElementById('cppStartAge').addEventListener('input', updateCPPCalculation);
     document.getElementById('cppMonthly').addEventListener('input', updateCPPCalculation);
+
+    // Pension UI handlers
+    document.getElementById('includePension').addEventListener('change', togglePensionFields);
+    document.getElementById('pensionHasEndYear').addEventListener('change', togglePensionEndYear);
+
 }
 
 // Update CPP Calculation
@@ -52,7 +57,7 @@ function updateCPPCalculation() {
         adjustmentPercent = monthsLate * CPP_LATE_INCREASE_RATE * 100;
         adjustedAmount = baseAmount * (1 + (monthsLate * CPP_LATE_INCREASE_RATE));
     }
-    
+
     // Update display
     document.getElementById('cppAdjusted').textContent = 
         '$' + adjustedAmount.toLocaleString('en-CA', {maximumFractionDigits: 0});
@@ -60,6 +65,31 @@ function updateCPPCalculation() {
         '$' + (adjustedAmount * 12).toLocaleString('en-CA', {maximumFractionDigits: 0});
     document.getElementById('cppAdjustment').textContent = 
         (adjustmentPercent >= 0 ? '+' : '') + adjustmentPercent.toFixed(1) + '%';
+}
+// Toggle Pension Fields Visibility
+function togglePensionFields() {
+    const checkbox = document.getElementById('includePension');
+    const fields = document.getElementById('pensionFields');
+    
+    if (checkbox.checked) {
+        fields.classList.remove('hidden');
+    } else {
+        fields.classList.add('hidden');
+    }
+}
+
+// Toggle Pension End Year Field
+function togglePensionEndYear() {
+    const checkbox = document.getElementById('pensionHasEndYear');
+    const endYearField = document.getElementById('pensionEndYear');
+    
+    if (checkbox.checked) {
+        endYearField.classList.remove('hidden');
+        endYearField.required = true;
+    } else {
+        endYearField.classList.add('hidden');
+        endYearField.required = false;
+    }
 }
 
 // Wallet Functions
@@ -205,6 +235,24 @@ function getFormData() {
         desired_annual_spending: parseFloat(document.getElementById('desiredSpending').value),
         has_spouse: false,
     };
+
+    // Add pension data if checkbox is checked (NEW!)
+    if (document.getElementById('includePension').checked) {
+        const pensionData = {
+            monthly_amount: parseFloat(document.getElementById('pensionMonthly').value),
+            start_year: parseInt(document.getElementById('pensionStartYear').value),
+            indexing_rate: parseFloat(document.getElementById('pensionIndexing').value) / 100  // Convert % to decimal
+        };
+        
+        // Add end_year if specified
+        if (document.getElementById('pensionHasEndYear').checked) {
+            pensionData.end_year = parseInt(document.getElementById('pensionEndYear').value);
+        }
+        
+        data.pension = pensionData;
+    }
+    
+    return data;
 }
 
 // Display Functions
