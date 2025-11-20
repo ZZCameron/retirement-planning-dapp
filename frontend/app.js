@@ -218,7 +218,8 @@ async function makePayment() {
 }
 
 function getFormData() {
-    return {
+    // Build the base data object
+    const data = {
         current_age: parseInt(document.getElementById('currentAge').value),
         retirement_age: parseInt(document.getElementById('retirementAge').value),
         life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
@@ -235,8 +236,8 @@ function getFormData() {
         desired_annual_spending: parseFloat(document.getElementById('desiredSpending').value),
         has_spouse: false,
     };
-
-    // Add pension data if checkbox is checked (NEW!)
+    
+    // Add pension data if checkbox is checked
     if (document.getElementById('includePension').checked) {
         const pensionData = {
             monthly_amount: parseFloat(document.getElementById('pensionMonthly').value),
@@ -252,6 +253,7 @@ function getFormData() {
         data.pension = pensionData;
     }
     
+    // Now return the complete data object
     return data;
 }
 
