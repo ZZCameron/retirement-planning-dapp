@@ -3,18 +3,19 @@ Core retirement planning calculation service.
 Implements Canadian retirement rules and projections.
 """
 
-from typing import List
+from typing import List, Optional
 import logging
 
 from backend.models.retirement_plan import (
     RetirementPlanInput,
     RetirementPlanOutput,
-    YearlyProjection
+    YearlyProjection,
+    PensionIncome
 )
+
 from backend.models.canadian_rules import canadian_rules
 
 logger = logging.getLogger(__name__)
-
 
 class RetirementCalculator:
     """
@@ -134,6 +135,17 @@ class RetirementCalculator:
                 if current_age >= plan_input.cpp_start_age:
                     cpp_income = adjusted_cpp * 12  # Annual amount
                 
+                # Calculate pension income (NEW!)
+                pension_income = 0.0
+                if plan_input.pension:
+                    # Calculate year from current_age
+                    projection_year = plan_input.pension.start_year + (current_age - plan_input.current_age)
+                    pension_income = self._calculate_pension_for_year(
+                        projection_year,
+                        plan_input.pension,
+                        plan_input.pension.start_year
+                    )
+                
                 oas_income = 0.0
                 if current_age >= plan_input.oas_start_age:
                     # Base OAS amount
@@ -144,12 +156,12 @@ class RetirementCalculator:
                     annual_oas = monthly_oas * 12
                     
                     # Calculate income for OAS clawback (rough estimate)
-                    estimated_income = rrif_withdrawal + cpp_income
+                    estimated_income = rrif_withdrawal + cpp_income + pension_income
                     clawback = self.rules.calculate_oas_clawback(estimated_income, current_age)
                     oas_income = max(0, annual_oas - clawback)
                 
                 # Calculate total income from all sources
-                gross_income = rrif_withdrawal + cpp_income + oas_income
+                gross_income = rrif_withdrawal + cpp_income + oas_income + pension_income
                 
                 # Determine additional withdrawals needed
                 other_withdrawals = 0.0
@@ -177,8 +189,8 @@ class RetirementCalculator:
                         )
                 
                 # Estimate taxes (simplified: ~25% effective rate on taxable income)
-                # RRIF and CPP are taxable, OAS is taxable, TFSA is not
-                taxable_income = rrif_withdrawal + cpp_income + oas_income
+                # RRIF, CPP, OAS, and Pension are taxable; TFSA is not
+                taxable_income = rrif_withdrawal + cpp_income + oas_income + pension_income
                 taxes_estimated = taxable_income * 0.25
                 
                 # Net income after taxes
@@ -264,7 +276,43 @@ class RetirementCalculator:
             warnings=warnings,
             recommendations=recommendations
         )
-
+    
+    def _calculate_pension_for_year(
+        self,
+        year: int,
+        pension: Optional['PensionIncome'],
+        current_year: int
+    ) -> float:
+        """
+        Calculate indexed pension amount for a specific year.
+        
+        Pension indexing compounds annually from start_year forward.
+        For current pensions, start_year should be current year.
+        
+        Args:
+            year: The projection year to calculate
+            pension: Optional pension income configuration
+            current_year: Current calendar year (e.g., 2024)
+            
+        Returns:
+            Annual pension amount for the year (0 if not applicable)
+        """
+        if not pension:
+            return 0.0
+        
+        # Pension hasn't started yet
+        if year < pension.start_year:
+            return 0.0
+        
+        # Pension has ended
+        if pension.end_year and year > pension.end_year:
+            return 0.0
+        
+        # Calculate compound indexing from start year
+        years_indexed = year - pension.start_year
+        indexed_monthly = pension.monthly_amount * ((1 + pension.indexing_rate) ** years_indexed)
+        
+        return indexed_monthly * 12  # Return annual amount
 
 # Singleton instance
 calculator = RetirementCalculator()
