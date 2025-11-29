@@ -118,10 +118,10 @@ class RetirementPlanInput(BaseModel):
     @field_validator("retirement_age")
     @classmethod
     def validate_retirement_age(cls, v: int, info) -> int:
-        """Ensure retirement age is after current age."""
+        """Ensure retirement age is at or after current age."""
         current_age = info.data.get("current_age")
-        if current_age and v <= current_age:
-            raise ValueError("Retirement age must be greater than current age")
+        if current_age and v < current_age:  # Changed <= to <
+            raise ValueError("Retirement age must be greater than or equal to current age")
         return v
     
     @field_validator("life_expectancy")
