@@ -1,25 +1,32 @@
+# Development Dependencies for Retirement Planning DApp
+# Includes all production requirements plus development tools
+
+# Include production dependencies
 -r requirements.txt
 
-# Testing
-pytest==8.0.2
-pytest-cov==4.1.0
+# Testing Framework
+pytest==8.3.3
+pytest-cov==6.0.0
 pytest-asyncio==0.23.5
 pytest-mock==3.12.0
 
-# Code Quality
+# Code Formatting
 black==24.2.0
-flake8==7.0.0
-mypy==1.8.0
-pylint==3.0.3
 isort==5.13.2
+
+# Linting
+flake8==7.0.0
+pylint==3.0.3
+
+# Type Checking
+mypy==1.8.0
 
 # Security Scanning
 bandit==1.7.7
-# safety removed - conflicts with Pydantic 2.x
 
-# Pre-commit Hooks
+# Git Hooks
 pre-commit==3.6.2
 
-# Development Tools
+# Development REPL & Debugging
 ipython==8.21.0
 ipdb==0.13.13
