@@ -119,16 +119,20 @@ class RetirementCalculator:
                 # Calculate RRIF minimum withdrawal (if age 72+)
                 rrif_withdrawal = 0.0
                 if current_age >= self.rules.RRIF_MINIMUM_START_AGE:
-                    # Use spouse age if provided and younger
-                    withdrawal_age = current_age
-                    if plan_input.has_spouse and plan_input.spouse_age:
-                        spouse_current_age = plan_input.spouse_age + (current_age - plan_input.current_age)
-                        withdrawal_age = min(current_age, spouse_current_age)
-                    
-                    rrif_withdrawal = self.rules.calculate_rrif_minimum_withdrawal(
-                        rrsp_balance, 
-                        withdrawal_age
-                    )
+                    # Special case: Age 100 - must withdraw 100% (RRIF closes)
+                    if current_age >= 100:
+                        rrif_withdrawal = rrsp_balance  # Full withdrawal
+                    else:
+                        # Use spouse age if provided and younger
+                        withdrawal_age = current_age
+                        if plan_input.has_spouse and plan_input.spouse_age:
+                            spouse_current_age = plan_input.spouse_age + (current_age - plan_input.current_age)
+                            withdrawal_age = min(current_age, spouse_current_age)
+                        
+                        rrif_withdrawal = self.rules.calculate_rrif_minimum_withdrawal(
+                            rrsp_balance, 
+                            withdrawal_age
+                        )
                 
                 # Calculate government benefits
                 cpp_income = 0.0
