@@ -290,6 +290,22 @@ function displayResults(result) {
     
     drawChart(result.projections);
     document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+
+    // Find retirement age projection
+    const retirementProjection = result.projections.find(
+        p => p.age === result.input_summary.retirement_age
+    );
+
+    if (retirementProjection) {
+        document.getElementById('rrspValue').textContent = 
+            '$' + retirementProjection.rrsp_rrif_balance.toLocaleString('en-CA', {maximumFractionDigits: 0});
+        document.getElementById('tfsaValue').textContent = 
+            '$' + retirementProjection.tfsa_balance.toLocaleString('en-CA', {maximumFractionDigits: 0});
+        document.getElementById('nonRegValue').textContent = 
+            '$' + retirementProjection.non_registered_balance.toLocaleString('en-CA', {maximumFractionDigits: 0});
+        document.getElementById('totalValue').textContent = 
+            '$' + retirementProjection.total_balance.toLocaleString('en-CA', {maximumFractionDigits: 0});
+    }
 }
 
 function drawChart(projections) {
@@ -299,45 +315,108 @@ function drawChart(projections) {
         window.retirementChart.destroy();
     }
     
+    // Extract data for each account type
     const ages = projections.map(p => p.age);
-    const balances = projections.map(p => p.total_balance);
+    const rrspBalances = projections.map(p => p.rrsp_rrif_balance);
+    const tfsaBalances = projections.map(p => p.tfsa_balance);
+    const nonRegBalances = projections.map(p => p.non_registered_balance);
+    const totalBalances = projections.map(p => p.total_balance);
     
     window.retirementChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: ages,
-            datasets: [{
-                label: 'Total Balance',
-                data: balances,
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 3,
-                tension: 0.4,
-                fill: true
-            }]
+            datasets: [
+                {
+                    label: 'RRSP/RRIF',
+                    data: rrspBalances,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'TFSA',
+                    data: tfsaBalances,
+                    borderColor: '#764ba2',
+                    backgroundColor: 'rgba(118, 75, 162, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Non-Registered',
+                    data: nonRegBalances,
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: false
+                },
+                {
+                    label: 'Total',
+                    data: totalBalances,
+                    borderColor: '#4facfe',
+                    backgroundColor: 'rgba(79, 172, 254, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: false
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {display: false},
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15
+                    }
+                },
                 tooltip: {
+                    mode: 'index',
+                    intersect: false,
                     callbacks: {
                         label: function(context) {
-                            return '$' + context.parsed.y.toLocaleString('en-CA', {maximumFractionDigits: 0});
+                            return context.dataset.label + ': $' + 
+                                context.parsed.y.toLocaleString('en-CA', {maximumFractionDigits: 0});
                         }
                     }
                 }
             },
             scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Age'
+                    }
+                },
                 y: {
                     beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Balance ($)'
+                    },
                     ticks: {
                         callback: function(value) {
-                            return '$' + (value / 1000) + 'K';
+                            if (value >= 1000000) {
+                                return '$' + (value / 1000000).toFixed(1) + 'M';
+                            } else if (value >= 1000) {
+                                return '$' + (value / 1000).toFixed(0) + 'K';
+                            }
+                            return '$' + value;
                         }
                     }
                 }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
             }
         }
     });

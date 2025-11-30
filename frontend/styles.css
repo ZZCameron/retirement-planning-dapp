@@ -314,6 +314,52 @@ header h1 {
     font-weight: bold;
 }
 
+/* Account Breakdown Summary */
+.account-summary {
+    margin: 20px 0;
+}
+
+.account-summary h3 {
+    color: #667eea;
+    margin-bottom: 15px;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.account-card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e8e8e8;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.account-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.account-card h4 {
+    color: #666;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.account-value {
+    font-size: 1.8em;
+    font-weight: bold;
+    color: #667eea;
+    margin: 0;
+}
+
 /* Recommendations and Warnings */
 .recommendations,
 .warnings {
