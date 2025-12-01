@@ -5,9 +5,20 @@ Using Pydantic v2 for validation.
 
 from typing import Optional
 from pydantic import BaseModel, Field, field_validator
+from enum import Enum
 
 from .canadian_rules import Province
 
+class TaxCalculationMode(str, Enum):
+    """
+    Tax calculation accuracy mode.
+    
+    SIMPLIFIED: Free tier - uses flat 25% rate (fast, less accurate)
+    ACCURATE: Premium tier - uses provincial tax calculator (accurate, recommended)
+    """
+    SIMPLIFIED = "simplified"
+    ACCURATE = "accurate"
+    
 class PensionIncome(BaseModel):
     """
     Single pension income stream with indexing.
@@ -141,7 +152,16 @@ class RetirementPlanInput(BaseModel):
         if has_spouse and v is None:
             raise ValueError("Must provide spouse_age when has_spouse is True")
         return v
-
+    
+    # Tax calculation mode (default to free tier)
+    tax_calculation_mode: TaxCalculationMode = Field(
+        default=TaxCalculationMode.SIMPLIFIED,
+        description="Tax calculation accuracy: 'simplified' (25% flat) or 'accurate' (provincial)"
+    )
+    
+    # Province (only used if tax_calculation_mode == ACCURATE)
+    # Note: 'province' field may already exist - check first!
+    # If it exists, just update the description to mention it's used for accurate tax mode
 
 class YearlyProjection(BaseModel):
     """Financial projection for a single year."""

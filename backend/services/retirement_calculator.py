@@ -10,10 +10,13 @@ from backend.models.retirement_plan import (
     RetirementPlanInput,
     RetirementPlanOutput,
     YearlyProjection,
-    PensionIncome
+    PensionIncome,
+    TaxCalculationMode
 )
 
 from backend.models.canadian_rules import canadian_rules
+
+from backend.models.tax_calculator import calculate_canadian_tax
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +31,31 @@ class RetirementCalculator:
     def __init__(self):
         """Initialize calculator with Canadian rules."""
         self.rules = canadian_rules
+
+    def _calculate_taxes(self, taxable_income: float, plan_input: 'RetirementPlanInput') -> float:
+        """
+        Calculate income taxes based on selected calculation mode.
+        
+        Args:
+            taxable_income: Annual taxable income (excludes TFSA withdrawals)
+            plan_input: RetirementPlanInput with tax_calculation_mode and province
+            
+        Returns:
+            Total tax owing (federal + provincial)
+        """
+        if plan_input.tax_calculation_mode == TaxCalculationMode.SIMPLIFIED:
+            # Free tier: Simple 25% flat rate approximation
+            # Fast but less accurate - good for quick estimates
+            return taxable_income * 0.25
+        else:
+            # Premium tier: Accurate provincial tax calculation
+            # Uses 2024 federal and provincial tax brackets with BPA credits
+            province = plan_input.province
+            if taxable_income <= 0:
+                return 0.0
+            
+            tax_result = calculate_canadian_tax(taxable_income, province)
+            return tax_result['total_tax']
     
     def calculate_plan(self, plan_input: RetirementPlanInput) -> RetirementPlanOutput:
         """
@@ -192,13 +220,62 @@ class RetirementCalculator:
                             f"Insufficient funds - shortfall of ${shortfall:,.0f}"
                         )
                 
-                # Estimate taxes (simplified: ~25% effective rate on taxable income)
-                # RRIF, CPP, OAS, and Pension are taxable; TFSA is not
-                taxable_income = rrif_withdrawal + cpp_income + oas_income + pension_income
-                taxes_estimated = taxable_income * 0.25
+                # Iteratively calculate taxes and adjust withdrawals if needed
+                # (taxes can create a shortfall, requiring more withdrawals, which may increase taxes)
+                # Initialize tax variables (will be calculated in loop below)
+                taxes_estimated = 0.0
+                net_income = 0.0
                 
-                # Net income after taxes
-                net_income = gross_income + other_withdrawals - taxes_estimated
+                # Iteratively calculate taxes and adjust withdrawals if needed
+                max_iterations = 3  # Prevent infinite loops
+
+                for iteration in range(max_iterations):
+                    # Calculate taxable income (RRIF, CPP, OAS, pension are taxable; TFSA is not)
+                    taxable_income = gross_income  # Base taxable income
+                    
+                    # Calculate taxes using selected mode
+                    taxes_estimated = self._calculate_taxes(taxable_income, plan_input)
+                    
+                    # Check if we have enough after taxes to cover spending
+                    net_income = gross_income + other_withdrawals - taxes_estimated
+                    
+                    if net_income >= adjusted_spending:
+                        # We have enough! Break out of loop
+                        break
+                    
+                    # Need more withdrawals to cover tax shortfall
+                    tax_shortfall = adjusted_spending - net_income
+                    
+                    # Track withdrawals in this iteration
+                    additional_withdrawals = 0.0
+                    
+                    # Withdraw from TFSA first (tax-free, won't increase taxes)
+                    if tfsa_balance > 0:
+                        tfsa_tax_withdrawal = min(tax_shortfall, tfsa_balance)
+                        tfsa_balance -= tfsa_tax_withdrawal
+                        other_withdrawals += tfsa_tax_withdrawal
+                        additional_withdrawals += tfsa_tax_withdrawal
+                        tax_shortfall -= tfsa_tax_withdrawal
+                    
+                    # Then from non-registered if still short
+                    if tax_shortfall > 0 and non_reg_balance > 0:
+                        non_reg_tax_withdrawal = min(tax_shortfall, non_reg_balance)
+                        non_reg_balance -= non_reg_tax_withdrawal
+                        other_withdrawals += non_reg_tax_withdrawal
+                        additional_withdrawals += non_reg_tax_withdrawal
+                        # Note: This increases taxable income, so we'll iterate again
+                        taxable_income += non_reg_tax_withdrawal
+                        tax_shortfall -= non_reg_tax_withdrawal
+                    
+                    # If we couldn't cover the shortfall or added no new withdrawals, break
+                    if additional_withdrawals == 0 or tax_shortfall > 100:
+                        if tax_shortfall > 100:
+                            warnings.append(
+                                f"Year {year} (age {current_age}): "
+                                f"Cannot cover taxes - shortfall of ${tax_shortfall:,.0f} after tax"
+                            )
+                        break
+
                 
                 # Update RRSP/RRIF balance after withdrawal
                 rrsp_balance -= rrif_withdrawal
