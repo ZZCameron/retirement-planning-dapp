@@ -49,3 +49,4 @@ Thumbs.db
 !tsconfig.json
 !pyproject.toml
 *.backup
+*.before_*
