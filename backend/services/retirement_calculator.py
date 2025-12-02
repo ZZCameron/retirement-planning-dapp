@@ -161,6 +161,8 @@ class RetirementCalculator:
                             rrsp_balance, 
                             withdrawal_age
                         )
+                # Subtract mandatory RRIF withdrawal from balance before calculating additional needs
+                rrsp_balance -= rrif_withdrawal
                 
                 # Calculate government benefits
                 cpp_income = 0.0
@@ -195,8 +197,9 @@ class RetirementCalculator:
                 # Calculate total income from all sources
                 gross_income = rrif_withdrawal + cpp_income + oas_income + pension_income
                 
-                # Determine additional withdrawals needed
+                # STEP 1: Cover spending needs FIRST (before calculating taxes)
                 other_withdrawals = 0.0
+                rrsp_additional_withdrawal = 0.0  # Track taxable RRSP withdrawals
                 if gross_income < adjusted_spending:
                     shortfall = adjusted_spending - gross_income
                     
@@ -212,74 +215,57 @@ class RetirementCalculator:
                         non_reg_balance -= non_reg_withdrawal
                         other_withdrawals += non_reg_withdrawal
                         shortfall -= non_reg_withdrawal
-                    
-                    # Warning if still short
-                    if shortfall > 100:  # Allow small rounding
+                        
+                    # Finally, withdraw from RRSP/RRIF if still short
+                    # (Note: This is in addition to any mandatory RRIF minimum withdrawal)
+                    if shortfall > 0:
+                        rrsp_additional_withdrawal = min(shortfall, rrsp_balance)
+                        rrsp_balance -= rrsp_additional_withdrawal
+                        rrif_withdrawal += rrsp_additional_withdrawal  # Add to total RRIF withdrawal
+                        other_withdrawals += rrsp_additional_withdrawal
+                        shortfall -= rrsp_additional_withdrawal
+
+                    # Warning if STILL short after all withdrawals
+                    if shortfall > 100:
                         warnings.append(
                             f"Year {year} (age {current_age}): "
                             f"Insufficient funds - shortfall of ${shortfall:,.0f}"
                         )
                 
-                # Iteratively calculate taxes and adjust withdrawals if needed
-                # (taxes can create a shortfall, requiring more withdrawals, which may increase taxes)
-                # Initialize tax variables (will be calculated in loop below)
-                taxes_estimated = 0.0
-                net_income = 0.0
+                # STEP 2: Now calculate taxes on taxable income
+                # Include: RRIF mandatory withdrawal, CPP, OAS, pension, AND any additional RRSP withdrawals
+                taxable_income = gross_income + rrsp_additional_withdrawal  # RRIF, CPP, OAS, pension, and additional RRSP withdrawals are taxable
+                # Note: TFSA withdrawals are NOT taxable, non-reg simplified as already taxed
+                taxes_estimated = self._calculate_taxes(taxable_income, plan_input)
                 
-                # Iteratively calculate taxes and adjust withdrawals if needed
-                max_iterations = 3  # Prevent infinite loops
+                # STEP 3: Check if we need MORE withdrawals to cover the tax bill
+                if taxes_estimated > 0:
+                    # Withdraw MORE from TFSA to cover taxes (tax-free withdrawal)
+                    tax_coverage_needed = taxes_estimated
 
-                for iteration in range(max_iterations):
-                    # Calculate taxable income (RRIF, CPP, OAS, pension are taxable; TFSA is not)
-                    taxable_income = gross_income  # Base taxable income
-                    
-                    # Calculate taxes using selected mode
-                    taxes_estimated = self._calculate_taxes(taxable_income, plan_input)
-                    
-                    # Check if we have enough after taxes to cover spending
-                    net_income = gross_income + other_withdrawals - taxes_estimated
-                    
-                    if net_income >= adjusted_spending:
-                        # We have enough! Break out of loop
-                        break
-                    
-                    # Need more withdrawals to cover tax shortfall
-                    tax_shortfall = adjusted_spending - net_income
-                    
-                    # Track withdrawals in this iteration
-                    additional_withdrawals = 0.0
-                    
-                    # Withdraw from TFSA first (tax-free, won't increase taxes)
                     if tfsa_balance > 0:
-                        tfsa_tax_withdrawal = min(tax_shortfall, tfsa_balance)
+                        tfsa_tax_withdrawal = min(tax_coverage_needed, tfsa_balance)
                         tfsa_balance -= tfsa_tax_withdrawal
                         other_withdrawals += tfsa_tax_withdrawal
-                        additional_withdrawals += tfsa_tax_withdrawal
-                        tax_shortfall -= tfsa_tax_withdrawal
+                        tax_coverage_needed -= tfsa_tax_withdrawal
                     
-                    # Then from non-registered if still short
-                    if tax_shortfall > 0 and non_reg_balance > 0:
-                        non_reg_tax_withdrawal = min(tax_shortfall, non_reg_balance)
+                    # If TFSA depleted, withdraw from non-registered for remaining taxes
+                    if tax_coverage_needed > 0 and non_reg_balance > 0:
+                        non_reg_tax_withdrawal = min(tax_coverage_needed, non_reg_balance)
                         non_reg_balance -= non_reg_tax_withdrawal
                         other_withdrawals += non_reg_tax_withdrawal
-                        additional_withdrawals += non_reg_tax_withdrawal
-                        # Note: This increases taxable income, so we'll iterate again
-                        taxable_income += non_reg_tax_withdrawal
-                        tax_shortfall -= non_reg_tax_withdrawal
+                        tax_coverage_needed -= non_reg_tax_withdrawal
                     
-                    # If we couldn't cover the shortfall or added no new withdrawals, break
-                    if additional_withdrawals == 0 or tax_shortfall > 100:
-                        if tax_shortfall > 100:
-                            warnings.append(
-                                f"Year {year} (age {current_age}): "
-                                f"Cannot cover taxes - shortfall of ${tax_shortfall:,.0f} after tax"
-                            )
-                        break
-
+                    # Warning if can't cover taxes
+                    if tax_coverage_needed > 100:
+                        warnings.append(
+                            f"Year {year} (age {current_age}): "
+                            f"Cannot cover tax bill of ${taxes_estimated:,.0f} - short ${tax_coverage_needed:,.0f}"
+                        )
                 
-                # Update RRSP/RRIF balance after withdrawal
-                rrsp_balance -= rrif_withdrawal
-                
+                # Calculate net income after taxes
+                net_income = gross_income + other_withdrawals - taxes_estimated
+                             
                 # Apply investment returns on remaining balances
                 rrsp_balance *= (1 + plan_input.expected_return)
                 tfsa_balance *= (1 + plan_input.expected_return)
