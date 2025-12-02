@@ -1,82 +1,61 @@
-# Next Session: Fix Tax Withdrawal Logic
+# Next Session: Tax Integration Completion
 
-## Goal
-Make tax calculation mode actually affect final balances by withdrawing enough to cover tax liabilities.
+## ✅ Completed Today (Session 2)
+- Fixed tax-aware withdrawal logic
+- Prevented RRSP balance double-subtraction bug
+- Added overdraft protection for retirement accounts
+- Verified ACCURATE mode shows $2k+ lifetime advantage
+- Organized scratch test files in `backend/tests/scratch/`
+- Pushed fixes to GitHub (commit `0474f3b`)
 
-## Current State
-- ✅ Tax calculator integrated
-- ✅ SIMPLIFIED vs ACCURATE modes work
-- ✅ Tax amounts calculated correctly
-- ❌ Withdrawals don't account for taxes
-- ❌ Final balances are identical
+## 🎯 Next Steps (Estimated: 1-2 hours)
 
-## The Fix (30-45 minutes)
-
-### Step 1: Backup Current Code
+### 1. Create Integration Tests (~30 min)
+Move scratch tests into proper pytest integration tests:
 ```bash
-cp backend/services/retirement_calculator.py backend/services/retirement_calculator.py.before_withdrawal_fix
-> ^C
-(venv) ubuntuforsolana@BuzzBusiness:~/retirement-planning-dapp$ cat > NEXT_SESSION.md << 'EOF'
-# Next Session: Fix Tax Withdrawal Logic
+# Create backend/tests/integration/test_tax_integration.py
+# Include:
+# - test_simplified_vs_accurate_modes()
+# - test_tfsa_depletion_scenario()
+# - test_rrsp_overdraft_prevention()
+# - test_tax_timeline_comparison()
+2. Test with Frontend (~15 min)
+Start backend and test API with actual UI:
 
-## Goal
-Make tax calculation mode actually affect final balances by withdrawing enough to cover tax liabilities.
+Copycd ~/retirement-planning-dapp/backend
+source venv/bin/activate
+uvicorn main:app --reload --port 8000
 
-## Current State
-- ✅ Tax calculator integrated
-- ✅ SIMPLIFIED vs ACCURATE modes work
-- ✅ Tax amounts calculated correctly
-- ❌ Withdrawals don't account for taxes
-- ❌ Final balances are identical
+# In another terminal:
+cd ~/retirement-planning-dapp
+python3 -m http.server 3000
 
-## The Fix (30-45 minutes)
+# Test: http://localhost:3000
+# Verify: Tax mode selector works in UI
+3. Merge to Master (~15 min)
+Copygit checkout master
+git pull origin master
+git merge feature/integrate-tax-calculator-with-tiers
+git push origin master
+4. Optional: Add Tax Visualization (~30 min)
+Implement stacked area chart showing taxes as red trace:
 
-### Step 1: Backup Current Code
-```bash
-cp backend/services/retirement_calculator.py backend/services/retirement_calculator.py.before_withdrawal_fix
-Step 2: Reorder Calculation Logic
-In retirement_calculator.py, around lines 196-250:
-
-Current order:
-
-Calculate gross income
-Withdraw to cover adjusted_spending
-Calculate taxes (too late!)
-New order:
-
-Calculate gross income
-Estimate taxes first
-Calculate total_need = adjusted_spending + taxes
-Withdraw to cover total_need
-Step 3: Test Scenarios
-Expected Results After Fix:
-
-Age 65: ACCURATE mode has ~$4,000 more in TFSA
-Age 75: Difference compounds to ~$10,000+
-Final balance: ACCURATE mode significantly higher
-Step 4: Verify and Commit
-Run integration tests:
-
-Copypython3 backend/tests/integration/test_tax_modes_temp.py
-python3 backend/tests/integration/test_tax_debug.py
-Should see:
-
-Different final balances
-ACCURATE mode leaves more money
-Tax savings compound over time
-Files to Modify
-backend/services/retirement_calculator.py (lines 196-250)
-Files to Review
-backend/KNOWN_ISSUES.md (delete after fix)
-backend/tests/integration/*_temp.py (convert to proper pytest)
-Success Criteria
- ACCURATE mode has higher final balance than SIMPLIFIED
- Tax savings visible in year-by-year projections
- TFSA balance diverges between modes
- Integration tests pass with different results
- Code committed with "Fix tax withdrawal logic" message
-Estimated Time
-30-45 minutes
-
-Backup Plan
-If stuck after 1 hour, create feature/fix-tax-withdrawal-v2 branch and ask for help.    
+File: frontend/js/chart.js
+Add "Taxes Paid" trace to projection chart
+Highlight cumulative tax savings with ACCURATE mode
+📊 Current State
+Branch: feature/integrate-tax-calculator-with-tiers
+Status: Tax logic fixed, tested, and pushed
+Master: Still on old tax logic (needs merge)
+Value Prop: ACCURATE mode saves ~$2,194 over retirement
+🚀 Quick Start Next Session
+Copycd ~/retirement-planning-dapp
+git checkout feature/integrate-tax-calculator-with-tiers
+git pull origin feature/integrate-tax-calculator-with-tiers
+source backend/venv/bin/activate
+python3 backend/tests/scratch/test_tax_timeline.py  # Verify still working
+💡 Future Enhancements (Backlog)
+User-configurable RRIF withdrawal start age
+Smart withdrawal strategy optimizer
+Tax bracket visualization
+Multi-year tax planning recommendationsn
