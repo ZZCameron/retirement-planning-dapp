@@ -235,6 +235,7 @@ function getFormData() {
         oas_start_age: parseInt(document.getElementById('oasStartAge').value),
         desired_annual_spending: parseFloat(document.getElementById('desiredSpending').value),
         has_spouse: false,
+        tax_calculation_mode: document.querySelector('input[name="taxMode"]:checked').value.toLowerCase(),
     };
     
     // Add pension data if checkbox is checked
