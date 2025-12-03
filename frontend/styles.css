@@ -428,3 +428,68 @@ header h1 {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* Tax Mode Selector Styles */
+.tax-mode-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.radio-option:hover {
+    border-color: #4CAF50;
+    background-color: #f9f9f9;
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 12px;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label {
+    color: #4CAF50;
+    font-weight: 600;
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+    border-color: #4CAF50;
+    background-color: #f0f8f0;
+}
+
+.radio-label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+}
+
+.radio-label strong {
+    font-size: 16px;
+}
+
+.info-box {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 12px 16px;
+    border-radius: 4px;
+    margin-top: 12px;
+}
+
+.info-box p {
+    margin: 0;
+    color: #856404;
+    font-size: 14px;
+}
