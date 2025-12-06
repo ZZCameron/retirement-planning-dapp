@@ -322,6 +322,7 @@ function drawChart(projections) {
     const tfsaBalances = projections.map(p => p.tfsa_balance);
     const nonRegBalances = projections.map(p => p.non_registered_balance);
     const totalBalances = projections.map(p => p.total_balance);
+    const taxesEstimated = projections.map(p => p.taxes_estimated);
     
     window.retirementChart = new Chart(ctx, {
         type: 'line',
@@ -354,6 +355,16 @@ function drawChart(projections) {
                     borderWidth: 2,
                     tension: 0.4,
                     fill: false
+                },
+                {
+                    label: 'Taxes Paid (Annual)',
+                    data: taxesEstimated,
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.2)',
+                    borderWidth: 2,
+                    tension: 0.4,
+                    fill: true,
+                    yAxisID: 'y1'
                 },
                 {
                     label: 'Total',
@@ -411,6 +422,27 @@ function drawChart(projections) {
                             }
                             return '$' + value;
                         }
+                    }
+                },
+                y1: {
+                    beginAtZero: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Annual Taxes ($)',
+                        color: '#ef4444'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000) {
+                                return '$' + (value / 1000).toFixed(0) + 'K';
+                            }
+                            return '$' + value;
+                        },
+                        color: '#ef4444'
+                    },
+                    grid: {
+                        drawOnChartArea: false
                     }
                 }
             },
