@@ -267,6 +267,22 @@ function displayResults(result) {
         '$' + result.final_balance.toLocaleString('en-CA', {maximumFractionDigits: 0});
     document.getElementById('planStatus').textContent = result.success ? '✅ Viable' : '⚠️ At Risk';
     
+    // Add "Money Runs Out" warning if plan fails
+    if (!result.success && result.warnings && result.warnings.length > 0) {
+        const shortfallWarning = result.warnings.find(w => w.includes('Insufficient funds'));
+        if (shortfallWarning) {
+            const ageMatch = shortfallWarning.match(/age (\d+)/);
+            if (ageMatch) {
+                const criticalAge = ageMatch[1];
+                const warningBox = document.createElement('div');
+                warningBox.style.cssText = 'background: #fee2e2; border: 2px solid #dc2626; padding: 16px; margin: 16px 0; border-radius: 8px;';
+                warningBox.innerHTML = `<strong style="color: #991b1b; font-size: 18px;">⚠️ Money Runs Out at Age ${criticalAge}</strong><p style="margin: 8px 0 0; color: #7f1d1d;">Consider: reducing spending, working longer, or increasing savings.</p>`;
+                document.getElementById('resultsSection').insertBefore(warningBox, document.getElementById('resultsSection').firstChild);
+            }
+        }
+    }
+
+    
     const recList = document.getElementById('recommendationsList');
     recList.innerHTML = '';
     result.recommendations.forEach(rec => {
@@ -318,11 +334,11 @@ function drawChart(projections) {
     
     // Extract data for each account type
     const ages = projections.map(p => p.age);
+    const taxesEstimated = projections.map(p => p.taxes_estimated);
     const rrspBalances = projections.map(p => p.rrsp_rrif_balance);
     const tfsaBalances = projections.map(p => p.tfsa_balance);
     const nonRegBalances = projections.map(p => p.non_registered_balance);
     const totalBalances = projections.map(p => p.total_balance);
-    const taxesEstimated = projections.map(p => p.taxes_estimated);
     
     window.retirementChart = new Chart(ctx, {
         type: 'line',
@@ -355,8 +371,7 @@ function drawChart(projections) {
                     borderWidth: 2,
                     tension: 0.4,
                     fill: false
-                },
-                {
+                },                {
                     label: 'Taxes Paid (Annual)',
                     data: taxesEstimated,
                     borderColor: '#ef4444',
@@ -366,6 +381,7 @@ function drawChart(projections) {
                     fill: true,
                     yAxisID: 'y1'
                 },
+
                 {
                     label: 'Total',
                     data: totalBalances,
