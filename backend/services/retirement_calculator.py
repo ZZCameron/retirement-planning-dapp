@@ -122,15 +122,6 @@ class RetirementCalculator:
                 tfsa_balance *= (1 + plan_input.tfsa_real_return)
                 non_reg_balance *= (1 + plan_input.non_reg_real_return)
 
-            # Real estate sale (if applicable)
-            if (plan_input.real_estate_sale_age > 0 and 
-                current_age == plan_input.real_estate_sale_age):
-                years_held = current_age - plan_input.current_age
-                sale_value = (plan_input.real_estate_value * 
-                             (1 + plan_input.real_estate_real_return) ** years_held)
-                non_reg_balance += sale_value
-                msg = f"Real estate sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
-                warnings.append(msg)
                 
                 # No withdrawals or benefits during accumulation
                 projection = YearlyProjection(
@@ -281,16 +272,17 @@ class RetirementCalculator:
                 tfsa_balance *= (1 + plan_input.tfsa_real_return)
                 non_reg_balance *= (1 + plan_input.non_reg_real_return)
 
-            # Real estate sale (if applicable)
-            if (plan_input.real_estate_sale_age > 0 and 
-                current_age == plan_input.real_estate_sale_age):
-                years_held = current_age - plan_input.current_age
-                sale_value = (plan_input.real_estate_value * 
-                             (1 + plan_input.real_estate_real_return) ** years_held)
-                non_reg_balance += sale_value
-                msg = f"Real estate sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
-                warnings.append(msg)
-                
+                # Real estate sale (if applicable)
+                if (plan_input.real_estate_sale_age > 0 and 
+                    current_age == plan_input.real_estate_sale_age):
+                    years_held = current_age - plan_input.current_age
+                    sale_value = (plan_input.real_estate_value * 
+                                 (1 + plan_input.real_estate_real_return) ** years_held)
+                    non_reg_balance += sale_value
+                    msg = f"Real estate sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
+                    warnings.append(msg)
+
+                # Create projection for this year
                 projection = YearlyProjection(
                     year=year,
                     age=current_age,
@@ -306,7 +298,9 @@ class RetirementCalculator:
                     taxes_estimated=taxes_estimated,
                     net_income=net_income,
                     spending=adjusted_spending
-                )
+                    )
+
+                        
             
             projections.append(projection)
         

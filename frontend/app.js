@@ -228,8 +228,12 @@ function getFormData() {
         tfsa_balance: parseFloat(document.getElementById('tfsaBalance').value),
         non_registered: parseFloat(document.getElementById('nonRegistered').value),
         monthly_contribution: parseFloat(document.getElementById('monthlyContribution').value),
-        expected_return: parseFloat(document.getElementById('expectedReturn').value) / 100,
-        expected_inflation: parseFloat(document.getElementById('expectedInflation').value) / 100,
+        rrsp_real_return: parseFloat(document.getElementById('rrspRealReturn').value) / 100,
+        tfsa_real_return: parseFloat(document.getElementById('tfsaRealReturn').value) / 100,
+        non_reg_real_return: parseFloat(document.getElementById('nonRegRealReturn').value) / 100,
+        real_estate_value: parseFloat(document.getElementById('realEstateValue').value),
+        real_estate_real_return: parseFloat(document.getElementById('realEstateRealReturn').value) / 100,
+        real_estate_sale_age: parseInt(document.getElementById('realEstateSaleAge').value),
         cpp_monthly: parseFloat(document.getElementById('cppMonthly').value),
         cpp_start_age: parseInt(document.getElementById('cppStartAge').value),
         oas_start_age: parseInt(document.getElementById('oasStartAge').value),
@@ -306,6 +310,7 @@ function displayResults(result) {
     }
     
     drawChart(result.projections);
+    
     document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
 
     // Find retirement age projection
