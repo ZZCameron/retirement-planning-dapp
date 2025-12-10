@@ -99,7 +99,7 @@ class RetirementCalculator:
             is_retired = current_age >= plan_input.retirement_age
             
             # Calculate inflation-adjusted spending
-            inflation_factor = (1 + plan_input.expected_inflation) ** year
+            inflation_factor = 1.0  # Real $ mode: constant purchasing power
             adjusted_spending = plan_input.desired_annual_spending * inflation_factor
             
             # ======================
@@ -118,9 +118,19 @@ class RetirementCalculator:
                 total_contributions += annual_contribution
                 
                 # Apply investment returns
-                rrsp_balance *= (1 + plan_input.expected_return)
-                tfsa_balance *= (1 + plan_input.expected_return)
-                non_reg_balance *= (1 + plan_input.expected_return)
+                rrsp_balance *= (1 + plan_input.rrsp_real_return)
+                tfsa_balance *= (1 + plan_input.tfsa_real_return)
+                non_reg_balance *= (1 + plan_input.non_reg_real_return)
+
+            # Real estate sale (if applicable)
+            if (plan_input.real_estate_sale_age > 0 and 
+                current_age == plan_input.real_estate_sale_age):
+                years_held = current_age - plan_input.current_age
+                sale_value = (plan_input.real_estate_value * 
+                             (1 + plan_input.real_estate_real_return) ** years_held)
+                non_reg_balance += sale_value
+                msg = f"Real estate sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
+                warnings.append(msg)
                 
                 # No withdrawals or benefits during accumulation
                 projection = YearlyProjection(
@@ -267,9 +277,19 @@ class RetirementCalculator:
                 net_income = gross_income + other_withdrawals - taxes_estimated
                              
                 # Apply investment returns on remaining balances
-                rrsp_balance *= (1 + plan_input.expected_return)
-                tfsa_balance *= (1 + plan_input.expected_return)
-                non_reg_balance *= (1 + plan_input.expected_return)
+                rrsp_balance *= (1 + plan_input.rrsp_real_return)
+                tfsa_balance *= (1 + plan_input.tfsa_real_return)
+                non_reg_balance *= (1 + plan_input.non_reg_real_return)
+
+            # Real estate sale (if applicable)
+            if (plan_input.real_estate_sale_age > 0 and 
+                current_age == plan_input.real_estate_sale_age):
+                years_held = current_age - plan_input.current_age
+                sale_value = (plan_input.real_estate_value * 
+                             (1 + plan_input.real_estate_real_return) ** years_held)
+                non_reg_balance += sale_value
+                msg = f"Real estate sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
+                warnings.append(msg)
                 
                 projection = YearlyProjection(
                     year=year,

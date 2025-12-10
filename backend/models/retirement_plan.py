@@ -78,17 +78,43 @@ class RetirementPlanInput(BaseModel):
         description="Monthly contribution to retirement savings (CAD)"
     )
     
-    # Returns and Inflation
-    expected_return: float = Field(
-        ge=0.0, 
-        le=0.25, 
-        description="Expected annual return (decimal, e.g., 0.07 for 7%)"
+    # Asset-Specific Real Returns (After Inflation)
+    rrsp_real_return: float = Field(
+        default=0.02,
+        ge=-0.10,
+        le=0.15,
+        description="RRSP/RRIF real return after inflation (decimal, e.g., 0.02 for 2%)"
     )
-    expected_inflation: float = Field(
-        default=0.025,
-        ge=0.0,
-        le=0.10,
-        description="Expected inflation rate (decimal)"
+    tfsa_real_return: float = Field(
+        default=0.04,
+        ge=-0.10,
+        le=0.15,
+        description="TFSA real return after inflation (decimal, e.g., 0.04 for 4%)"
+    )
+    non_reg_real_return: float = Field(
+        default=0.05,
+        ge=-0.10,
+        le=0.15,
+        description="Non-registered real return after inflation (decimal, e.g., 0.05 for 5%)"
+    )
+    
+    # Real Estate (Optional)
+    real_estate_value: float = Field(
+        default=0.0,
+        ge=0,
+        description="Current real estate value (CAD, 0 = no real estate)"
+    )
+    real_estate_real_return: float = Field(
+        default=0.01,
+        ge=-0.10,
+        le=0.15,
+        description="Real estate real appreciation after inflation (decimal, can be negative)"
+    )
+    real_estate_sale_age: int = Field(
+        default=0,
+        ge=0,
+        le=150,
+        description="Age when selling real estate (0 = not selling)"
     )
     
     # Government Benefits
