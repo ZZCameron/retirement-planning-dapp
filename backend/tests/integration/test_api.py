@@ -110,7 +110,7 @@ class TestRetirementAPIErrorHandling:
     def test_calculate_invalid_return_rate(self, client, sample_plan_input):
         """Test API rejects invalid return rate."""
         invalid_input = sample_plan_input.model_copy()
-        invalid_input.expected_return = 1.5
+        invalid_input.rrsp_real_return = 1.5  # Max is 0.15 (15%)
         
         response = client.post(
             "/api/v1/retirement/calculate",
