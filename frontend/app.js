@@ -272,6 +272,11 @@ function displayResults(result) {
     document.getElementById('planStatus').textContent = result.success ? '✅ Viable' : '⚠️ At Risk';
     
     // Add "Money Runs Out" warning if plan fails
+    // First, clear any existing red warning boxes
+    const resultsSection = document.getElementById('resultsSection');
+    const existingWarnings = resultsSection.querySelectorAll('.critical-warning-box');
+    existingWarnings.forEach(w => w.remove());
+    
     if (!result.success && result.warnings && result.warnings.length > 0) {
         const shortfallWarning = result.warnings.find(w => w.includes('Insufficient funds'));
         if (shortfallWarning) {
@@ -279,9 +284,10 @@ function displayResults(result) {
             if (ageMatch) {
                 const criticalAge = ageMatch[1];
                 const warningBox = document.createElement('div');
+                warningBox.className = 'critical-warning-box';
                 warningBox.style.cssText = 'background: #fee2e2; border: 2px solid #dc2626; padding: 16px; margin: 16px 0; border-radius: 8px;';
                 warningBox.innerHTML = `<strong style="color: #991b1b; font-size: 18px;">⚠️ Money Runs Out at Age ${criticalAge}</strong><p style="margin: 8px 0 0; color: #7f1d1d;">Consider: reducing spending, working longer, or increasing savings.</p>`;
-                document.getElementById('resultsSection').insertBefore(warningBox, document.getElementById('resultsSection').firstChild);
+                resultsSection.insertBefore(warningBox, resultsSection.firstChild);
             }
         }
     }
@@ -300,7 +306,44 @@ function displayResults(result) {
         warningsSection.classList.remove('hidden');
         const warnList = document.getElementById('warningsList');
         warnList.innerHTML = '';
-        result.warnings.forEach(warn => {
+        
+        // Deduplicate repeated warnings - show only first occurrence of each type
+        let firstInsufficientFundsAge = null;
+        let firstTaxWarningAge = null;
+        
+        const dedupedWarnings = result.warnings.filter(warn => {
+            // Deduplicate "Insufficient funds" warnings
+            if (warn.includes('Insufficient funds')) {
+                const ageMatch = warn.match(/age (\d+)/);
+                if (ageMatch && firstInsufficientFundsAge === null) {
+                    firstInsufficientFundsAge = ageMatch[1];
+                    // Modify message to indicate it continues
+                    const modifiedWarn = warn.replace(
+                        /Insufficient funds.*$/,
+                        `Insufficient funds starting at age ${ageMatch[1]} (continues through retirement)`
+                    );
+                    // Replace in the warnings array for display
+                    const idx = result.warnings.indexOf(warn);
+                    result.warnings[idx] = modifiedWarn;
+                    return true; // Keep first occurrence with modified message
+                }
+                return false; // Skip subsequent insufficient funds warnings
+            }
+            
+            // Deduplicate tax warnings (if any remain)
+            if (warn.includes('Cannot cover tax')) {
+                const ageMatch = warn.match(/age (\d+)/);
+                if (ageMatch && firstTaxWarningAge === null) {
+                    firstTaxWarningAge = ageMatch[1];
+                    return true;
+                }
+                return false;
+            }
+            
+            return true; // Keep all other warnings
+        });
+        
+        dedupedWarnings.forEach(warn => {
             const li = document.createElement('li');
             li.textContent = warn;
             warnList.appendChild(li);

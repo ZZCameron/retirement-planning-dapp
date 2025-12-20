@@ -257,12 +257,7 @@ class RetirementCalculator:
                         other_withdrawals += non_reg_tax_withdrawal
                         tax_coverage_needed -= non_reg_tax_withdrawal
                     
-                    # Warning if can't cover taxes
-                    if tax_coverage_needed > 100:
-                        warnings.append(
-                            f"Year {year} (age {current_age}): "
-                            f"Cannot cover tax bill of ${taxes_estimated:,.0f} - short ${tax_coverage_needed:,.0f}"
-                        )
+                    # Tax shortfall already covered by general "Insufficient funds" warning below
                 
                 # Calculate net income after taxes
                 net_income = gross_income + other_withdrawals - taxes_estimated
