@@ -44,7 +44,7 @@
                     <div class="form-grid-4">
                         <div class="form-group">
                             <label for="currentAge">Current Age</label>
-                            <input type="number" id="currentAge" min="18" max="100" value="35" required>
+                            <input type="number" id="currentAge" min="18" max="100" value="55" required>
                         </div>
                         <div class="form-group">
                             <label for="retirementAge">Retirement Age</label>
@@ -57,16 +57,16 @@
                         <div class="form-group">
                             <label for="province">Province</label>
                             <select id="province" required>
-                                <option value="Ontario">Ontario</option>
-                                <option value="British Columbia">British Columbia</option>
                                 <option value="Alberta">Alberta</option>
-                                <option value="Quebec">Quebec</option>
+                                <option value="British Columbia">British Columbia</option>
                                 <option value="Manitoba">Manitoba</option>
-                                <option value="Saskatchewan">Saskatchewan</option>
-                                <option value="Nova Scotia">Nova Scotia</option>
                                 <option value="New Brunswick">New Brunswick</option>
-                                <option value="Prince Edward Island">PEI</option>
                                 <option value="Newfoundland and Labrador">Newfoundland</option>
+                                <option value="Nova Scotia">Nova Scotia</option>
+                                <option value="Ontario" selected>Ontario</option>
+                                <option value="Prince Edward Island">PEI</option>
+                                <option value="Quebec">Quebec</option>
+                                <option value="Saskatchewan">Saskatchewan</option>
                             </select>
                         </div>
                     </div>
@@ -89,60 +89,71 @@
                     </div>
 
                     <!-- Contributions & Assumptions -->
+                    <!-- Contributions & Investment Assumptions -->
                     <h3>Contributions & Investment Assumptions</h3>
-                    <div class="form-grid-4">
-                        <div class="form-group">
-                            <label for="monthlyContribution">Monthly Savings ($)</label>
-                            <input type="number" id="monthlyContribution" min="0" step="100" value="1500" required>
-                            <span class="info-text">Allocated 70% RRSP / 30% TFSA until retirement</span>
-                        </div>
-                        <div class="form-group">
-                            <label>Asset Returns (Real, After Inflation)</label>
-                            <div style="margin-left: 20px;">
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label for="rrspRealReturn">RRSP/RRIF Real Return (%)</label>
-                                    <input type="number" id="rrspRealReturn" min="-10" max="15" step="0.1" value="2" required>
-                                    <span class="info-text">Conservative (bonds, GICs)</span>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label for="tfsaRealReturn">TFSA Real Return (%)</label>
-                                    <input type="number" id="tfsaRealReturn" min="-10" max="15" step="0.1" value="4" required>
-                                    <span class="info-text">Balanced (60/40 stocks/bonds)</span>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label for="nonRegRealReturn">Non-Registered Real Return (%)</label>
-                                    <input type="number" id="nonRegRealReturn" min="-10" max="15" step="0.1" value="5" required>
-                                    <span class="info-text">Aggressive (stocks, growth)</span>
-                                </div>
+                    <div class="form-grid-3">
+                        <!-- Column 1: Spending & Savings -->
+                        <div>
+                            <div class="form-group">
+                                <label for="desiredSpending">Annual Spending ($)</label>
+                                <input type="number" id="desiredSpending" value="60000" required>
+                                <span class="info-text">After-tax living expenses</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="monthlyContribution">Monthly Savings ($)</label>
+                                <input type="number" id="monthlyContribution" value="1500" required>
+                                <span class="info-text">Split 70% RRSP / 30% TFSA</span>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Real Estate (Optional)</label>
-                            <div style="margin-left: 20px;">
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label for="realEstateValue">Current Value ($)</label>
-                                    <input type="number" id="realEstateValue" min="0" step="10000" value="0">
-                                    <span class="info-text">Leave 0 if not applicable</span>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label for="realEstateRealReturn">Real Appreciation (%)</label>
-                                    <input type="number" id="realEstateRealReturn" min="-10" max="15" step="0.1" value="1">
-                                    <span class="info-text">After inflation (can be negative)</span>
-                                </div>
-                                <div class="form-group" style="margin-bottom: 12px;">
-                                    <label for="realEstateSaleAge">Sale Age</label>
-                                    <input type="number" id="realEstateSaleAge" min="0" max="150" step="1" value="0">
-                                    <span class="info-text">Age when selling (0 = not selling)</span>
-                                </div>
+
+                        <!-- Column 2: Returns -->
+                        <div>
+                            <div class="form-group">
+                                <label for="rrspRealReturn">RRSP Real Return (%)</label>
+                                <input type="number" id="rrspRealReturn" value="2" step="0.1" required>
+                                <span class="info-text">Conservative (bonds)</span>
                             </div>
-                            <label for="desiredSpending">Annual Spending ($)</label>
-                            <input type="number" id="desiredSpending" min="0" step="1000" value="60000" required>
-                            <span class="info-text">In today's dollars</span>
+                            
+                            <div class="form-group">
+                                <label for="tfsaRealReturn">TFSA Real Return (%)</label>
+                                <input type="number" id="tfsaRealReturn" value="4" step="0.1" required>
+                                <span class="info-text">Balanced (60/40)</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="nonRegRealReturn">Non-Reg Real Return (%)</label>
+                                <input type="number" id="nonRegRealReturn" value="5" step="0.1" required>
+                                <span class="info-text">Aggressive (stocks)</span>
+                            </div>
+                        </div>
+
+                        <!-- Column 3: Real Estate -->
+                        <div>
+                            <div class="form-group">
+                                <label for="realEstateValue">Real Estate Value ($)</label>
+                                <input type="number" id="realEstateValue" value="0" required>
+                                <span class="info-text">Leave 0 if N/A</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="realEstateRealReturn">RE Appreciation (%)</label>
+                                <input type="number" id="realEstateRealReturn" value="1" step="0.1" required>
+                                <span class="info-text">After inflation</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="realEstateSaleAge">RE Sale Age</label>
+                                <input type="number" id="realEstateSaleAge" value="0" required>
+                                <span class="info-text">0 = not selling</span>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Government Benefits with Calculator -->
-                    <h3>Government Benefits <span class="info-badge">2024 Rates</span></h3>
+                    <h3>
+                        Government Benefits <span class="info-badge">2024 Rates</span>
+                        <span class="info-icon" style="cursor: help; margin-left: 8px;" title="CPP: Adjusts ±0.6% per month from age 65 (max ±36%). Start at 60 = 64% of age-65 amount. Start at 70 = 142% of age-65 amount. &#10;&#10;OAS: $713/month at ages 65-74, $785/month at 75+. Both benefits are indexed to inflation annually.">ℹ️</span>
+                    </h3>
                     
                     <div class="form-grid-2">
                         <!-- CPP Section -->
@@ -158,21 +169,6 @@
                                 </div>
                             </div>
                             
-                            <div class="benefit-box">
-                                <h4>📊 Your CPP Projection</h4>
-                                <div class="benefit-info">
-                                    <span class="benefit-label">Monthly at start age:</span>
-                                    <span class="benefit-value" id="cppAdjusted">$1,200</span>
-                                </div>
-                                <div class="benefit-info">
-                                    <span class="benefit-label">Annual amount:</span>
-                                    <span class="benefit-value" id="cppAnnual">$14,400</span>
-                                </div>
-                                <div class="benefit-info">
-                                    <span class="benefit-label">Adjustment:</span>
-                                    <span class="benefit-value" id="cppAdjustment">0%</span>
-                                </div>
-                            </div>
                         </div>
 
                         <!-- OAS Section -->
@@ -182,21 +178,6 @@
                                 <input type="number" id="oasStartAge" min="65" max="70" value="65" required>
                             </div>
                             
-                            <div class="benefit-box">
-                                <h4>📊 Your OAS Projection</h4>
-                                <div class="benefit-info">
-                                    <span class="benefit-label">Monthly (65-74):</span>
-                                    <span class="benefit-value">$713</span>
-                                </div>
-                                <div class="benefit-info">
-                                    <span class="benefit-label">Monthly (75+):</span>
-                                    <span class="benefit-value">$785</span>
-                                </div>
-                                <div class="benefit-info">
-                                    <span class="benefit-label">Annual (65-74):</span>
-                                    <span class="benefit-value">$8,556</span>
-                                </div>
-                            </div>
                         </div>
                     </div>
 
@@ -236,10 +217,6 @@
                             </div>
                         </div>
                         
-                        <div class="benefit-box">
-                            <h4>ℹ️ Example</h4>
-                            <p>Military pension $4,300/mo starting 2024, indexed at 2% annually</p>
-                        </div>
                     </div>
 
                     <!-- Action Buttons -->
