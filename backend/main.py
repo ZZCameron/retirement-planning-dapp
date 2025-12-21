@@ -51,12 +51,12 @@ app.add_middleware(
     allowed_hosts=["localhost", "127.0.0.1", "*"] if settings.debug else ["yourdomain.com"],
 )
 
-# CORS Middleware
+# CORS Middleware (must be added before other middleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["*"],  # Allow all methods including OPTIONS
     allow_headers=["*"],
 )
 
