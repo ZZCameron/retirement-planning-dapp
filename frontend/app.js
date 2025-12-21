@@ -1,5 +1,5 @@
 // Configuration -->added to ensure the github repo was aligned
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'https://web-production-c1f93.up.railway.app';
 const SOLANA_NETWORK = 'devnet';
 const PAYMENT_AMOUNT = 0.01;
 const RECEIVER_ADDRESS = 'YOUR_SOLANA_ADDRESS_HERE';
