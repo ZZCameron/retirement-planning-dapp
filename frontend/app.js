@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Retirement Planning Calculator loaded');
     setupEventListeners();
     checkWalletConnection();
-    updateCPPCalculation(); // Initial calculation
 });
 
 // Setup Event Listeners
@@ -29,8 +28,6 @@ function setupEventListeners() {
     document.getElementById('retirementForm').addEventListener('submit', handleSubmit);
     
     // CPP dynamic calculation
-    document.getElementById('cppStartAge').addEventListener('input', updateCPPCalculation);
-    document.getElementById('cppMonthly').addEventListener('input', updateCPPCalculation);
 
     // Pension UI handlers
     document.getElementById('includePension').addEventListener('change', togglePensionFields);
@@ -39,7 +36,6 @@ function setupEventListeners() {
 }
 
 // Update CPP Calculation
-function updateCPPCalculation() {
     const startAge = parseInt(document.getElementById('cppStartAge').value);
     const baseAmount = parseFloat(document.getElementById('cppMonthly').value);
     
