@@ -1,0 +1,15 @@
+backend/
+venv/
+*.py
+*.pyc
+__pycache__/
+.pytest_cache/
+htmlcov/
+.coverage
+*.egg-info/
+.git/
+.github/
+tests/
+*.md
+requirements.txt
+pyproject.toml
