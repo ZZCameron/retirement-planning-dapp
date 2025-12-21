@@ -29,6 +29,8 @@ async def lifespan(app: FastAPI):
     logger.info(f"Environment: {settings.environment}")
     logger.info(f"Solana Network: {settings.solana_network}")
     logger.info(f"Debug Mode: {settings.debug}")
+    logger.info(f"CORS Origins: {settings.cors_origins}")
+    logger.info(f"CORS Origins List: {settings.cors_origins_list}")
     yield
     logger.info("Shutting down application")
 
