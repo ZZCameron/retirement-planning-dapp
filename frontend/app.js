@@ -40,6 +40,15 @@ function setupEventListeners() {
 
 // Update CPP Calculation
 function updateCPPCalculation() {
+    // Check if elements exist (they were removed in UI cleanup)
+    const cppAdjustedEl = document.getElementById('cppAdjusted');
+    const cppAnnualEl = document.getElementById('cppAnnual');
+    const cppAdjustmentEl = document.getElementById('cppAdjustment');
+    
+    if (!cppAdjustedEl || !cppAnnualEl || !cppAdjustmentEl) {
+        return; // Elements don't exist, skip update
+    }
+    
     const startAge = parseInt(document.getElementById('cppStartAge').value);
     const baseAmount = parseFloat(document.getElementById('cppMonthly').value);
     
