@@ -42,6 +42,18 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = Field(default="http://localhost:3000,http://localhost:8000")
 
+    # Payment Configuration (ADD HERE - same indentation as cors_origins)
+    treasury_wallet: str = Field(
+        default="4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m",
+        description="Treasury wallet for receiving payments"
+    )
+    payment_amount_sol: float = Field(
+        default=0.001,
+        ge=0.0001,
+        le=1.0,
+        description="Required payment amount in SOL"
+    )
+
     # Solana
     solana_network: Literal["devnet", "testnet", "mainnet-beta"] = "devnet"
     solana_rpc_url: str = Field(default="https://api.devnet.solana.com")
@@ -80,18 +92,5 @@ def get_settings() -> Settings:
     """
     return Settings()
 
-
 # For convenience
 settings = get_settings()
-
-    # Payment Configuration
-    treasury_wallet: str = Field(
-        default="4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m",
-        description="Treasury wallet for receiving payments"
-    )
-    payment_amount_sol: float = Field(
-        default=0.001,
-        ge=0.0001,
-        le=1.0,
-        description="Required payment amount in SOL"
-    )
