@@ -50,3 +50,4 @@ Thumbs.db
 !pyproject.toml
 *.backup
 *.before_*
+.env.treasury

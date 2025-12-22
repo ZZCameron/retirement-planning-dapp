@@ -1,7 +1,10 @@
 // Configuration -->added to ensure the github repo was aligned
 const API_BASE_URL = 'https://web-production-c1f93.up.railway.app';
 const SOLANA_NETWORK = 'devnet';
-const PAYMENT_AMOUNT = 0.01;
+// Payment Configuration
+// Price in SOL (1 SOL ≈ $20-200 depending on market)
+// Recommended: 0.001-0.01 SOL ($0.02-$2 USD)
+const PAYMENT_AMOUNT = 0.001; // 0.001 SOL ≈ $0.02-0.20 USD
 const RECEIVER_ADDRESS = 'YOUR_SOLANA_ADDRESS_HERE';
 
 // CPP Constants
@@ -26,6 +29,7 @@ function setupEventListeners() {
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
     document.getElementById('disconnectWallet')?.addEventListener('click', disconnectWallet);
     document.getElementById('testCalculate').addEventListener('click', testCalculate);
+    document.getElementById('calculateBtn').addEventListener('click', calculateWithPayment);
     document.getElementById('retirementForm').addEventListener('submit', handleSubmit);
     
     // CPP dynamic calculation
@@ -545,4 +549,94 @@ function showError(message) {
 function clearMessages() {
     document.getElementById('statusMessage').classList.add('hidden');
     document.getElementById('errorMessage').classList.add('hidden');
+}
+
+// Calculate with Payment
+async function calculateWithPayment() {
+    if (!walletConnected) {
+        showError('Please connect your Phantom wallet first');
+        return;
+    }
+
+    showStatus('Processing payment...');
+    clearMessages();
+
+    try {
+        // 1. Create payment transaction
+        const transaction = await createPaymentTransaction();
+        
+        // 2. Request signature from user
+        const { signature } = await wallet.signAndSendTransaction(transaction);
+        showStatus('Payment sent! Verifying transaction...');
+
+        // 3. Wait for confirmation
+        await waitForConfirmation(signature);
+        
+        // 4. Send to backend for verification and calculation
+        const data = getFormData();
+        data.payment_signature = signature;
+        data.wallet_address = wallet.publicKey.toString();
+
+        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-paid`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || `Payment verification failed: ${response.status}`);
+        }
+
+        const result = await response.json();
+        displayResults(result);
+        showStatus(`✅ Payment verified! Calculation complete (Tx: ${signature.slice(0, 8)}...)`);
+    } catch (error) {
+        console.error('Payment error:', error);
+        showError('Payment failed: ' + error.message);
+    }
+}
+
+// Create Solana payment transaction
+async function createPaymentTransaction() {
+    const Connection = window.solanaWeb3.Connection;
+    const PublicKey = window.solanaWeb3.PublicKey;
+    const Transaction = window.solanaWeb3.Transaction;
+    const SystemProgram = window.solanaWeb3.SystemProgram;
+    const LAMPORTS_PER_SOL = window.solanaWeb3.LAMPORTS_PER_SOL;
+
+    // Connect to Solana
+    const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+    
+    // Recipient address (your treasury wallet - CHANGE THIS!)
+    const recipient = new PublicKey('4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m');
+    
+    // Get recent blockhash
+    const { blockhash } = await connection.getLatestBlockhash();
+    
+    // Create transfer instruction
+    const transaction = new Transaction({
+        recentBlockhash: blockhash,
+        feePayer: wallet.publicKey,
+    }).add(
+        SystemProgram.transfer({
+            fromPubkey: wallet.publicKey,
+            toPubkey: recipient,
+            lamports: PAYMENT_AMOUNT * LAMPORTS_PER_SOL,
+        })
+    );
+
+    return transaction;
+}
+
+// Wait for transaction confirmation
+async function waitForConfirmation(signature) {
+    const Connection = window.solanaWeb3.Connection;
+    const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+    
+    const confirmation = await connection.confirmTransaction(signature, 'confirmed');
+    if (confirmation.value.err) {
+        throw new Error('Transaction failed');
+    }
+    return confirmation;
 }

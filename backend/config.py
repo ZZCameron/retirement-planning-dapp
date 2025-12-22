@@ -83,3 +83,15 @@ def get_settings() -> Settings:
 
 # For convenience
 settings = get_settings()
+
+    # Payment Configuration
+    treasury_wallet: str = Field(
+        default="4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m",
+        description="Treasury wallet for receiving payments"
+    )
+    payment_amount_sol: float = Field(
+        default=0.001,
+        ge=0.0001,
+        le=1.0,
+        description="Required payment amount in SOL"
+    )

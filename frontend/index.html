@@ -9,6 +9,8 @@
     <!-- Emoji favicon - no file needed! -->
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
+    <!-- Solana Web3.js -->
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -246,8 +248,8 @@
                         <button type="button" id="testCalculate" class="btn btn-secondary">
                             🧪 Test Calculate (Free)
                         </button>
-                        <button type="submit" class="btn btn-primary">
-                            💰 Calculate with Payment (0.01 SOL)
+                        <button type="button" id="calculateBtn" class="btn btn-primary">
+                            💰 Calculate with Payment (0.001 SOL)
                         </button>
                     </div>
                 </form>

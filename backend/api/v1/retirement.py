@@ -5,6 +5,7 @@ Version 1.
 
 import logging
 from fastapi import APIRouter, HTTPException, status
+from fastapi import Query
 from fastapi.responses import JSONResponse
 
 from backend.models.retirement_plan import (
@@ -101,3 +102,39 @@ async def get_retirement_rules():
         },
         "note": "All amounts in CAD. Rules updated annually."
     })
+
+
+@router.post("/calculate-paid", response_model=RetirementPlanOutput)
+async def calculate_retirement_plan_paid(
+    plan_input: RetirementPlanInput,
+    payment_signature: str = Query(..., description="Solana transaction signature"),
+    wallet_address: str = Query(..., description="User's wallet address"),
+) -> RetirementPlanOutput:
+    """
+    Calculate retirement plan with payment verification.
+    Requires valid Solana payment transaction.
+    """
+    from backend.services.payment_verifier import SolanaPaymentVerifier
+    
+    # Verify payment
+    verifier = SolanaPaymentVerifier(
+        rpc_url=settings.solana_rpc_url,
+        expected_recipient=settings.treasury_wallet,
+        expected_amount_sol=settings.payment_amount_sol,
+    )
+    
+    verification = await verifier.verify_transaction(payment_signature, wallet_address)
+    
+    if not verification.verified:
+        raise HTTPException(
+            status_code=402,  # Payment Required
+            detail=f"Payment verification failed: {verification.error}"
+        )
+    
+    logger.info(f"✅ Payment verified: {verification.amount_sol} SOL (tx: {payment_signature[:8]}...)")
+    
+    # Calculate with full features (no limits)
+    calculator = RetirementCalculator()
+    result = calculator.calculate_plan(plan_input)
+    
+    return result
