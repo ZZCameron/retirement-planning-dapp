@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi import Query
 from fastapi.responses import JSONResponse
 
+from backend.config import settings
 from backend.models.retirement_plan import (
     RetirementPlanInput,
     RetirementPlanOutput,
