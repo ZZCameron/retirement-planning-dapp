@@ -574,10 +574,13 @@ async function calculateWithPayment() {
         
         // 4. Send to backend for verification and calculation
         const data = getFormData();
-        data.payment_signature = signature;
-        data.wallet_address = wallet.publicKey.toString();
 
-        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-paid`, {
+        // Build URL with query parameters
+        const url = new URL(`${API_BASE_URL}/api/v1/retirement/calculate-paid`);
+        url.searchParams.append('payment_signature', signature);
+        url.searchParams.append('wallet_address', wallet.publicKey.toString());
+
+        const response = await fetch(url.toString(), {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(data),
