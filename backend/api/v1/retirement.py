@@ -13,7 +13,7 @@ from backend.models.retirement_plan import (
     RetirementPlanInput,
     RetirementPlanOutput,
 )
-from backend.services.retirement_calculator import calculator
+from backend.services.retirement_calculator import RetirementCalculator, calculator
 
 logger = logging.getLogger(__name__)
 
