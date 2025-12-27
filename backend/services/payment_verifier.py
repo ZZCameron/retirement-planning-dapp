@@ -39,7 +39,7 @@ class SolanaPaymentVerifier:
             PaymentVerification with verification result
         """
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 # Get transaction details from Solana RPC
                 response = await client.post(
                     self.rpc_url,
@@ -149,4 +149,12 @@ class SolanaPaymentVerifier:
                 verified=False,
                 signature=signature,
                 error=f"Verification failed: {str(e)}"
+            )
+
+        except httpx.ReadTimeout:
+            logger.error(f"Timeout verifying transaction {signature}")
+            return PaymentVerification(
+                verified=False,
+                signature=signature,
+                error="Transaction verification timed out. Please try again."
             )
