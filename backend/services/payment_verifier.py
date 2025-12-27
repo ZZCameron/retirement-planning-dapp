@@ -49,7 +49,11 @@ class SolanaPaymentVerifier:
                         "method": "getTransaction",
                         "params": [
                             signature,
-                            {"encoding": "json", "maxSupportedTransactionVersion": 0}
+                            {
+                                "encoding": "json",
+                                "maxSupportedTransactionVersion": 0,
+                                "commitment": "confirmed"
+                            }
                         ]
                     }
                 )
