@@ -1,3 +1,4 @@
+// VERSION: 2024-12-29-v2
 // Configuration -->added to ensure the github repo was aligned
 const API_BASE_URL = 'https://web-production-c1f93.up.railway.app';
 const SOLANA_NETWORK = 'devnet';
@@ -18,13 +19,32 @@ let walletConnected = false;
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Retirement Planning Calculator loaded');
-    
-    // Initialize batch mode transformation
-    transformFormForBatchMode();
-    setupEventListeners();
-    checkWalletConnection();
-    updateCPPCalculation(); // Initial calculation
+    try {
+        console.log('Retirement Planning Calculator loaded');
+        
+        console.log('1. Transforming form for batch mode...');
+        transformFormForBatchMode();
+        
+        console.log('2. Setting up mode toggle...');
+        setupModeToggle();
+        
+        console.log('3. Setting up event listeners...');
+        setupEventListeners();
+        
+        console.log('4. Checking wallet connection...');
+        checkWalletConnection();
+        
+        console.log('5. Updating CPP calculation...');
+        updateCPPCalculation();
+        
+        console.log('6. Setting up calculate button...');
+        setupCalculateButton();
+        
+        console.log('✅ All initialization complete');
+    } catch (error) {
+        console.error('❌ Initialization error:', error);
+        console.error('Stack:', error.stack);
+    }
 });
 
 // Setup Event Listeners
@@ -32,7 +52,6 @@ function setupEventListeners() {
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
     document.getElementById('disconnectWallet')?.addEventListener('click', disconnectWallet);
     document.getElementById('testCalculate').addEventListener('click', testCalculate);
-    document.getElementById('calculateBtn').addEventListener('click', calculateWithPayment);
     document.getElementById('retirementForm').addEventListener('submit', handleSubmit);
     
     // CPP dynamic calculation
@@ -255,7 +274,7 @@ function getFormData() {
         oas_start_age: parseInt(document.getElementById('oasStartAge').value),
         desired_annual_spending: parseFloat(document.getElementById('desiredSpending').value),
         has_spouse: false,
-        tax_calculation_mode: document.querySelector('input[name="taxMode"]:checked').value.toLowerCase(),
+        tax_calculation_mode: 'accurate', // Always use accurate calculation
     };
     
     // Add pension data if checkbox is checked
@@ -767,7 +786,6 @@ function transformFormForBatchMode() {
 }
 
 // Call setup on page load
-document.addEventListener('DOMContentLoaded', setupModeToggle);
 
 
 // ===== BATCH SCENARIO COUNTER =====
@@ -885,3 +903,240 @@ switchToFreeMode = function() {
 // Initialize counter listeners
 setupBatchCounterListeners();
 
+
+// ===== BATCH SUBMISSION FLOW =====
+
+function getBatchInputData() {
+    // Collect all enabled range fields
+    const batchInput = {
+        // Single-value fields
+        current_age: parseInt(document.getElementById('currentAge').value),
+        life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
+        province: document.getElementById('province').value,
+        real_estate_value: parseFloat(document.getElementById('realEstateValue').value) || 0,
+        
+        // Pension (if enabled)
+        pension_income: {
+            enabled: false,
+            monthly_amount: 0,
+            start_year: new Date().getFullYear(),
+            annual_indexing: 0.02
+        },
+        
+        // Range fields
+        retirement_age: getRangeField('retirementAge'),
+        rrsp_balance: getRangeField('rrspBalance'),
+        tfsa_balance: getRangeField('tfsaBalance'),
+        nonreg_balance: getRangeField('nonRegistered'),
+        annual_spending: getRangeField('desiredSpending'),
+        monthly_savings: getRangeField('monthlyContribution'),
+        rrsp_real_return: getRangeField('rrspRealReturn', true), // Convert % to decimal
+        tfsa_real_return: getRangeField('tfsaRealReturn', true),
+        nonreg_real_return: getRangeField('nonRegRealReturn', true),
+        real_estate_appreciation: getRangeField('realEstateRealReturn', true),
+        real_estate_sale_age: getRangeField('realEstateSaleAge'),
+        cpp_start_age: getRangeField('cppStartAge'),
+        oas_start_age: getRangeField('oasStartAge')
+    };
+    
+    return batchInput;
+}
+
+function getRangeField(fieldId, isPercentage = false) {
+    const checkbox = document.querySelector(`.batch-enable[data-field="${fieldId}"]`);
+    const minInput = document.querySelector(`.batch-min[data-field="${fieldId}"]`);
+    const maxInput = document.querySelector(`.batch-max[data-field="${fieldId}"]`);
+    
+    const enabled = checkbox ? checkbox.checked : false;
+    let minVal = parseFloat(minInput?.value || 0);
+    let maxVal = parseFloat(maxInput?.value || minVal);
+    
+    // Convert percentage to decimal
+    if (isPercentage) {
+        minVal = minVal / 100;
+        maxVal = maxVal / 100;
+    }
+    
+    return {
+        min: minVal,
+        max: enabled ? maxVal : null,
+        enabled: enabled
+    };
+}
+
+async function estimateBatchCost() {
+    try {
+        const batchInput = getBatchInputData();
+        
+        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-batch-estimate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(batchInput)
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Estimation failed');
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Estimation error:', error);
+        throw error;
+    }
+}
+
+async function submitBatchCalculation() {
+    if (!wallet) {
+        showStatus('Please connect your Phantom wallet first', 'error');
+        return;
+    }
+    
+    try {
+        showStatus('📊 Estimating batch calculation...', 'info');
+        
+        // Step 1: Get estimate
+        const estimate = await estimateBatchCost();
+        console.log('Batch estimate:', estimate);
+        
+        if (!estimate.feasible) {
+            showStatus(`❌ Too many scenarios: ${estimate.scenario_count}. Maximum is 4,096.`, 'error');
+            return;
+        }
+        
+        // Step 2: Confirm with user
+        const costSOL = estimate.cost_sol.toFixed(5);
+        const costUSD = estimate.cost_usd_estimate.toFixed(2);
+        const timeEstimate = estimate.estimated_time_seconds.toFixed(1);
+        
+        const confirmed = confirm(
+            `🎯 Batch Calculation Summary:\n\n` +
+            `Scenarios: ${estimate.scenario_count.toLocaleString()}\n` +
+            `Estimated Time: ~${timeEstimate}s\n` +
+            `Cost: ${costSOL} SOL (~$${costUSD})\n\n` +
+            `Proceed with payment?`
+        );
+        
+        if (!confirmed) {
+            showStatus('Batch calculation cancelled', 'info');
+            return;
+        }
+        
+        // Step 3: Create payment transaction
+        showStatus('💰 Creating payment transaction...', 'info');
+        
+        const connection = new window.solanaWeb3.Connection(
+            'https://api.devnet.solana.com',
+            'confirmed'
+        );
+        
+        const recipientPubkey = new window.solanaWeb3.PublicKey(
+            '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m' // Treasury wallet
+        );
+        
+        const lamports = Math.floor(estimate.cost_sol * 1000000000);
+        
+        const transaction = new window.solanaWeb3.Transaction().add(
+            window.solanaWeb3.SystemProgram.transfer({
+                fromPubkey: wallet.publicKey,
+                toPubkey: recipientPubkey,
+                lamports: lamports
+            })
+        );
+        
+        transaction.feePayer = wallet.publicKey;
+        const { blockhash } = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
+        
+        // Step 4: Sign and send transaction
+        showStatus('✍️ Please approve the transaction in Phantom...', 'info');
+        
+        const signed = await wallet.signAndSendTransaction(transaction);
+        console.log('Transaction signature:', signed.signature);
+        
+        showStatus('⏳ Confirming transaction...', 'info');
+        
+        await connection.confirmTransaction(signed.signature, 'confirmed');
+        
+        console.log('✅ Payment confirmed');
+        
+        // Step 5: Submit batch calculation with payment proof
+        showStatus('🔄 Processing batch calculation...', 'info');
+        
+        const batchInput = getBatchInputData();
+        const url = new URL(`${API_BASE_URL}/api/v1/retirement/calculate-batch`);
+        url.searchParams.append('payment_signature', signed.signature);
+        url.searchParams.append('wallet_address', wallet.publicKey.toString());
+        
+        const batchResponse = await fetch(url.toString(), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(batchInput)
+        });
+        
+        if (!batchResponse.ok) {
+            const error = await batchResponse.json();
+            throw new Error(error.detail || 'Batch calculation failed');
+        }
+        
+        // Step 6: Download CSV
+        const blob = await batchResponse.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = `retirement_scenarios_${Date.now()}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+        
+        showStatus(
+            `✅ Success! ${estimate.scenario_count} scenarios calculated. CSV downloaded.\n` +
+            `Transaction: ${signed.signature.substring(0, 20)}...`,
+            'success'
+        );
+        
+    } catch (error) {
+        console.error('Batch calculation error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+    }
+}
+
+
+// Update the calculate button to handle both modes
+function setupCalculateButton() {
+    const calculateBtn = document.getElementById('calculateBtn');
+    console.log('�� Setting up calculate button, found:', calculateBtn);
+    
+    if (!calculateBtn) {
+        console.error('❌ Calculate button not found!');
+        return;
+    }
+    
+    // Remove any existing listeners by cloning the button
+    const newBtn = calculateBtn.cloneNode(true);
+    calculateBtn.parentNode.replaceChild(newBtn, calculateBtn);
+    
+    newBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        console.log('🎯 Calculate clicked, mode:', currentMode);
+        
+        if (currentMode === 'free') {
+            // Use existing free calculation
+            await calculate();
+        } else {
+            // Use batch calculation
+            await submitBatchCalculation();
+        }
+    });
+    
+    console.log('✅ Calculate button configured for both modes');
+}
+
+// Call this on page load
+
+console.log('🔧 App.js loaded at:', new Date().toISOString());
