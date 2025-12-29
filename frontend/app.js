@@ -1,4 +1,3 @@
-// VERSION: 2024-12-29-v2
 // Configuration -->added to ensure the github repo was aligned
 const API_BASE_URL = 'https://web-production-c1f93.up.railway.app';
 const SOLANA_NETWORK = 'devnet';
@@ -20,27 +19,12 @@ let walletConnected = false;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     try {
-        console.log('Retirement Planning Calculator loaded');
-        
-        console.log('1. Transforming form for batch mode...');
         transformFormForBatchMode();
-        
-        console.log('2. Setting up mode toggle...');
         setupModeToggle();
-        
-        console.log('3. Setting up event listeners...');
         setupEventListeners();
-        
-        console.log('4. Checking wallet connection...');
         checkWalletConnection();
-        
-        console.log('5. Updating CPP calculation...');
         updateCPPCalculation();
-        
-        console.log('6. Setting up calculate button...');
         setupCalculateButton();
-        
-        console.log('✅ All initialization complete');
     } catch (error) {
         console.error('❌ Initialization error:', error);
         console.error('Stack:', error.stack);
@@ -689,7 +673,6 @@ function setupModeToggle() {
         }
     });
     
-    console.log('✅ Mode toggle initialized');
 }
 
 // ===== BATCH MODE FUNCTIONS =====
@@ -708,7 +691,6 @@ function switchToFreeMode() {
     document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'none');
     document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'block');
     
-    console.log('🔄 Switched to free mode');
 }
 
 function switchToBatchMode() {
@@ -725,7 +707,6 @@ function switchToBatchMode() {
     document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'block');
     document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'none');
     
-    console.log('🔄 Switched to batch mode');
 }
 
 function transformFormForBatchMode() {
@@ -782,7 +763,6 @@ function transformFormForBatchMode() {
         originalInput.setAttribute('data-batch-field', field.id);
     });
     
-    console.log('✅ Batch form transformation applied to', rangeFields.length, 'fields');
 }
 
 // Call setup on page load
@@ -999,7 +979,6 @@ async function submitBatchCalculation() {
         
         // Step 1: Get estimate
         const estimate = await estimateBatchCost();
-        console.log('Batch estimate:', estimate);
         
         if (!estimate.feasible) {
             showStatus(`❌ Too many scenarios: ${estimate.scenario_count}. Maximum is 4,096.`, 'error');
@@ -1123,7 +1102,7 @@ function setupCalculateButton() {
     
     newBtn.addEventListener('click', async (e) => {
         e.preventDefault();
-        console.log('🎯 Calculate clicked, mode:', currentMode);
+
         
         if (currentMode === 'free') {
             // Use existing free calculation
@@ -1134,9 +1113,9 @@ function setupCalculateButton() {
         }
     });
     
-    console.log('✅ Calculate button configured for both modes');
+
 }
 
 // Call this on page load
 
-console.log('🔧 App.js loaded at:', new Date().toISOString());
+
