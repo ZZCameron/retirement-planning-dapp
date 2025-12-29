@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
-from backend.api.v1 import retirement
+from backend.api.v1 import retirement, batch_retirement
 from backend.config import settings
 from backend.models.retirement_plan import HealthCheckResponse
 
@@ -86,6 +86,12 @@ app.include_router(
     retirement.router,
     prefix="/api/v1/retirement",
     tags=["retirement"]
+)
+
+app.include_router(
+    batch_retirement.router,
+    prefix="/api/v1/retirement",
+    tags=["Batch Calculations"]
 )
 
 
