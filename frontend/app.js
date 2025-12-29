@@ -19,6 +19,9 @@ let walletConnected = false;
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Retirement Planning Calculator loaded');
+    
+    // Initialize batch mode transformation
+    transformFormForBatchMode();
     setupEventListeners();
     checkWalletConnection();
     updateCPPCalculation(); // Initial calculation
@@ -643,3 +646,242 @@ async function waitForConfirmation(signature) {
     }
     return confirmation;
 }
+
+
+// Mode Toggle Handler
+let currentMode = 'free';
+
+function setupModeToggle() {
+    const freeModeRadio = document.getElementById('freeModeRadio');
+    const batchModeRadio = document.getElementById('batchModeRadio');
+    const freeModeLabel = document.getElementById('freeModeLabel');
+    const batchModeLabel = document.getElementById('batchModeLabel');
+    const form = document.getElementById('retirementForm');
+    
+    freeModeRadio.addEventListener('change', () => {
+        if (freeModeRadio.checked) {
+            switchToFreeMode();
+        }
+    });
+    
+    batchModeRadio.addEventListener('change', () => {
+        if (batchModeRadio.checked) {
+            switchToBatchMode();
+        }
+    });
+    
+    console.log('✅ Mode toggle initialized');
+}
+
+// ===== BATCH MODE FUNCTIONS =====
+
+function switchToFreeMode() {
+    currentMode = 'free';
+    const freeModeLabel = document.getElementById('freeModeLabel');
+    const batchModeLabel = document.getElementById('batchModeLabel');
+    const form = document.getElementById('retirementForm');
+    
+    freeModeLabel.classList.add('active');
+    batchModeLabel.classList.remove('active');
+    form.classList.remove('batch-mode');
+    
+    // Hide batch controls, show original inputs
+    document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'none');
+    document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'block');
+    
+    console.log('🔄 Switched to free mode');
+}
+
+function switchToBatchMode() {
+    currentMode = 'batch';
+    const freeModeLabel = document.getElementById('freeModeLabel');
+    const batchModeLabel = document.getElementById('batchModeLabel');
+    const form = document.getElementById('retirementForm');
+    
+    batchModeLabel.classList.add('active');
+    freeModeLabel.classList.remove('active');
+    form.classList.add('batch-mode');
+    
+    // Show batch controls, hide original inputs
+    document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'none');
+    
+    console.log('🔄 Switched to batch mode');
+}
+
+function transformFormForBatchMode() {
+    const rangeFields = [
+        { id: 'retirementAge', label: 'Retirement Age', defaultEnabled: false },
+        { id: 'rrspBalance', label: 'RRSP Balance', defaultEnabled: true },
+        { id: 'tfsaBalance', label: 'TFSA Balance', defaultEnabled: true },
+        { id: 'nonRegistered', label: 'Non-Registered Balance', defaultEnabled: true },
+        { id: 'desiredSpending', label: 'Annual Spending', defaultEnabled: true },
+        { id: 'monthlyContribution', label: 'Monthly Savings', defaultEnabled: false },
+        { id: 'rrspRealReturn', label: 'RRSP Real Return (%)', defaultEnabled: false },
+        { id: 'tfsaRealReturn', label: 'TFSA Real Return (%)', defaultEnabled: false },
+        { id: 'nonRegRealReturn', label: 'Non-Reg Real Return (%)', defaultEnabled: true },
+        { id: 'realEstateRealReturn', label: 'Real Estate Appreciation (%)', defaultEnabled: false },
+        { id: 'realEstateSaleAge', label: 'Real Estate Sale Age', defaultEnabled: false },
+        { id: 'cppStartAge', label: 'CPP Start Age', defaultEnabled: false },
+        { id: 'oasStartAge', label: 'OAS Start Age', defaultEnabled: false }
+    ];
+
+    rangeFields.forEach(field => {
+        const originalInput = document.getElementById(field.id);
+        if (!originalInput) {
+            console.warn('Field not found:', field.id);
+            return;
+        }
+
+        const container = originalInput.parentElement;
+        
+        // Create batch mode controls
+        const batchControls = document.createElement('div');
+        batchControls.className = 'batch-controls';
+        batchControls.style.display = 'none';
+        
+        batchControls.innerHTML = `
+            <div class="batch-range-header">
+                <label class="batch-enable-label">
+                    <input type="checkbox" class="batch-enable" data-field="${field.id}" ${field.defaultEnabled ? 'checked' : ''}>
+                    <strong>Vary ${field.label}</strong>
+                </label>
+            </div>
+            <div class="batch-range-inputs">
+                <div class="range-input-group">
+                    <label>Min</label>
+                    <input type="number" class="batch-min" data-field="${field.id}" value="${originalInput.value}" step="any">
+                </div>
+                <div class="range-input-group">
+                    <label>Max</label>
+                    <input type="number" class="batch-max" data-field="${field.id}" value="${originalInput.value}" step="any">
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(batchControls);
+        originalInput.setAttribute('data-batch-field', field.id);
+    });
+    
+    console.log('✅ Batch form transformation applied to', rangeFields.length, 'fields');
+}
+
+// Call setup on page load
+document.addEventListener('DOMContentLoaded', setupModeToggle);
+
+
+// ===== BATCH SCENARIO COUNTER =====
+
+function updateScenarioCount() {
+    const enabledCheckboxes = document.querySelectorAll('.batch-enable:checked');
+    const enabledCount = enabledCheckboxes.length;
+    const scenarioCount = Math.pow(2, enabledCount);
+    
+    // Constants
+    const SOL_PER_RUN = 0.00002;
+    const SOL_USD_RATE = 150; // Approximate
+    const WARN_THRESHOLD = 2000;
+    const BLOCK_THRESHOLD = 4096;
+    
+    const totalCost = scenarioCount * SOL_PER_RUN;
+    const estimatedUSD = totalCost * SOL_USD_RATE;
+    const estimatedTime = (scenarioCount * 0.04).toFixed(1); // 40ms per scenario
+    
+    // Update or create the counter display
+    let counterDiv = document.getElementById('batchScenarioCounter');
+    if (!counterDiv) {
+        counterDiv = document.createElement('div');
+        counterDiv.id = 'batchScenarioCounter';
+        counterDiv.className = 'batch-scenario-counter';
+        
+        // Insert after the mode toggle
+        const modeToggle = document.querySelector('.mode-toggle-container');
+        modeToggle.parentNode.insertBefore(counterDiv, modeToggle.nextSibling);
+    }
+    
+    // Determine status
+    let status = 'ok';
+    let statusIcon = '✅';
+    let statusText = '';
+    
+    if (scenarioCount > BLOCK_THRESHOLD) {
+        status = 'blocked';
+        statusIcon = '🚫';
+        statusText = `Too many scenarios! Maximum is ${BLOCK_THRESHOLD.toLocaleString()}.`;
+    } else if (scenarioCount > WARN_THRESHOLD) {
+        status = 'warning';
+        statusIcon = '⚠️';
+        statusText = `Large batch - will take ~${Math.ceil(scenarioCount * 0.04 / 60)} minutes.`;
+    }
+    
+    counterDiv.innerHTML = `
+        <div class="counter-status ${status}">
+            <div class="counter-main">
+                <span class="counter-icon">${statusIcon}</span>
+                <div class="counter-details">
+                    <div class="counter-primary">
+                        <strong>${scenarioCount.toLocaleString()}</strong> scenarios
+                        <span class="counter-separator">|</span>
+                        <strong>~${estimatedTime}s</strong>
+                        <span class="counter-separator">|</span>
+                        <strong>${totalCost.toFixed(5)} SOL</strong>
+                        <span class="counter-secondary">(~$${estimatedUSD.toFixed(2)})</span>
+                    </div>
+                    ${statusText ? `<div class="counter-warning">${statusText}</div>` : ''}
+                </div>
+            </div>
+            <div class="counter-info">
+                ${enabledCount} field${enabledCount !== 1 ? 's' : ''} enabled (2^${enabledCount} = ${scenarioCount})
+            </div>
+        </div>
+    `;
+    
+    // Show/hide based on mode
+    if (currentMode === 'batch') {
+        counterDiv.style.display = 'block';
+    } else {
+        counterDiv.style.display = 'none';
+    }
+    
+    // Disable submit button if blocked
+    const submitButton = document.querySelector('#calculateBtn, button[type="submit"]');
+    if (submitButton && status === 'blocked') {
+        submitButton.disabled = true;
+        submitButton.title = 'Too many scenarios selected';
+    } else if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.title = '';
+    }
+    
+    return { scenarioCount, status, enabledCount };
+}
+
+// Update the counter when checkboxes change
+function setupBatchCounterListeners() {
+    document.addEventListener('change', (e) => {
+        if (e.target.classList.contains('batch-enable')) {
+            updateScenarioCount();
+        }
+    });
+}
+
+// Update switchToBatchMode to show counter
+const originalSwitchToBatch = switchToBatchMode;
+switchToBatchMode = function() {
+    originalSwitchToBatch();
+    updateScenarioCount();
+};
+
+// Update switchToFreeMode to hide counter
+const originalSwitchToFree = switchToFreeMode;
+switchToFreeMode = function() {
+    originalSwitchToFree();
+    const counterDiv = document.getElementById('batchScenarioCounter');
+    if (counterDiv) {
+        counterDiv.style.display = 'none';
+    }
+};
+
+// Initialize counter listeners
+setupBatchCounterListeners();
+

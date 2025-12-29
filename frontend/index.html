@@ -40,7 +40,27 @@
             <div class="form-section">
                 <h2>Your Retirement Plan</h2>
                 <form id="retirementForm">
-                    
+                    <!-- Calculation Mode Toggle -->
+                    <div class="mode-toggle-container">
+                        <h2>📊 Calculation Mode</h2>
+                        <div class="mode-toggle">
+                            <label class="mode-option active" id="freeModeLabel">
+                                <input type="radio" name="calcMode" value="free" id="freeModeRadio" checked>
+                                <span class="mode-label">
+                                    <strong>🧪 Free Calculation</strong>
+                                    <span class="mode-description">Single scenario, instant results</span>
+                                </span>
+                            </label>
+                            <label class="mode-option" id="batchModeLabel">
+                                <input type="radio" name="calcMode" value="batch" id="batchModeRadio">
+                                <span class="mode-label">
+                                    <strong>💰 Batch Analysis</strong>
+                                    <span class="mode-description">Multiple scenarios, CSV export (paid)</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Timeline -->
                     <h3>Timeline & Location</h3>
                     <div class="form-grid-4">
@@ -223,25 +243,6 @@
 
                     <!-- Action Buttons -->
                     <!-- Tax Calculation Mode -->
-                    <h3>💰 Tax Calculation Method</h3>
-                    <div class="form-group">
-                        <div class="tax-mode-selector">
-                            <label class="radio-option">
-                                <input type="radio" name="taxMode" value="SIMPLIFIED" checked>
-                                <span class="radio-label">
-                                    <strong>Simplified</strong>
-                                    <span class="info-text">25% flat tax rate (free)</span>
-                                </span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="taxMode" value="ACCURATE">
-                                <span class="radio-label">
-                                    <strong>Accurate ⭐</strong>
-                                    <span class="info-text">2024 federal + provincial rates</span>
-                                </span>
-                            </label>
-                        </div>
-                    </div>
 
 
                     <div class="form-actions">
