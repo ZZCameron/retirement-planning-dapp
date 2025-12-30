@@ -703,3 +703,63 @@ header h1 {
     border-top-color: rgba(0,0,0,0.1);
 }
 
+
+
+/* ===== Multiple Pensions & Properties Styles ===== */
+
+.pension-entry,
+.property-entry {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.pension-header,
+.property-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.pension-header h4,
+.property-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: #495057;
+}
+
+.btn-remove {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.btn-remove:hover {
+    background: #c82333;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+}
+
+.btn-secondary:hover {
+    background: #5a6268;
+}
+
+#pensionsContainer,
+#propertiesContainer {
+    margin-bottom: 1rem;
+}

@@ -249,7 +249,6 @@ function getFormData() {
         rrsp_real_return: parseFloat(document.getElementById('rrspRealReturn').value) / 100,
         tfsa_real_return: parseFloat(document.getElementById('tfsaRealReturn').value) / 100,
         non_reg_real_return: parseFloat(document.getElementById('nonRegRealReturn').value) / 100,
-        real_estate_value: parseFloat(document.getElementById('realEstateValue').value),
         real_estate_real_return: parseFloat(document.getElementById('realEstateRealReturn').value) / 100,
         real_estate_sale_age: parseInt(document.getElementById('realEstateSaleAge').value),
         cpp_monthly: parseFloat(document.getElementById('cppMonthly').value),
@@ -892,8 +891,6 @@ function getBatchInputData() {
         current_age: parseInt(document.getElementById('currentAge').value),
         life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
         province: document.getElementById('province').value,
-        real_estate_value: parseFloat(document.getElementById('realEstateValue').value) || 0,
-        
         // Pension (if enabled)
         pension_income: {
             enabled: false,
@@ -912,8 +909,8 @@ function getBatchInputData() {
         rrsp_real_return: getRangeField('rrspRealReturn', true), // Convert % to decimal
         tfsa_real_return: getRangeField('tfsaRealReturn', true),
         nonreg_real_return: getRangeField('nonRegRealReturn', true),
-        real_estate_appreciation: getRangeField('realEstateRealReturn', true),
-        real_estate_sale_age: getRangeField('realEstateSaleAge'),
+        true),
+        real_estate_holdings: getPropertiesData(),
         cpp_start_age: getRangeField('cppStartAge'),
         oas_start_age: getRangeField('oasStartAge')
     };
@@ -1117,3 +1114,177 @@ function setupCalculateButton() {
 // Call this on page load
 
 
+
+
+// ===== PENSION MANAGEMENT =====
+let pensionCounter = 0;
+
+function createPensionEntry(data = {}) {
+    const id = pensionCounter++;
+    const div = document.createElement('div');
+    div.className = 'pension-entry';
+    div.dataset.pensionId = id;
+    
+    div.innerHTML = `
+        <div class="pension-header">
+            <h4>Pension ${id + 1}</h4>
+            ${id > 0 ? '<button type="button" class="btn-remove" onclick="removePension(' + id + ')">✖ Remove</button>' : ''}
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Monthly Amount ($)</label>
+                <input type="number" class="pension-monthly" data-pension-id="${id}" 
+                       min="0" step="100" value="${data.monthly || 1000}">
+            </div>
+            <div class="form-group">
+                <label>Start Year</label>
+                <input type="number" class="pension-start-year" data-pension-id="${id}" 
+                       min="2024" max="2100" value="${data.startYear || 2034}">
+            </div>
+            <div class="form-group">
+                <label>Annual Indexing (%)</label>
+                <input type="number" class="pension-indexing" data-pension-id="${id}" 
+                       min="-5" max="10" step="0.1" value="${data.indexing || 2.0}">
+            </div>
+        </div>
+    `;
+    
+    return div;
+}
+
+function addPension(data = {}) {
+    const container = document.getElementById('pensionsContainer');
+    if (container) {
+        container.appendChild(createPensionEntry(data));
+    }
+}
+
+function removePension(id) {
+    const entry = document.querySelector(`[data-pension-id="${id}"]`)?.closest('.pension-entry');
+    if (entry) {
+        entry.remove();
+    }
+}
+
+function getPensionsData() {
+    const pensions = [];
+    document.querySelectorAll('.pension-entry').forEach(entry => {
+        const id = entry.dataset.pensionId;
+        const monthlyEl = document.querySelector(`.pension-monthly[data-pension-id="${id}"]`);
+        const startYearEl = document.querySelector(`.pension-start-year[data-pension-id="${id}"]`);
+        const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
+        
+        if (monthlyEl && startYearEl && indexingEl) {
+            const monthly = parseFloat(monthlyEl.value);
+            const startYear = parseInt(startYearEl.value);
+            const indexing = parseFloat(indexingEl.value) / 100;
+            
+            pensions.push({
+                monthly_amount: monthly,
+                start_year: startYear,
+                annual_indexing: indexing
+            });
+        }
+    });
+    return pensions;
+}
+
+// ===== PROPERTY MANAGEMENT =====
+let propertyCounter = 0;
+
+function createPropertyEntry(data = {}) {
+    const id = propertyCounter++;
+    const div = document.createElement('div');
+    div.className = 'property-entry';
+    div.dataset.propertyId = id;
+    
+    div.innerHTML = `
+        <div class="property-header">
+            <h4>Property ${id + 1}</h4>
+            <button type="button" class="btn-remove" onclick="removeProperty(${id})">✖ Remove</button>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Property Type</label>
+                <select class="property-type" data-property-id="${id}">
+                    <option value="primary_residence" ${data.type === 'primary_residence' ? 'selected' : ''}>Primary Residence</option>
+                    <option value="cottage" ${data.type === 'cottage' ? 'selected' : ''}>Cottage/Vacation</option>
+                    <option value="rental" ${data.type === 'rental' ? 'selected' : ''}>Rental Property</option>
+                    <option value="investment" ${data.type === 'investment' ? 'selected' : ''}>Investment Property</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Current Value ($)</label>
+                <input type="number" class="property-value" data-property-id="${id}" 
+                       min="0" step="10000" value="${data.value || 500000}">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Real Return (%/year)</label>
+                <input type="number" class="property-return" data-property-id="${id}" 
+                       min="-10" max="15" step="0.1" value="${data.return || 2.0}">
+            </div>
+            <div class="form-group">
+                <label>Sale Age (0 = never sell)</label>
+                <input type="number" class="property-sale-age" data-property-id="${id}" 
+                       min="0" max="150" value="${data.saleAge || 75}">
+            </div>
+        </div>
+    `;
+    
+    return div;
+}
+
+function addProperty(data = {}) {
+    const container = document.getElementById('propertiesContainer');
+    if (container) {
+        container.appendChild(createPropertyEntry(data));
+    }
+}
+
+function removeProperty(id) {
+    const entry = document.querySelector(`.property-entry[data-property-id="${id}"]`);
+    if (entry) {
+        entry.remove();
+    }
+}
+
+function getPropertiesData() {
+    const properties = [];
+    document.querySelectorAll('.property-entry').forEach(entry => {
+        const id = entry.dataset.propertyId;
+        const typeEl = document.querySelector(`.property-type[data-property-id="${id}"]`);
+        const valueEl = document.querySelector(`.property-value[data-property-id="${id}"]`);
+        const returnEl = document.querySelector(`.property-return[data-property-id="${id}"]`);
+        const saleAgeEl = document.querySelector(`.property-sale-age[data-property-id="${id}"]`);
+        
+        if (typeEl && valueEl && returnEl && saleAgeEl) {
+            const type = typeEl.value;
+            const value = parseFloat(valueEl.value);
+            const returnRate = parseFloat(returnEl.value) / 100;
+            const saleAge = parseInt(saleAgeEl.value);
+            
+            if (value > 0) {
+                properties.push({
+                    property_type: type,
+                    value: value,
+                    real_return: returnRate,
+                    sale_age: saleAge
+                });
+            }
+        }
+    });
+    return properties;
+}
+
+// ===== INITIALIZATION =====
+document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
+document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
+
+// Add first pension on page load if checkbox is checked
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('includePension')?.checked) {
+        addPension({ monthly: 1000, startYear: 2034, indexing: 2.0 });
+    }
+});
