@@ -249,8 +249,7 @@ function getFormData() {
         rrsp_real_return: parseFloat(document.getElementById('rrspRealReturn').value) / 100,
         tfsa_real_return: parseFloat(document.getElementById('tfsaRealReturn').value) / 100,
         non_reg_real_return: parseFloat(document.getElementById('nonRegRealReturn').value) / 100,
-        real_estate_real_return: parseFloat(document.getElementById('realEstateRealReturn').value) / 100,
-        real_estate_sale_age: parseInt(document.getElementById('realEstateSaleAge').value),
+        // Real estate handled by getPropertiesData()
         cpp_monthly: parseFloat(document.getElementById('cppMonthly').value),
         cpp_start_age: parseInt(document.getElementById('cppStartAge').value),
         oas_start_age: parseInt(document.getElementById('oasStartAge').value),
@@ -717,10 +716,7 @@ function transformFormForBatchMode() {
         { id: 'monthlyContribution', label: 'Monthly Savings', defaultEnabled: false },
         { id: 'rrspRealReturn', label: 'RRSP Real Return (%)', defaultEnabled: false },
         { id: 'tfsaRealReturn', label: 'TFSA Real Return (%)', defaultEnabled: false },
-        { id: 'nonRegRealReturn', label: 'Non-Reg Real Return (%)', defaultEnabled: true },
-        { id: 'realEstateRealReturn', label: 'Real Estate Appreciation (%)', defaultEnabled: false },
-        { id: 'realEstateSaleAge', label: 'Real Estate Sale Age', defaultEnabled: false },
-        { id: 'cppStartAge', label: 'CPP Start Age', defaultEnabled: false },
+        { id: 'nonRegRealReturn', label: 'Non-Reg Real Return (%)', defaultEnabled: true },{ id: 'cppStartAge', label: 'CPP Start Age', defaultEnabled: false },
         { id: 'oasStartAge', label: 'OAS Start Age', defaultEnabled: false }
     ];
 
