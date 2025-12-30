@@ -887,13 +887,8 @@ function getBatchInputData() {
         current_age: parseInt(document.getElementById('currentAge').value),
         life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
         province: document.getElementById('province').value,
-        // Pension (if enabled)
-        pension_income: {
-            enabled: false,
-            monthly_amount: 0,
-            start_year: new Date().getFullYear(),
-            annual_indexing: 0.02
-        },
+        // Pensions array
+        pensions: getPensionsData(),
         
         // Range fields
         retirement_age: getRangeField('retirementAge'),
