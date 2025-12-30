@@ -1088,7 +1088,6 @@ async function submitBatchCalculation() {
 // Update the calculate button to handle both modes
 function setupCalculateButton() {
     const calculateBtn = document.getElementById('calculateBtn');
-    console.log('�� Setting up calculate button, found:', calculateBtn);
     
     if (!calculateBtn) {
         console.error('❌ Calculate button not found!');
