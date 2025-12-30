@@ -242,6 +242,7 @@ function getFormData() {
         retirement_age: parseInt(document.getElementById('retirementAge').value),
         life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
         province: document.getElementById('province').value,
+        real_estate_value: 0,  // Legacy field, not used with arrays
         rrsp_balance: parseFloat(document.getElementById('rrspBalance').value),
         tfsa_balance: parseFloat(document.getElementById('tfsaBalance').value),
         non_registered: parseFloat(document.getElementById('nonRegistered').value),
@@ -887,6 +888,7 @@ function getBatchInputData() {
         current_age: parseInt(document.getElementById('currentAge').value),
         life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
         province: document.getElementById('province').value,
+        real_estate_value: 0,  // Legacy field, not used with arrays
         // Pensions array
         pensions: getPensionsData(),
         
