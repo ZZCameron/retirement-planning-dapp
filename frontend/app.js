@@ -931,9 +931,10 @@ function getRangeField(fieldId, isPercentage = false) {
 }
 
 async function estimateBatchCost() {
-    console.log("📤 Batch payload:", JSON.stringify(batchData, null, 2));
+    // Logging moved after batchInput is defined
     try {
         const batchInput = getBatchInputData();
+        console.log("📤 Batch payload:", JSON.stringify(batchInput, null, 2));
         
         const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-batch-estimate`, {
             method: 'POST',
@@ -1032,6 +1033,7 @@ async function submitBatchCalculation() {
         showStatus('🔄 Processing batch calculation...', 'info');
         
         const batchInput = getBatchInputData();
+        console.log("📤 Batch payload:", JSON.stringify(batchInput, null, 2));
         const url = new URL(`${API_BASE_URL}/api/v1/retirement/calculate-batch`);
         url.searchParams.append('payment_signature', signed.signature);
         url.searchParams.append('wallet_address', wallet.publicKey.toString());
