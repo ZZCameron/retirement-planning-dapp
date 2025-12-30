@@ -909,7 +909,6 @@ function getBatchInputData() {
         rrsp_real_return: getRangeField('rrspRealReturn', true), // Convert % to decimal
         tfsa_real_return: getRangeField('tfsaRealReturn', true),
         nonreg_real_return: getRangeField('nonRegRealReturn', true),
-        true),
         real_estate_holdings: getPropertiesData(),
         cpp_start_age: getRangeField('cppStartAge'),
         oas_start_age: getRangeField('oasStartAge')
