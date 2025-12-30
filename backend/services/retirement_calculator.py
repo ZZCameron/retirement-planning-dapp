@@ -170,16 +170,17 @@ class RetirementCalculator:
                 if current_age >= plan_input.cpp_start_age:
                     cpp_income = adjusted_cpp * 12  # Annual amount
                 
-                # Calculate pension income (NEW!)
+                # Calculate pension income from all pensions
                 pension_income = 0.0
-                if plan_input.pension:
+                for pension in plan_input.pensions:
                     # Calculate year from current_age
-                    projection_year = plan_input.pension.start_year + (current_age - plan_input.current_age)
-                    pension_income = self._calculate_pension_for_year(
+                    projection_year = pension.start_year + (current_age - plan_input.current_age)
+                    pension_amount = self._calculate_pension_for_year(
                         projection_year,
-                        plan_input.pension,
-                        plan_input.pension.start_year
+                        pension,
+                        pension.start_year
                     )
+                    pension_income += pension_amount
                 
                 oas_income = 0.0
                 if current_age >= plan_input.oas_start_age:
@@ -267,15 +268,16 @@ class RetirementCalculator:
                 tfsa_balance *= (1 + plan_input.tfsa_real_return)
                 non_reg_balance *= (1 + plan_input.non_reg_real_return)
 
-                # Real estate sale (if applicable)
-                if (plan_input.real_estate_sale_age > 0 and 
-                    current_age == plan_input.real_estate_sale_age):
-                    years_held = current_age - plan_input.current_age
-                    sale_value = (plan_input.real_estate_value * 
-                                 (1 + plan_input.real_estate_real_return) ** years_held)
-                    non_reg_balance += sale_value
-                    msg = f"Real estate sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
-                    warnings.append(msg)
+                # Real estate sales (handle multiple properties)
+                for property in plan_input.real_estate_holdings:
+                    if property.sale_age > 0 and current_age == property.sale_age:
+                        years_held = current_age - plan_input.current_age
+                        sale_value = (property.value * 
+                                     (1 + property.real_return) ** years_held)
+                        non_reg_balance += sale_value
+                        property_label = property.property_type.replace('_', ' ').title()
+                        msg = f"{property_label} sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
+                        warnings.append(msg)
 
                 # Create projection for this year
                 projection = YearlyProjection(

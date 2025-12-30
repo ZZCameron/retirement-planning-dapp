@@ -3,7 +3,7 @@ Data models for retirement planning API.
 Using Pydantic v2 for validation.
 """
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, Field, field_validator
 from enum import Enum
 
@@ -57,6 +57,33 @@ class PensionIncome(BaseModel):
                 raise ValueError("Pension end_year must be after start_year")
         return v
 
+
+
+class RealEstateHolding(BaseModel):
+    """
+    Single real estate property.
+    Types: primary_residence, cottage, rental, investment
+    """
+    value: float = Field(
+        gt=0,
+        description="Current property value (CAD)"
+    )
+    real_return: float = Field(
+        default=0.01,
+        ge=-0.10,
+        le=0.15,
+        description="Real appreciation rate after inflation (decimal)"
+    )
+    sale_age: int = Field(
+        ge=0,
+        le=150,
+        description="Age when property will be sold (0 = never sell)"
+    )
+    property_type: str = Field(
+        default="primary_residence",
+        description="Type: primary_residence, cottage, rental, investment"
+    )
+
 class RetirementPlanInput(BaseModel):
     """Input data for retirement planning calculations."""
     
@@ -99,22 +126,9 @@ class RetirementPlanInput(BaseModel):
     )
     
     # Real Estate (Optional)
-    real_estate_value: float = Field(
-        default=0.0,
-        ge=0,
-        description="Current real estate value (CAD, 0 = no real estate)"
-    )
-    real_estate_real_return: float = Field(
-        default=0.01,
-        ge=-0.10,
-        le=0.15,
-        description="Real estate real appreciation after inflation (decimal, can be negative)"
-    )
-    real_estate_sale_age: int = Field(
-        default=0,
-        ge=0,
-        le=150,
-        description="Age when selling real estate (0 = not selling)"
+    real_estate_holdings: List[RealEstateHolding] = Field(
+        default_factory=list,
+        description="List of real estate properties (primary residence, cottage, rental, etc.)"
     )
     
     # Government Benefits
@@ -137,9 +151,9 @@ class RetirementPlanInput(BaseModel):
     )
         
     # Pension Income (Optional)
-    pension: Optional[PensionIncome] = Field(
-        default=None,
-        description="Optional pension income stream"
+    pensions: List[PensionIncome] = Field(
+        default_factory=list,
+        description="List of pension income streams (can have multiple)"
     )
 
     # Retirement Spending

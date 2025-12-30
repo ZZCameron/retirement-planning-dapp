@@ -56,7 +56,7 @@ class BatchRetirementPlanInput(BaseModel):
     current_age: int = Field(ge=18, le=85)
     life_expectancy: int = Field(ge=65, le=150)
     province: str
-    real_estate_value: float = Field(ge=0, le=10_000_000)
+    real_estate_holdings: List[RealEstateHolding] = Field(default_factory=list)
     
     # Range fields (enabled = vary this field)
     retirement_age: RangeField
@@ -77,7 +77,7 @@ class BatchRetirementPlanInput(BaseModel):
     oas_start_age: RangeField
     
     # Pension (single values, not ranged)
-    pension: PensionIncome = PensionIncome()
+    pensions: List[PensionIncome] = Field(default_factory=list)
     
     @field_validator('life_expectancy')
     def validate_life_expectancy(cls, v, info):

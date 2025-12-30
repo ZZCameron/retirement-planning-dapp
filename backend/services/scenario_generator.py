@@ -63,8 +63,7 @@ class ScenarioGenerator:
             'rrsp_real_return': self.batch_input.rrsp_real_return.get_values(),
             'tfsa_real_return': self.batch_input.tfsa_real_return.get_values(),
             'nonreg_real_return': self.batch_input.nonreg_real_return.get_values(),
-            'real_estate_appreciation': self.batch_input.real_estate_appreciation.get_values(),
-            'real_estate_sale_age': self.batch_input.real_estate_sale_age.get_values(),
+            # real_estate_holdings passed directly as list (not in combinations)
             'cpp_start_age': self.batch_input.cpp_start_age.get_values(),
             'oas_start_age': self.batch_input.oas_start_age.get_values(),
         }
@@ -91,14 +90,8 @@ class ScenarioGenerator:
         Returns:
             RetirementPlanInput object
         """
-        # Create pension income dict
-        pension_dict = None
-        if self.batch_input.pension.enabled:
-            pension_dict = {
-                'monthly_amount': self.batch_input.pension.monthly_amount,
-                'starts_in_year': self.batch_input.pension.start_year,
-                'annual_indexing': self.batch_input.pension.annual_indexing,
-            }
+        # Pass through the list of pensions directly
+        # (No need to process - calculator handles the list)
         
         # Build RetirementPlanInput (matches existing calculator format)
         scenario = RetirementPlanInput(
@@ -122,9 +115,7 @@ class ScenarioGenerator:
             non_reg_real_return=values['nonreg_real_return'],  # Note: non_reg_real_return
             
             # Real estate (correct field names)
-            real_estate_value=self.batch_input.real_estate_value,
-            real_estate_real_return=values['real_estate_appreciation'],  # Note: real_estate_real_return
-            real_estate_sale_age=int(values['real_estate_sale_age']),
+            real_estate_holdings=self.batch_input.real_estate_holdings,  # List of properties
             
             # Government benefits (need cpp_monthly - use default)
             cpp_monthly=1200.0,  # Default CPP benefit at 65
@@ -132,7 +123,7 @@ class ScenarioGenerator:
             oas_start_age=int(values['oas_start_age']),
             
             # Pension (correct field name)
-            pension=pension_dict,  # Note: pension, not pension_income
+            pensions=self.batch_input.pensions,  # List of pensions
         )
         
         return scenario
