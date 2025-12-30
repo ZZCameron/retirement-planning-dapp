@@ -931,6 +931,7 @@ function getRangeField(fieldId, isPercentage = false) {
 }
 
 async function estimateBatchCost() {
+    console.log("📤 Batch payload:", JSON.stringify(batchData, null, 2));
     try {
         const batchInput = getBatchInputData();
         
