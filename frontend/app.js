@@ -116,7 +116,6 @@ function checkWalletConnection() {
     if ('solana' in window) {
         const provider = window.solana;
         if (provider.isPhantom) {
-            console.log('Phantom wallet detected');
             wallet = provider;
             provider.connect({ onlyIfTrusted: true })
                 .then(({ publicKey }) => {
