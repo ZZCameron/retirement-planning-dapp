@@ -1096,7 +1096,7 @@ function setupCalculateButton() {
         
         if (currentMode === 'free') {
             // Use existing free calculation
-            await calculate();
+            await testCalculate();
         } else {
             // Use batch calculation
             await submitBatchCalculation();
