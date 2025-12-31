@@ -1,3 +1,4 @@
+# Updated for pension/property arrays
 """
 Batch retirement planning API endpoint.
 Handles bulk scenario calculations with payment verification.
