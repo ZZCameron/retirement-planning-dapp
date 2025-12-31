@@ -948,7 +948,9 @@ async function estimateBatchCost() {
         
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.detail || 'Estimation failed');
+            console.error('❌ Backend error:', error);
+            console.error('Status:', response.status, response.statusText);
+            throw new Error(JSON.stringify(error));
         }
         
         return await response.json();
