@@ -115,7 +115,7 @@ class ScenarioGenerator:
             non_reg_real_return=values['nonreg_real_return'],  # Note: non_reg_real_return
             
             # Real estate (correct field names)
-            real_estate_holdings=self.batch_input.real_estate_holdings,  # List of properties
+            real_estate_holdings=[p.model_dump() for p in self.batch_input.real_estate_holdings],  # Convert to dicts
             
             # Government benefits (need cpp_monthly - use default)
             cpp_monthly=1200.0,  # Default CPP benefit at 65
@@ -123,7 +123,7 @@ class ScenarioGenerator:
             oas_start_age=int(values['oas_start_age']),
             
             # Pension (correct field name)
-            pensions=self.batch_input.pensions,  # List of pensions
+            pensions=[p.model_dump() for p in self.batch_input.pensions],  # Convert to dicts
         )
         
         return scenario
