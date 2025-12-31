@@ -903,6 +903,8 @@ function getBatchInputData() {
         tfsa_real_return: getRangeField('tfsaRealReturn', true),
         nonreg_real_return: getRangeField('nonRegRealReturn', true),
         real_estate_holdings: getPropertiesData(),
+        real_estate_appreciation: getRangeField('realEstateRealReturn', true),
+        real_estate_sale_age: getRangeField('realEstateSaleAge'),
         cpp_start_age: getRangeField('cppStartAge'),
         oas_start_age: getRangeField('oasStartAge')
     };
