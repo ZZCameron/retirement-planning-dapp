@@ -1,3 +1,4 @@
+from fastapi.responses import FileResponse
 """
 Main FastAPI application entry point.
 Retirement Planning DApp - Canadian Rules Implementation.
@@ -51,6 +52,30 @@ app.add_middleware(
     allowed_hosts=["localhost", "127.0.0.1", "*"] if settings.debug else ["yourdomain.com"],
 )
 
+# Serve static files (templates, Excel, etc.)
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
+
+# Template download endpoints
+@app.get("/api/v1/templates/excel")
+async def download_excel_template():
+    """Download Excel analysis template"""
+    return FileResponse(
+        path="backend/static/templates/Retirement_Analysis_Template.xlsx",
+        filename="Retirement_Analysis_Template.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+@app.get("/api/v1/templates/sheets-guide")
+async def download_sheets_guide():
+    """Download Google Sheets guide"""
+    return FileResponse(
+        path="backend/static/templates/GOOGLE_SHEETS_GUIDE.md",
+        filename="GOOGLE_SHEETS_GUIDE.md",
+        media_type="text/markdown"
+    )
+
+
 # CORS Middleware (must be added before other middleware)
 app.add_middleware(
     CORSMiddleware,
@@ -59,6 +84,30 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods including OPTIONS
     allow_headers=["*"],
 )
+
+# Serve static files (templates, Excel, etc.)
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory="backend/static"), name="static")
+
+# Template download endpoints
+@app.get("/api/v1/templates/excel")
+async def download_excel_template():
+    """Download Excel analysis template"""
+    return FileResponse(
+        path="backend/static/templates/Retirement_Analysis_Template.xlsx",
+        filename="Retirement_Analysis_Template.xlsx",
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
+@app.get("/api/v1/templates/sheets-guide")
+async def download_sheets_guide():
+    """Download Google Sheets guide"""
+    return FileResponse(
+        path="backend/static/templates/GOOGLE_SHEETS_GUIDE.md",
+        filename="GOOGLE_SHEETS_GUIDE.md",
+        media_type="text/markdown"
+    )
+
 
 
 @app.get("/", response_model=HealthCheckResponse)
