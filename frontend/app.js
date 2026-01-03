@@ -697,10 +697,6 @@ function switchToFreeMode() {
     batchModeLabel.classList.remove('active');
     form.classList.remove('batch-mode');
     
-    // Hide batch info box
-    const batchInfo = document.querySelector('.batch-mode-info');
-    if (batchInfo) batchInfo.style.display = 'none';
-    
     // Hide batch controls, show original inputs
     document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'none');
     document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'block');
@@ -716,10 +712,6 @@ function switchToBatchMode() {
     batchModeLabel.classList.add('active');
     freeModeLabel.classList.remove('active');
     form.classList.add('batch-mode');
-    
-    // Show batch info box
-    const batchInfo = document.querySelector('.batch-mode-info');
-    if (batchInfo) batchInfo.style.display = 'block';
     
     // Show batch controls, hide original inputs
     document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'block');
