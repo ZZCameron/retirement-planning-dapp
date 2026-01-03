@@ -61,13 +61,21 @@ app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 async def download_excel_template():
     """Download Excel analysis template"""
     import os
+    from fastapi.responses import FileResponse
+    
     template_path = os.path.join(os.path.dirname(__file__), "static", "templates", "Retirement_Analysis_Template.xlsx")
+    
     if not os.path.exists(template_path):
-        raise HTTPException(status_code=404, detail="Template not found")
+        raise HTTPException(status_code=404, detail=f"Template not found at {template_path}")
+    
     return FileResponse(
         path=template_path,
         filename="Retirement_Analysis_Template.xlsx",
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={
+            "Content-Disposition": "attachment; filename=Retirement_Analysis_Template.xlsx",
+            "Cache-Control": "no-cache"
+        }
     )
 
 @app.get("/api/v1/templates/sheets-guide")
