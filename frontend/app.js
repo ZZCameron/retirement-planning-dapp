@@ -519,6 +519,7 @@ function drawChart(projections) {
                 y1: {
                     beginAtZero: true,
                     position: 'right',
+                    display: 'auto',  // Hide when dataset is hidden
                     title: {
                         display: true,
                         text: 'Annual Taxes ($)',
