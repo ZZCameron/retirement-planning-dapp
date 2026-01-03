@@ -1,102 +1,252 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        * { max-font-size: 16px !important; }
-        body { 
-            font-size: 14px !important; 
-            line-height: 1.6 !important;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1 { font-size: 24px !important; }
-        h2 { font-size: 20px !important; }
-        h3 { font-size: 18px !important; }
-        p, li, td { font-size: 14px !important; }
-        code, pre { font-size: 13px !important; }
-    </style>
     <meta charset="UTF-8">
-    <title>Google Sheets Template Guide</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Retirement Analysis Guide</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.6; }
-        h1 { color: #2e7d32; }
-        h2 { color: #1b5e20; border-bottom: 2px solid #4caf50; padding-bottom: 5px; }
-        code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
-        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
-        .tip { background: #e8f5e9; padding: 15px; border-left: 4px solid #4caf50; margin: 20px 0; }
+        @media print {
+            body { margin: 0; }
+            .page-break { page-break-before: always; }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+            padding: 0;
+        }
+        
+        .document {
+            max-width: 8.5in;
+            margin: 20px auto;
+            background: white;
+            padding: 1in;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 24pt;
+            color: #2c3e50;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 18pt;
+            color: #34495e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            padding-left: 15px;
+        }
+        
+        h3 {
+            font-size: 14pt;
+            color: #555;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            margin-bottom: 12px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 8px;
+        }
+        
+        code {
+            font-family: 'Courier New', monospace;
+            background: #f8f8f8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11pt;
+        }
+        
+        .step-box {
+            background: #e8f4f8;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin: 15px 0;
+            font-style: italic;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 11pt;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 10pt;
+            color: #666;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-<h1>Google Sheets Template for Retirement Analysis</p><p>#<h1>📊 Quick Setup (2 minutes)</p><p>##<h1>Step 1: Copy the Template
-Click here: [Google Sheets Template](https://docs.google.com/spreadsheets/d/1_TEMPLATE_ID/copy)
-(Template will be published after initial setup)</p><p>##<h1>Step 2: Import Your CSV
-1. In your copied sheet, go to <strong>File → Import<strong>
-2. Upload your <code>retirement_scenarios_XXXXX.csv<code> file
-3. Choose <strong>"Replace data at selected cell"<strong>
-4. Select cell <strong>A1<strong> in "Raw Data" sheet
-5. Click <strong>Import<strong></p><p>##<h1>Step 3: View Analysis
-- <strong>Summary Dashboard<strong> - Automatic metrics and success rate
-- <strong>Top Scenarios<strong> - Best outcomes auto-ranked
-- <strong>Scenario Comparison<strong> - Compare up to 5 scenarios</p><p>---</p><p>#<h1>🎯 What You Get</p><p>##<h1>Summary Dashboard
-- Total scenarios analyzed
-- Success rate percentage
-- Average final balance for successful plans
-- Quick filters for retirement age ranges</p><p>##<h1>Top Scenarios (Auto-Updated)
-Automatically shows top 10 scenarios sorted by:
-- Final balance (highest first)
-- Filtered to successful plans only</p><p>##<h1>Scenario Comparison
-- Enter up to 5 scenario IDs
-- Auto-populates key metrics:
-  - Retirement age
-  - Starting balances (RRSP, TFSA, Non-Reg)
-  - Annual spending
-  - Final balance
-  - Success status</p><p>##<h1>Charts (Auto-Generated)
-- Balance progression over time
-- Success rate by retirement age
-- Spending vs final balance scatter plot</p><p>---</p><p>#<h1>💡 Pro Tips</p><p>##<h1>Finding Best Scenarios
-1. Go to "Raw Data" sheet
-2. Click column <strong>X<strong> (final_balance)
-3. Data → Create a filter
-4. Sort Z→A (highest first)
-5. Filter column <strong>W<strong> (success) = TRUE</p><p>##<h1>Analyzing Failed Scenarios
-1. Filter success column = FALSE
-2. Check "warnings" column (Y) for details
-3. Common issues:
-   - Spending too high
-   - Retiring too early
-   - Insufficient starting balance</p><p>##<h1>Custom Analysis
-- Use pivot tables on Raw Data
-- Group by retirement_age
-- Compare different spending levels
-- Analyze impact of pension amounts</p><p>---</p><p>#<h1>📖 Understanding the Data</p><p>##<h1>Scenario Columns
-- <strong>scenario_id<strong>: Unique identifier (1, 2, 3...)
-- <strong>retirement_age<strong>: Age you retire
-- <strong>rrsp_balance<strong>: Starting RRSP amount
-- <strong>tfsa_balance<strong>: Starting TFSA amount
-- <strong>annual_spending<strong>: Yearly expenses
-- <strong>num_pensions<strong>: Number of pension income sources
-- <strong>num_properties<strong>: Number of real estate holdings</p><p>##<h1>Result Columns
-- <strong>success<strong>: TRUE = money lasts to age 90
-- <strong>final_balance<strong>: Amount left at age 90
-- <strong>warnings<strong>: Issues encountered (if any)</p><p>##<h1>Year-by-Year Data
-Each scenario has ~35 rows (age 55-90):
-- <strong>year<strong>: Years since start (0, 1, 2...)
-- <strong>age<strong>: Your age that year
-- <strong>total_balance<strong>: Sum of all accounts
-- <strong>gross_income<strong>: Income that year
-- <strong>taxes_estimated<strong>: Taxes paid</p><p>---</p><p>#<h1>🔧 Troubleshooting</p><p><strong>Import fails?<strong>
-- Ensure CSV has no extra empty rows at top
-- Check file is comma-separated (not semicolon)</p><p><strong>Formulas show #REF!?<strong>
-- Re-import CSV to Raw Data sheet
-- Ensure data starts at cell A1</p><p><strong>Charts not updating?<strong>
-- Click chart → Three dots → Refresh</p><p>---</p><p>#<h1>📥 Template Files</p><p><strong>For Excel Users:<strong>
-Download <code>Retirement_Analysis_Template.xlsx<code> from the repository</p><p><strong>For Google Sheets Users:<strong>
-Use the template link above or create manually using this guide</p><p>---</p><p>*Generated by Retirement Planning DApp*
-*https://retirement-planning-dapp.vercel.app*
-
+    <div class="document">
+        <h1>📊 Google Sheets Retirement Analysis Guide</h1>
+        
+        <p><strong>Version:</strong> 1.0 | <strong>Last Updated:</strong> January 2026</p>
+        
+        <h2>Overview</h2>
+        <p>This guide will help you analyze your retirement planning batch results using Google Sheets. The CSV file from your batch calculation contains comprehensive year-by-year projections for multiple retirement scenarios.</p>
+        
+        <h2>Step 1: Import Your CSV Data</h2>
+        <div class="step-box">
+            <ol>
+                <li>Open Google Sheets: <a href="https://sheets.google.com">sheets.google.com</a></li>
+                <li>Click <strong>File → Import</strong></li>
+                <li>Click <strong>Upload</strong> tab</li>
+                <li>Drag your CSV file or click <strong>Browse</strong></li>
+                <li>Select <strong>"Replace spreadsheet"</strong></li>
+                <li>Click <strong>Import data</strong></li>
+            </ol>
+        </div>
+        
+        <h2>Step 2: Understanding Your Data</h2>
+        
+        <h3>Input Parameters (Columns A-N)</h3>
+        <table>
+            <tr>
+                <th>Column</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><code>scenario_id</code></td>
+                <td>Unique identifier for each scenario</td>
+            </tr>
+            <tr>
+                <td><code>retirement_age</code></td>
+                <td>Age when you retire</td>
+            </tr>
+            <tr>
+                <td><code>rrsp_balance</code></td>
+                <td>RRSP/RRIF starting balance</td>
+            </tr>
+            <tr>
+                <td><code>tfsa_balance</code></td>
+                <td>TFSA starting balance</td>
+            </tr>
+            <tr>
+                <td><code>num_pensions</code></td>
+                <td>Number of pension income sources</td>
+            </tr>
+            <tr>
+                <td><code>num_properties</code></td>
+                <td>Number of real estate holdings</td>
+            </tr>
+        </table>
+        
+        <h3>Results (Columns O+)</h3>
+        <ul>
+            <li><strong>year/age:</strong> Timeline of your retirement</li>
+            <li><strong>total_balance:</strong> Combined value of all accounts</li>
+            <li><strong>gross_income:</strong> Total annual income</li>
+            <li><strong>taxes_estimated:</strong> Estimated taxes paid</li>
+            <li><strong>success:</strong> TRUE if money lasts, FALSE if depleted</li>
+            <li><strong>final_balance:</strong> Money remaining at life expectancy</li>
+        </ul>
+        
+        <h2>Step 3: Find Your Best Scenarios</h2>
+        
+        <div class="step-box">
+            <h3>Filter for Successful Plans</h3>
+            <ol>
+                <li>Click the filter icon in column <code>success</code></li>
+                <li>Uncheck <code>FALSE</code></li>
+                <li>Click <strong>OK</strong></li>
+            </ol>
+        </div>
+        
+        <div class="step-box">
+            <h3>Sort by Final Balance</h3>
+            <ol>
+                <li>Click column <code>final_balance</code> header</li>
+                <li>Click <strong>Data → Sort range</strong></li>
+                <li>Select <strong>Z→A</strong> (highest first)</li>
+            </ol>
+        </div>
+        
+        <h2>Step 4: Create Visualizations</h2>
+        
+        <h3>Chart: Balance Over Time</h3>
+        <ol>
+            <li>Select columns: <code>age</code>, <code>total_balance</code></li>
+            <li>Click <strong>Insert → Chart</strong></li>
+            <li>Choose <strong>Line chart</strong></li>
+            <li>Customize title: "Retirement Balance Projection"</li>
+        </ol>
+        
+        <h3>Pivot Table: Compare Scenarios</h3>
+        <ol>
+            <li>Click <strong>Data → Pivot table</strong></li>
+            <li><strong>Rows:</strong> Add <code>scenario_id</code></li>
+            <li><strong>Values:</strong> Add <code>final_balance</code> (AVERAGE)</li>
+            <li><strong>Values:</strong> Add <code>success</code> (COUNTA)</li>
+        </ol>
+        
+        <div class="note">
+            <strong>💡 Tip:</strong> Use conditional formatting to highlight successful scenarios. Select the <code>success</code> column, then <strong>Format → Conditional formatting</strong>, and color TRUE values green.
+        </div>
+        
+        <h2>Step 5: Key Insights to Look For</h2>
+        
+        <ul>
+            <li><strong>Buffer Amount:</strong> How much cushion do successful scenarios have?</li>
+            <li><strong>Age at Depletion:</strong> When do failed scenarios run out?</li>
+            <li><strong>Tax Efficiency:</strong> Compare taxes paid across scenarios</li>
+            <li><strong>Pension Impact:</strong> Do pensions significantly extend success?</li>
+            <li><strong>Property Impact:</strong> How do real estate sales affect outcomes?</li>
+        </ul>
+        
+        <h2>Need Help?</h2>
+        <p>Visit the calculator at <a href="https://retirement-planning-dapp.vercel.app">retirement-planning-dapp.vercel.app</a> or review the backend documentation at <a href="https://web-production-c1f93.up.railway.app/docs">Railway API docs</a>.</p>
+        
+        <div class="footer">
+            <p>Retirement Planning DApp | Powered by Solana Blockchain</p>
+            <p>© 2026 - This guide is provided for informational purposes only</p>
+        </div>
+    </div>
 </body>
 </html>
