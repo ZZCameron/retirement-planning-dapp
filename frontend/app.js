@@ -454,6 +454,7 @@ function drawChart(projections) {
                     borderWidth: 2,
                     tension: 0.4,
                     fill: true,
+                    hidden: true,  // Hidden by default
                     yAxisID: 'y1'
                 },
 
