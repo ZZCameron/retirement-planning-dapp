@@ -60,8 +60,10 @@ app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 @app.get("/api/v1/templates/excel")
 async def download_excel_template():
     """Download Excel analysis template"""
+    from pathlib import Path
+    template_path = Path(__file__).parent / "static" / "templates" / "Retirement_Analysis_Template.xlsx"
     return FileResponse(
-        path="backend/static/templates/Retirement_Analysis_Template.xlsx",
+        path=str(template_path),
         filename="Retirement_Analysis_Template.xlsx",
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
@@ -69,8 +71,10 @@ async def download_excel_template():
 @app.get("/api/v1/templates/sheets-guide")
 async def download_sheets_guide():
     """Download Google Sheets guide"""
+    from pathlib import Path
+    guide_path = Path(__file__).parent / "static" / "templates" / "GOOGLE_SHEETS_GUIDE.md"
     return FileResponse(
-        path="backend/static/templates/GOOGLE_SHEETS_GUIDE.md",
+        path=str(guide_path),
         filename="GOOGLE_SHEETS_GUIDE.md",
         media_type="text/markdown"
     )
@@ -93,8 +97,10 @@ app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 @app.get("/api/v1/templates/excel")
 async def download_excel_template():
     """Download Excel analysis template"""
+    from pathlib import Path
+    template_path = Path(__file__).parent / "static" / "templates" / "Retirement_Analysis_Template.xlsx"
     return FileResponse(
-        path="backend/static/templates/Retirement_Analysis_Template.xlsx",
+        path=str(template_path),
         filename="Retirement_Analysis_Template.xlsx",
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
@@ -102,8 +108,10 @@ async def download_excel_template():
 @app.get("/api/v1/templates/sheets-guide")
 async def download_sheets_guide():
     """Download Google Sheets guide"""
+    from pathlib import Path
+    guide_path = Path(__file__).parent / "static" / "templates" / "GOOGLE_SHEETS_GUIDE.md"
     return FileResponse(
-        path="backend/static/templates/GOOGLE_SHEETS_GUIDE.md",
+        path=str(guide_path),
         filename="GOOGLE_SHEETS_GUIDE.md",
         media_type="text/markdown"
     )
