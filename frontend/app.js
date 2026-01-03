@@ -278,7 +278,12 @@ function getFormData() {
     // Now return the complete data object
 
     // ✅ Use pension/property arrays
-    data.pensions = getPensionsData();
+    // Only include pensions if checkbox is checked
+    if (document.getElementById('includePension')?.checked) {
+        data.pensions = getPensionsData();
+    } else {
+        data.pensions = [];
+    }
     data.real_estate_holdings = getPropertiesData();
     
     return data;
