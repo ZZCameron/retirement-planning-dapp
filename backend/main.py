@@ -60,16 +60,30 @@ app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 @app.get("/api/v1/templates/excel")
 async def download_excel_template():
     """Download Excel analysis template"""
-    from pathlib import Path
-    template_path = Path(__file__).parent / "static" / "templates" / "Retirement_Analysis_Template.xlsx"
+    import os
+    template_path = os.path.join(os.path.dirname(__file__), "static", "templates", "Retirement_Analysis_Template.xlsx")
+    if not os.path.exists(template_path):
+        raise HTTPException(status_code=404, detail="Template not found")
     return FileResponse(
-        path=str(template_path),
+        path=template_path,
         filename="Retirement_Analysis_Template.xlsx",
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
 @app.get("/api/v1/templates/sheets-guide")
 async def download_sheets_guide():
+    """Download Google Sheets guide"""
+    import os
+    guide_path = os.path.join(os.path.dirname(__file__), "static", "templates", "google_sheets_guide.html")
+    if not os.path.exists(guide_path):
+        raise HTTPException(status_code=404, detail="Guide not found")
+    return FileResponse(
+        path=guide_path,
+        filename="Google_Sheets_Retirement_Analysis_Guide.html",
+        media_type="text/html"
+    )
+
+def download_sheets_guide():
     """Download Google Sheets guide"""
     from pathlib import Path
     guide_path = Path(__file__).parent / "static" / "templates" / "GOOGLE_SHEETS_GUIDE.md"
