@@ -276,6 +276,11 @@ function getFormData() {
     }
     
     // Now return the complete data object
+
+    // ✅ Use pension/property arrays
+    data.pensions = getPensionsData();
+    data.real_estate_holdings = getPropertiesData();
+    
     return data;
 }
 
