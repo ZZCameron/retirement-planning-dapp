@@ -1081,7 +1081,17 @@ async function submitBatchCalculation() {
         window.URL.revokeObjectURL(downloadUrl);
         
         showStatus(
-            `✅ Success! ${estimate.scenario_count} scenarios calculated. CSV downloaded.\n` +
+            `✅ Success! ${estimate.scenario_count} scenarios calculated.
+
+` +
+            `📊 CSV downloaded! Now analyze your results:
+` +
+            `📥 Excel Template: github.com/ZZCameron/retirement-planning-dapp/raw/master/templates/Retirement_Analysis_Template.xlsx
+` +
+            `📥 Google Sheets Guide: github.com/ZZCameron/retirement-planning-dapp/blob/master/templates/GOOGLE_SHEETS_GUIDE.md
+
+` +
+            `Transaction: ${signed.signature.substring(0, 20)}...` +
             `Transaction: ${signed.signature.substring(0, 20)}...`,
             'success'
         );
