@@ -902,7 +902,8 @@ function getBatchInputData() {
         province: document.getElementById('province').value,
         real_estate_value: 0,  // Legacy field, not used with arrays
         // Pensions array
-        pensions: getPensionsData(),
+        // Pensions array (only if checkbox checked)
+        pensions: document.getElementById('includePension')?.checked ? getPensionsData() : [],
         
         // Range fields
         retirement_age: getRangeField('retirementAge'),
@@ -1333,9 +1334,6 @@ function getPropertiesData() {
 document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
 document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
 
-// Add first pension on page load if checkbox is checked
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('includePension')?.checked) {
-        addPension({ monthly: 1000, startYear: 2034, indexing: 2.0 });
+// Removed: Auto-add pension on page load (users add manually via button)
     }
 });
