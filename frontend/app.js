@@ -1110,10 +1110,10 @@ async function submitBatchCalculation() {
             window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         }, 500);
         
-        // Clear previous results section if it exists
-        const existingResults = document.getElementById('batchResults');
-        if (existingResults) {
-            existingResults.innerHTML = ''; // Clear previous content
+        // Clear ALL previous results (prevent duplication)
+        const batchResultsDiv = document.getElementById('batchResults');
+        if (batchResultsDiv) {
+            batchResultsDiv.innerHTML = ''; // Clear everything
         }
         
         // Add template download buttons
@@ -1133,10 +1133,9 @@ async function submitBatchCalculation() {
             </a>
         `;
         
-        // Insert after results section or create floating notification
-        const resultsSection = document.getElementById('resultsSection');
-        if (resultsSection && resultsSection.parentNode) {
-            resultsSection.parentNode.insertBefore(templateDiv, resultsSection.nextSibling);
+        // Insert into batchResults container (cleared above)
+        if (batchResultsDiv) {
+            batchResultsDiv.appendChild(templateDiv);
             // Auto-scroll to show buttons
             templateDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
