@@ -1110,11 +1110,23 @@ async function submitBatchCalculation() {
             window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         }, 500);
         
-        // Clear ALL previous results (prevent duplication)
-        const batchResultsDiv = document.getElementById('batchResults');
-        if (batchResultsDiv) {
-            batchResultsDiv.innerHTML = ''; // Clear everything
+        // Get or create batchResults container
+        let batchResultsDiv = document.getElementById('batchResults');
+        if (!batchResultsDiv) {
+            // Create it if it doesn't exist
+            batchResultsDiv = document.createElement('div');
+            batchResultsDiv.id = 'batchResults';
+            batchResultsDiv.style.cssText = 'margin-top: 20px;';
+            
+            // Insert after resultsSection or at end of form
+            const resultsSection = document.getElementById('resultsSection') || 
+                                   document.querySelector('.calculator-container') ||
+                                   document.body;
+            resultsSection.parentNode.insertBefore(batchResultsDiv, resultsSection.nextSibling);
         }
+        
+        // Clear previous results to prevent duplication
+        batchResultsDiv.innerHTML = '';
         
         // Add template download buttons
         const templateDiv = document.createElement('div');
