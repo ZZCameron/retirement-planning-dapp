@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         checkWalletConnection();
         updateCPPCalculation();
         setupCalculateButton();
+    updateCalculateButtons(); // Set initial button states
     } catch (error) {
         console.error('❌ Initialization error:', error);
         console.error('Stack:', error.stack);
@@ -687,6 +688,27 @@ function setupModeToggle() {
 
 // ===== BATCH MODE FUNCTIONS =====
 
+
+// Update calculate button states based on mode
+function updateCalculateButtons() {
+    const isBatchMode = document.getElementById('batchModeRadio')?.checked;
+    const paidButton = document.querySelector('button[onclick="handleSubmit()"]');
+    
+    if (paidButton) {
+        if (isBatchMode) {
+            paidButton.disabled = false;
+            paidButton.style.opacity = '1';
+            paidButton.style.cursor = 'pointer';
+            paidButton.title = 'Run batch analysis with payment';
+        } else {
+            paidButton.disabled = true;
+            paidButton.style.opacity = '0.5';
+            paidButton.style.cursor = 'not-allowed';
+            paidButton.title = 'Switch to Batch mode to use paid calculation';
+        }
+    }
+}
+
 function switchToFreeMode() {
     currentMode = 'free';
     const freeModeLabel = document.getElementById('freeModeLabel');
@@ -1085,6 +1107,12 @@ async function submitBatchCalculation() {
         setTimeout(() => {
             window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
         }, 500);
+        
+        // Clear previous results section if it exists
+        const existingResults = document.getElementById('batchResults');
+        if (existingResults) {
+            existingResults.innerHTML = ''; // Clear previous content
+        }
         
         // Add template download buttons
         const templateDiv = document.createElement('div');
