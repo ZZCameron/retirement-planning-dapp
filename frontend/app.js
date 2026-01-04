@@ -692,8 +692,7 @@ function setupModeToggle() {
 // Update calculate button states based on mode
 function updateCalculateButtons() {
     const isBatchMode = document.getElementById('batchModeRadio')?.checked;
-    const paidButton = document.querySelector('button[onclick="handleSubmit()"]') || 
-                      document.querySelector('.calculate-button:not([onclick*="testCalculate"])');
+    const paidButton = document.getElementById('calculateBtn');
     
     if (paidButton) {
         if (isBatchMode) {
@@ -908,8 +907,9 @@ switchToFreeMode = function() {
     const counterDiv = document.getElementById('batchScenarioCounter');
     if (counterDiv) {
         counterDiv.style.display = 'none';
-    }    updateCalculateButtons(); // Disable paid button
-};;
+        }
+    updateCalculateButtons(); // Disable paid button
+};
 
 // Initialize counter listeners
 setupBatchCounterListeners();
