@@ -123,7 +123,20 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="monthlyContribution">Monthly Savings ($)</label>
+                                <label for="monthlyContribution">
+                                    Monthly Savings ($)
+                                    <span class="info-icon" title="💡 How Monthly Savings Work:
+
+Pre-retirement contributions to registered accounts (RRSP, TFSA, Non-Registered).
+
+• Added to your accounts each year while working
+• Automatically stop at retirement age
+• Help grow your retirement funds
+
+Example: $500/month = $6,000/year
+
+Note: This is separate from pension income, which starts AFTER retirement.">ℹ️</span>
+                                </label>
                                 <input type="number" id="monthlyContribution" value="1500" required>
                                 <span class="info-text">Split 70% RRSP / 30% TFSA</span>
                             </div>
@@ -179,7 +192,25 @@
                                     <input type="number" id="cppStartAge" min="60" max="70" value="65" required>
                                 </div>
                                 <div class="form-group">
-                                    <label for="cppMonthly">CPP at Age 65 ($)</label>
+                                    <label for="cppMonthly">
+                                        CPP at Age 65 ($)
+                                        <span class="info-icon" title="💡 CPP Estimation Guide (2024):
+
+Maximum CPP: ~$1,365/month
+Annual maximum contribution: $3,867.50
+
+Simple estimate:
+• 45 years max contributions → $1,300/month
+• 35 years max contributions → $1,000/month
+• 25 years max contributions → $730/month
+• 15 years lower earnings → $400-500/month
+
+Adjustments:
+• Take early (60-64): -0.6% per month
+• Delay (66-70): +0.7% per month
+
+💡 Check Service Canada for your exact estimate">ℹ️</span>
+                                    </label>
                                     <input type="number" id="cppMonthly" min="0" max="2000" step="50" value="1200" required>
                                 </div>
                             </div>
