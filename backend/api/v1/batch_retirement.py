@@ -201,8 +201,8 @@ def format_results_as_csv(results: List[dict], batch_input: BatchRetirementPlanI
             scenario_input.rrsp_real_return,
             scenario_input.tfsa_real_return,
             scenario_input.non_reg_real_return,
-            len(scenario_input.real_estate_holdings),  # Number of properties
-            len(scenario_input.pensions),  # Number of pensions
+            (len(scenario_input.real_estate_holdings) if scenario_input.real_estate_holdings else 0),  # Number of properties
+            (len(scenario_input.pensions) if scenario_input.pensions else 0),  # Number of pensions
             scenario_input.cpp_start_age,
             scenario_input.oas_start_age,
         ]

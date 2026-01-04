@@ -1079,6 +1079,11 @@ async function submitBatchCalculation() {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(downloadUrl);
+
+        // Auto-scroll to show download buttons
+        setTimeout(() => {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+        }, 500);
         
         // Add template download buttons
         const templateDiv = document.createElement('div');
