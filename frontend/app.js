@@ -1335,5 +1335,3 @@ document.getElementById('addPensionBtn')?.addEventListener('click', () => addPen
 document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
 
 // Removed: Auto-add pension on page load (users add manually via button)
-    }
-});
