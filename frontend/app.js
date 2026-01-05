@@ -285,6 +285,13 @@ function getFormData() {
     } else {
         data.pensions = [];
     }
+    // Additional income streams
+    if (document.getElementById('includeAdditionalIncome')?.checked) {
+        data.additional_income = getAdditionalIncomeData();
+    } else {
+        data.additional_income = [];
+    }
+
     data.real_estate_holdings = getPropertiesData();
     
     return data;
@@ -929,6 +936,9 @@ function getBatchInputData() {
         // Pensions array (only if checkbox checked)
         pensions: document.getElementById('includePension')?.checked ? getPensionsData() : [],
         
+        // Additional income streams (only if checkbox checked)
+        additional_income: document.getElementById('includeAdditionalIncome')?.checked ? getAdditionalIncomeData() : [],
+        
         // Range fields
         retirement_age: getRangeField('retirementAge'),
         rrsp_balance: getRangeField('rrspBalance'),
@@ -1265,6 +1275,124 @@ function getPensionsData() {
         const id = entry.dataset.pensionId;
         const monthlyEl = document.querySelector(`.pension-monthly[data-pension-id="${id}"]`);
         const startYearEl = document.querySelector(`.pension-start-year[data-pension-id="${id}"]`);
+
+// ===== ADDITIONAL INCOME FUNCTIONS =====
+
+let additionalIncomeIdCounter = 0;
+
+function createAdditionalIncomeEntry(data = {}) {
+    const id = additionalIncomeIdCounter++;
+    const monthly = data.monthly || 500;
+    const startYear = data.startYear || 2034;
+    const indexing = data.indexing || 0;
+    const hasEndYear = data.endYear !== undefined && data.endYear !== null;
+    const endYear = data.endYear || 2044;
+    
+    return `
+        <div class="income-entry" data-income-id="${id}" style="background: #f0f8ff; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196f3;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <strong>Income Stream #${id + 1}</strong>
+                <button type="button" onclick="removeAdditionalIncome(${id})" class="btn btn-danger btn-sm">Remove</button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <label>Monthly Amount ($)</label>
+                    <input type="number" class="income-monthly" data-income-id="${id}" value="${monthly}" min="0" step="100" required>
+                </div>
+                <div>
+                    <label>Start Year</label>
+                    <input type="number" class="income-start-year" data-income-id="${id}" value="${startYear}" min="2024" max="2100" required>
+                </div>
+                <div>
+                    <label>Annual Indexing (%)</label>
+                    <input type="number" class="income-indexing" data-income-id="${id}" value="${indexing}" min="-10" max="10" step="0.1">
+                    <small style="color: #666;">Positive for growth, negative for declining income, 0 for fixed</small>
+                </div>
+                <div>
+                    <label style="display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" class="income-has-end-year" data-income-id="${id}" ${hasEndYear ? 'checked' : ''} 
+                               onchange="toggleIncomeEndYear(${id})">
+                        <span>Income ends in specific year?</span>
+                    </label>
+                    <input type="number" class="income-end-year" data-income-id="${id}" value="${endYear}" 
+                           min="2024" max="2100" ${!hasEndYear ? 'disabled' : ''} 
+                           style="margin-top: 5px; ${!hasEndYear ? 'opacity: 0.5;' : ''}">
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function addAdditionalIncome(data) {
+    const container = document.getElementById('additionalIncomeContainer');
+    if (container) {
+        container.insertAdjacentHTML('beforeend', createAdditionalIncomeEntry(data));
+    }
+}
+
+function removeAdditionalIncome(id) {
+    const entry = document.querySelector(`.income-entry[data-income-id="${id}"]`);
+    if (entry) {
+        entry.remove();
+    }
+}
+
+function toggleIncomeEndYear(id) {
+    const checkbox = document.querySelector(`.income-has-end-year[data-income-id="${id}"]`);
+    const endYearInput = document.querySelector(`.income-end-year[data-income-id="${id}"]`);
+    
+    if (checkbox && endYearInput) {
+        endYearInput.disabled = !checkbox.checked;
+        endYearInput.style.opacity = checkbox.checked ? '1' : '0.5';
+    }
+}
+
+function getAdditionalIncomeData() {
+    const incomes = [];
+    document.querySelectorAll('.income-entry').forEach(entry => {
+        const id = entry.dataset.incomeId;
+        const monthlyEl = document.querySelector(`.income-monthly[data-income-id="${id}"]`);
+        const startYearEl = document.querySelector(`.income-start-year[data-income-id="${id}"]`);
+        const indexingEl = document.querySelector(`.income-indexing[data-income-id="${id}"]`);
+        const hasEndYearEl = document.querySelector(`.income-has-end-year[data-income-id="${id}"]`);
+        const endYearEl = document.querySelector(`.income-end-year[data-income-id="${id}"]`);
+        
+        if (monthlyEl && startYearEl) {
+            const income = {
+                monthly_amount: parseFloat(monthlyEl.value) || 0,
+                start_year: parseInt(startYearEl.value) || 2034,
+                indexing_rate: parseFloat(indexingEl.value) / 100 || 0
+            };
+            
+            if (hasEndYearEl && hasEndYearEl.checked && endYearEl) {
+                income.end_year = parseInt(endYearEl.value);
+            }
+            
+            incomes.push(income);
+        }
+    });
+    
+    return incomes;
+}
+
+// Toggle Additional Income Fields Visibility
+document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
+    const fields = document.getElementById('additionalIncomeFields');
+    if (this.checked) {
+        fields.classList.remove('hidden');
+        // Add first income stream if none exist
+        if (document.querySelectorAll('.income-entry').length === 0) {
+            addAdditionalIncome({ monthly: 1000, startYear: 2034, indexing: 0 });
+        }
+    } else {
+        fields.classList.add('hidden');
+    }
+});
+
+// Add income stream button
+document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
+"]`);
         const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
         
         if (monthlyEl && startYearEl && indexingEl) {
