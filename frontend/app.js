@@ -1392,7 +1392,7 @@ document.getElementById('includeAdditionalIncome')?.addEventListener('change', f
 
 // Add income stream button
 document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
-"]`);
+
         const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
         
         if (monthlyEl && startYearEl && indexingEl) {
