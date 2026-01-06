@@ -1376,22 +1376,7 @@ function getAdditionalIncomeData() {
     return incomes;
 }
 
-// Toggle Additional Income Fields Visibility
-document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
-    const fields = document.getElementById('additionalIncomeFields');
-    if (this.checked) {
-        fields.classList.remove('hidden');
-        // Add first income stream if none exist
-        if (document.querySelectorAll('.income-entry').length === 0) {
-            addAdditionalIncome({ monthly: 1000, startYear: 2034, indexing: 0 });
-        }
-    } else {
-        fields.classList.add('hidden');
-    }
-});
 
-// Add income stream button
-document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
 
         const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
         
@@ -1501,6 +1486,21 @@ function getPropertiesData() {
 
 // ===== INITIALIZATION =====
 document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
+document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
+
+// Additional Income checkbox toggle
+document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
+    const fields = document.getElementById('additionalIncomeFields');
+    if (this.checked) {
+        fields.classList.remove('hidden');
+        // Add first income stream if none exist
+        if (document.querySelectorAll('.income-entry').length === 0) {
+            addAdditionalIncome({ monthly: 1000, startYear: 2034, indexing: 0 });
+        }
+    } else {
+        fields.classList.add('hidden');
+    }
+});
 document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
 
 // Removed: Auto-add pension on page load (users add manually via button)
