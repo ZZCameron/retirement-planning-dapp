@@ -1307,20 +1307,20 @@ function createAdditionalIncomeEntry(data = {}) {
             </div>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div>
+                <div class="form-group">
                     <label>Monthly Amount ($)</label>
                     <input type="number" class="income-monthly" data-income-id="${id}" value="${monthly}" min="0" step="100" required>
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Start Year</label>
                     <input type="number" class="income-start-year" data-income-id="${id}" value="${startYear}" min="2024" max="2100" required>
                 </div>
-                <div>
+                <div class="form-group">
                     <label>Annual Indexing (%)</label>
                     <input type="number" class="income-indexing" data-income-id="${id}" value="${indexing}" min="-10" max="10" step="0.1">
                     <small style="color: #666;">Positive for growth, negative for declining income, 0 for fixed</small>
                 </div>
-                <div>
+                <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 5px;">
                         <input type="checkbox" class="income-has-end-year" data-income-id="${id}" ${hasEndYear ? 'checked' : ''} 
                                onchange="toggleIncomeEndYear(${id})">
