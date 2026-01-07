@@ -1275,6 +1275,17 @@ function getPensionsData() {
         const id = entry.dataset.pensionId;
         const monthlyEl = document.querySelector(`.pension-monthly[data-pension-id="${id}"]`);
         const startYearEl = document.querySelector(`.pension-start-year[data-pension-id="${id}"]`);
+        const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
+        
+        pensions.push({
+            monthly_amount: parseFloat(monthlyEl?.value || 0),
+            start_year: parseInt(startYearEl?.value || new Date().getFullYear()),
+            indexing_rate: parseFloat(indexingEl?.value || 0) / 100
+        });
+    });
+    
+    return pensions;
+}
 
 // ===== ADDITIONAL INCOME FUNCTIONS =====
 
