@@ -1300,7 +1300,7 @@ function createAdditionalIncomeEntry(data = {}) {
     const endYear = data.endYear || 2044;
     
     return `
-        <div class="income-entry" data-income-id="${id}" style="background: #f0f8ff; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #2196f3;">
+        <div class="income-entry" data-income-id="${id}">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <strong>Income Stream #${id + 1}</strong>
                 <button type="button" onclick="removeAdditionalIncome(${id})" class="btn-remove" style="display: ${id === 0 ? 'none' : 'inline-block'}">✖ Remove</button>
