@@ -728,7 +728,7 @@ function switchToFreeMode() {
     
     // Hide batch controls, show original inputs
     document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'none');
-    document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'flex');
     
 }
 
@@ -743,7 +743,7 @@ function switchToBatchMode() {
     form.classList.add('batch-mode');
     
     // Show batch controls, hide original inputs
-    document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'block');
+    document.querySelectorAll('.batch-controls').forEach(el => el.style.display = 'flex');
     document.querySelectorAll('input[data-batch-field]').forEach(el => el.style.display = 'none');
     
 }
