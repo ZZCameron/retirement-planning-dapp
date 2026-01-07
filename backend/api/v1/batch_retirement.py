@@ -167,7 +167,7 @@ def format_results_as_csv(results: List[dict], batch_input: BatchRetirementPlanI
         'retirement_age', 'rrsp_balance', 'tfsa_balance', 'nonreg_balance',
         'annual_spending', 'monthly_savings',
         'rrsp_real_return', 'tfsa_real_return', 'nonreg_real_return',
-        'num_properties', 'num_pensions',
+        'num_properties', 'num_pensions', 'num_additional_income',
         'cpp_start_age', 'oas_start_age',
         # Year-by-year data
         'year', 'age',
@@ -203,6 +203,7 @@ def format_results_as_csv(results: List[dict], batch_input: BatchRetirementPlanI
             scenario_input.non_reg_real_return,
             (len(scenario_input.real_estate_holdings) if scenario_input.real_estate_holdings else 0),  # Number of properties
             (len(scenario_input.pensions) if scenario_input.pensions else 0),  # Number of pensions
+            (len(scenario_input.additional_income) if scenario_input.additional_income else 0),  # Number of additional income streams
             scenario_input.cpp_start_age,
             scenario_input.oas_start_age,
         ]
