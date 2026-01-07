@@ -1387,25 +1387,6 @@ function getAdditionalIncomeData() {
     return incomes;
 }
 
-
-
-        const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
-        
-        if (monthlyEl && startYearEl && indexingEl) {
-            const monthly = parseFloat(monthlyEl.value);
-            const startYear = parseInt(startYearEl.value);
-            const indexing = parseFloat(indexingEl.value) / 100;
-            
-            pensions.push({
-                monthly_amount: monthly,
-                start_year: startYear,
-                annual_indexing: indexing
-            });
-        }
-    });
-    return pensions;
-}
-
 // ===== PROPERTY MANAGEMENT =====
 let propertyCounter = 0;
 
