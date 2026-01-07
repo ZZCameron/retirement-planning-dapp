@@ -579,11 +579,12 @@ header h1 {
 }
 
 .batch-enable-label {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
     cursor: pointer;
     font-size: 0.95rem;
+    white-space: nowrap;
 }
 
 .batch-enable {
