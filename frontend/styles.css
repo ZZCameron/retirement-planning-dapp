@@ -572,6 +572,11 @@ header h1 {
     background: #f8f9fa;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
+    /* Force left alignment */
+    text-align: left !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
 }
 
 .batch-range-header {
