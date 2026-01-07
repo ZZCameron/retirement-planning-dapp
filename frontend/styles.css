@@ -718,6 +718,13 @@ header h1 {
     border-left: 4px solid #8e44ad;
 }
 
+/* Income entries - blue border instead of purple */
+.income-entry {
+    border-left: 4px solid #2196f3;
+    background: white;
+}
+
+
 .pension-header,
 .property-header {
     display: flex;
