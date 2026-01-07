@@ -1249,6 +1249,16 @@ function createPensionEntry(data = {}) {
                 <input type="number" class="pension-indexing" data-pension-id="${id}" 
                        min="-5" max="10" step="0.1" value="${data.indexing || 2.0}">
             </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" class="pension-has-end-year" data-pension-id="${id}" ${data.hasEndYear ? 'checked' : ''} 
+                           onchange="togglePensionEndYear(${id})">
+                    <span>Pension ends in specific year?</span>
+                </label>
+                <input type="number" class="pension-end-year" data-pension-id="${id}" value="${data.endYear || 2044}" 
+                       min="2024" max="2100" ${!data.hasEndYear ? 'disabled' : ''} 
+                       style="margin-top: 5px; ${!data.hasEndYear ? 'opacity: 0.5;' : ''}">
+            </div>
         </div>
     `;
     
@@ -1346,6 +1356,16 @@ function removeAdditionalIncome(id) {
     const entry = document.querySelector(`.income-entry[data-income-id="${id}"]`);
     if (entry) {
         entry.remove();
+    }
+}
+
+function togglePensionEndYear(id) {
+    const checkbox = document.querySelector(`.pension-has-end-year[data-pension-id="${id}"]`);
+    const endYearInput = document.querySelector(`.pension-end-year[data-pension-id="${id}"]`);
+    
+    if (checkbox && endYearInput) {
+        endYearInput.disabled = !checkbox.checked;
+        endYearInput.style.opacity = checkbox.checked ? '1' : '0.5';
     }
 }
 
