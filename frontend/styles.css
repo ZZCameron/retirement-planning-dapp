@@ -159,6 +159,19 @@ header h1 {
         grid-template-columns: 1fr;
         gap: 15px;
     }
+
+    /* Stack fields vertically on mobile (inside pension/income entries) */
+    .pension-entry > div[style*="grid-template-columns"],
+    .income-entry > div[style*="grid-template-columns"] {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+    
+    .pension-entry .form-group,
+    .income-entry .form-group {
+        width: 100% !important;
+    }
+
     }
 
 /* Form Group - Compact */
