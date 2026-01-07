@@ -1331,7 +1331,7 @@ function createAdditionalIncomeEntry(data = {}) {
                     <small style="color: #666;">Positive for growth, negative for declining income, 0 for fixed</small>
                 </div>
                 <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 5px;">
+                    <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap;">
                         <input type="checkbox" class="income-has-end-year" data-income-id="${id}" ${hasEndYear ? 'checked' : ''} 
                                onchange="toggleIncomeEndYear(${id})">
                         <span>Income ends in specific year?</span>
