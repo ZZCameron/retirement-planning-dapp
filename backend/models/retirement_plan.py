@@ -183,7 +183,6 @@ class RetirementPlanInput(BaseModel):
     additional_income: List[AdditionalIncome] = Field(
         default_factory=list,
         description="Additional income streams (rental, consulting, etc.)"
-    )"
     )
 
     # Retirement Spending
