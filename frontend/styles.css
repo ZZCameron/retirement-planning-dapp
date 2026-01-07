@@ -132,6 +132,15 @@ header h1 {
     gap: 15px 20px;
 }
 
+
+/* Two-column layout for Pension & Income (responsive) */
+.pension-income-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
 @media (max-width: 1024px) {
     .form-grid-3,
     .form-grid-4 {
@@ -145,7 +154,12 @@ header h1 {
     .form-grid-4 {
         grid-template-columns: 1fr;
     }
-}
+
+    .pension-income-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    }
 
 /* Form Group - Compact */
 .form-group {
