@@ -1233,7 +1233,7 @@ function createPensionEntry(data = {}) {
             <h4>Pension #${id + 1}</h4>
             ${id > 0 ? '<button type="button" class="btn-remove" onclick="removePension(' + id + ')">✖ Remove</button>' : ''}
         </div>
-        <div class="form-row">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="form-group">
                 <label>Monthly Amount ($)</label>
                 <input type="number" class="pension-monthly" data-pension-id="${id}" 
