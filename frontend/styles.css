@@ -581,6 +581,18 @@ header h1 {
     align-items: flex-start;
 }
 
+/* Override any parent centering when form-group contains batch controls */
+.form-group:has(.batch-controls) {
+    text-align: left;
+    display: block;
+}
+
+.form-group .batch-controls {
+    margin-left: 0 !important;
+    margin-right: auto !important;
+}
+
+
 .batch-range-header {
     margin-bottom: 0.75rem;
     text-align: left;
