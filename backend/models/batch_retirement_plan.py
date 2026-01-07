@@ -6,7 +6,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, field_validator
 from datetime import datetime
 
-from backend.models.retirement_plan import PensionIncome, RealEstateHolding
+from backend.models.retirement_plan import PensionIncome, AdditionalIncome, RealEstateHolding
 
 
 class RangeField(BaseModel):
@@ -80,6 +80,7 @@ class BatchRetirementPlanInput(BaseModel):
     
     # Pension (single values, not ranged)
     pensions: List[PensionIncome] = Field(default_factory=list)
+    additional_income: List[AdditionalIncome] = Field(default_factory=list)
     
     @field_validator('life_expectancy')
     def validate_life_expectancy(cls, v, info):

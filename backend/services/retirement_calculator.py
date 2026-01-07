@@ -182,6 +182,24 @@ class RetirementCalculator:
                     )
                     pension_income += pension_amount
                 
+                # Calculate additional income streams (rental, consulting, etc.)
+                additional_income_total = 0.0
+                for income_stream in plan_input.additional_income:
+                    # Check if income stream is active this year
+                    if income_stream.start_year <= projection_year:
+                        # Check if income has ended
+                        if income_stream.end_year is None or projection_year <= income_stream.end_year:
+                            # Calculate years since start for indexing
+                            years_active = projection_year - income_stream.start_year
+                            
+                            # Apply indexing (growth or decline)
+                            indexed_monthly = income_stream.monthly_amount * (
+                                (1 + income_stream.indexing_rate) ** years_active
+                            )
+                            
+                            # Add to total (monthly × 12 for annual)
+                            additional_income_total += indexed_monthly * 12
+
                 oas_income = 0.0
                 if current_age >= plan_input.oas_start_age:
                     # Base OAS amount
@@ -192,12 +210,12 @@ class RetirementCalculator:
                     annual_oas = monthly_oas * 12
                     
                     # Calculate income for OAS clawback (rough estimate)
-                    estimated_income = rrif_withdrawal + cpp_income + pension_income
+                    estimated_income = rrif_withdrawal + cpp_income + pension_income + additional_income_total
                     clawback = self.rules.calculate_oas_clawback(estimated_income, current_age)
                     oas_income = max(0, annual_oas - clawback)
                 
                 # Calculate total income from all sources
-                gross_income = rrif_withdrawal + cpp_income + oas_income + pension_income
+                gross_income = rrif_withdrawal + cpp_income + oas_income + pension_income + additional_income_total
                 
                 # STEP 1: Cover spending needs FIRST (before calculating taxes)
                 other_withdrawals = 0.0

@@ -46,6 +46,31 @@ class PensionIncome(BaseModel):
         le=10.0,
         description="Annual indexing rate (decimal, e.g., 0.02 for 2%)"
     )
+
+
+class AdditionalIncome(BaseModel):
+    """
+    Additional income stream (rental, consulting, royalties, etc.)
+    Starts at retirement or specified year, can grow/decline, optional end year
+    """
+    monthly_amount: float = Field(
+        ...,
+        description="Monthly income amount (CAD, gross)",
+        gt=0
+    )
+    start_year: int = Field(
+        ...,
+        description="Year income starts (typically retirement year)"
+    )
+    indexing_rate: float = Field(
+        default=0.0,
+        description="Annual growth/decline rate (0.02 = 2% growth, -0.05 = 5% decline)"
+    )
+    end_year: Optional[int] = Field(
+        default=None,
+        description="Year income ends (None = continues for life)"
+    )
+
     
     @field_validator("end_year")
     @classmethod
@@ -154,6 +179,11 @@ class RetirementPlanInput(BaseModel):
     pensions: List[PensionIncome] = Field(
         default_factory=list,
         description="List of pension income streams (can have multiple)"
+    )
+    additional_income: List[AdditionalIncome] = Field(
+        default_factory=list,
+        description="Additional income streams (rental, consulting, etc.)"
+    )"
     )
 
     # Retirement Spending
