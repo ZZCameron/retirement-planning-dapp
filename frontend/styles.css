@@ -576,6 +576,7 @@ header h1 {
 
 .batch-range-header {
     margin-bottom: 0.75rem;
+    text-align: left;
 }
 
 .batch-enable-label {
