@@ -1250,7 +1250,7 @@ function createPensionEntry(data = {}) {
                        min="-5" max="10" step="0.1" value="${data.indexing || 2.0}">
             </div>
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 5px;">
+                <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap;">
                     <input type="checkbox" class="pension-has-end-year" data-pension-id="${id}" ${data.hasEndYear ? 'checked' : ''} 
                            onchange="togglePensionEndYear(${id})">
                     <span>Pension ends in specific year?</span>
