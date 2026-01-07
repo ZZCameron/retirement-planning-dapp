@@ -1484,6 +1484,14 @@ function getPropertiesData() {
     return properties;
 }
 
+// ===== INITIALIZATION =====
+document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
+document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
+
+// Additional Income checkbox toggle
+document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
+    const container = document.getElementById('additionalIncomeContainer');
+    const button = document.getElementById('addAdditionalIncomeBtn');
     
     if (this.checked) {
         button.style.display = 'block';
