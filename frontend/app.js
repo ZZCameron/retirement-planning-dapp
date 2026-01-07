@@ -1456,6 +1456,30 @@ function removeProperty(id) {
     }
 }
 
+
+// ===== INITIALIZATION =====
+document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
+document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
+
+// Additional Income checkbox toggle
+document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
+    const container = document.getElementById('additionalIncomeContainer');
+    const button = document.getElementById('addAdditionalIncomeBtn');
+    
+    if (this.checked) {
+        button.style.display = 'block';
+        // Add first income stream if none exist
+        if (document.querySelectorAll('.income-entry').length === 0) {
+            addAdditionalIncome({ monthly: 1000, startYear: 2034, indexing: 0 });
+        }
+    } else {
+        button.style.display = 'none';
+        // Clear all income entries when unchecked
+        container.innerHTML = '';
+    }
+});
+document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
+
 function getPropertiesData() {
     const properties = [];
     document.querySelectorAll('.property-entry').forEach(entry => {
@@ -1484,27 +1508,5 @@ function getPropertiesData() {
     return properties;
 }
 
-// ===== INITIALIZATION =====
-document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
-document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
-
-// Additional Income checkbox toggle
-document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
-    const container = document.getElementById('additionalIncomeContainer');
-    const button = document.getElementById('addAdditionalIncomeBtn');
-    
-    if (this.checked) {
-        button.style.display = 'block';
-        // Add first income stream if none exist
-        if (document.querySelectorAll('.income-entry').length === 0) {
-            addAdditionalIncome({ monthly: 1000, startYear: 2034, indexing: 0 });
-        }
-    } else {
-        button.style.display = 'none';
-        // Clear all income entries when unchecked
-        container.innerHTML = '';
-    }
-});
-document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
 
 // Removed: Auto-add pension on page load (users add manually via button)
