@@ -1230,7 +1230,7 @@ function createPensionEntry(data = {}) {
     
     div.innerHTML = `
         <div class="pension-header">
-            <h4>Pension ${id + 1}</h4>
+            <h4>Pension #${id + 1}</h4>
             ${id > 0 ? '<button type="button" class="btn-remove" onclick="removePension(' + id + ')">✖ Remove</button>' : ''}
         </div>
         <div class="form-row">
