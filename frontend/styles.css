@@ -707,6 +707,7 @@ header h1 {
 
 /* ===== Multiple Pensions & Properties Styles ===== */
 
+.income-entry,
 .pension-entry,
 .property-entry {
     background: #f8f9fa;
