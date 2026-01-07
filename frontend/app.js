@@ -1490,15 +1490,19 @@ document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () 
 
 // Additional Income checkbox toggle
 document.getElementById('includeAdditionalIncome')?.addEventListener('change', function() {
-    const fields = document.getElementById('additionalIncomeFields');
+    const container = document.getElementById('additionalIncomeContainer');
+    const button = document.getElementById('addAdditionalIncomeBtn');
+    
     if (this.checked) {
-        fields.classList.remove('hidden');
+        button.style.display = 'block';
         // Add first income stream if none exist
         if (document.querySelectorAll('.income-entry').length === 0) {
             addAdditionalIncome({ monthly: 1000, startYear: 2034, indexing: 0 });
         }
     } else {
-        fields.classList.add('hidden');
+        button.style.display = 'none';
+        // Clear all income entries when unchecked
+        container.innerHTML = '';
     }
 });
 document.getElementById('addPropertyBtn')?.addEventListener('click', () => addProperty());
