@@ -1,3 +1,4 @@
+import os
 from fastapi.responses import FileResponse
 """
 Main FastAPI application entry point.
@@ -54,7 +55,9 @@ app.add_middleware(
 
 # Serve static files (templates, Excel, etc.)
 from fastapi.staticfiles import StaticFiles
-app.mount("/static", StaticFiles(directory="backend/static"), name="static")
+# Skip static files in test mode
+if not os.getenv('TESTING'):
+    app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 
 # Template download endpoints
 @app.get("/api/v1/templates/excel")
@@ -113,7 +116,9 @@ app.add_middleware(
 
 # Serve static files (templates, Excel, etc.)
 from fastapi.staticfiles import StaticFiles
-app.mount("/static", StaticFiles(directory="backend/static"), name="static")
+# Skip static files in test mode
+if not os.getenv('TESTING'):
+    app.mount("/static", StaticFiles(directory="backend/static"), name="static")
 
 # Template download endpoints
 @app.get("/api/v1/templates/excel")
