@@ -175,6 +175,39 @@ def format_results_as_csv(results: List[dict], batch_input: BatchRetirementPlanI
         'total_balance', 'gross_income', 'taxes_estimated',
         'success', 'final_balance', 'warnings'
     ]
+
+    # Add dynamic columns for pensions
+    max_pensions = max(
+        (len(s.get('input', {}).get('pensions', [])) if isinstance(s.get('input'), dict) 
+         else len(s['input'].pensions) if hasattr(s['input'], 'pensions') and s['input'].pensions 
+         else 0)
+        for s in results
+    ) if results else 0
+    
+    for i in range(max_pensions):
+        header.extend([
+            f'pension_{i+1}_monthly',
+            f'pension_{i+1}_start_year',
+            f'pension_{i+1}_indexing',
+            f'pension_{i+1}_end_year'
+        ])
+    
+    # Add dynamic columns for additional income
+    max_additional_income = max(
+        (len(s.get('input', {}).get('additional_income', [])) if isinstance(s.get('input'), dict) 
+         else len(s['input'].additional_income) if hasattr(s['input'], 'additional_income') and s['input'].additional_income 
+         else 0)
+        for s in results
+    ) if results else 0
+    
+    for i in range(max_additional_income):
+        header.extend([
+            f'additional_income_{i+1}_monthly',
+            f'additional_income_{i+1}_start_year',
+            f'additional_income_{i+1}_indexing',
+            f'additional_income_{i+1}_end_year'
+        ])
+    
     writer.writerow(header)
     
     # Data rows (one per scenario per year)
@@ -207,6 +240,34 @@ def format_results_as_csv(results: List[dict], batch_input: BatchRetirementPlanI
             scenario_input.cpp_start_age,
             scenario_input.oas_start_age,
         ]
+        
+        # Add pension details
+        pensions = scenario_input.pensions if scenario_input.pensions else []
+        for i in range(max_pensions):
+            if i < len(pensions):
+                pension = pensions[i]
+                input_params.extend([
+                    pension.monthly_amount,
+                    pension.start_year,
+                    pension.indexing_rate,
+                    pension.end_year if pension.end_year else ''
+                ])
+            else:
+                input_params.extend(['', '', '', ''])  # Empty placeholders
+        
+        # Add additional income details
+        additional_incomes = scenario_input.additional_income if scenario_input.additional_income else []
+        for i in range(max_additional_income):
+            if i < len(additional_incomes):
+                income = additional_incomes[i]
+                input_params.extend([
+                    income.monthly_amount,
+                    income.start_year,
+                    income.indexing_rate,
+                    income.end_year if income.end_year else ''
+                ])
+            else:
+                input_params.extend(['', '', '', ''])  # Empty placeholders
         
         # Summary data
         final_balance = scenario_output.final_balance
