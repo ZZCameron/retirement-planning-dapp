@@ -174,7 +174,7 @@ app.include_router(
 
 app.include_router(
     batch_retirement.router,
-    prefix="/api/v1/retirement",
+    prefix="/api/v1/batch",
     tags=["Batch Calculations"]
 )
 
