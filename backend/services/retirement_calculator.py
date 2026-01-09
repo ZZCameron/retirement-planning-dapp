@@ -303,6 +303,16 @@ class RetirementCalculator:
                 
                 # Calculate net income after taxes
                 net_income = gross_income + other_withdrawals - taxes_estimated
+                
+                # SURPLUS ACCUMULATION: If income exceeds spending+taxes, add to non-registered
+                # This makes high-growth income scenarios visible in account balances
+                total_cash_available = gross_income + other_withdrawals
+                total_cash_needed = adjusted_spending + taxes_estimated
+                income_surplus = total_cash_available - total_cash_needed
+                
+                if income_surplus > 0:
+                    # Deposit surplus to non-registered account (most flexible for future withdrawals)
+                    non_reg_balance += income_surplus
                              
                 # Apply investment returns on remaining balances
                 rrsp_balance *= (1 + plan_input.rrsp_real_return)
