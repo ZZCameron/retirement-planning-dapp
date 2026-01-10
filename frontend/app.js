@@ -184,7 +184,7 @@ async function processPayment(amountSOL) {
             'confirmed'
         );
         
-        const recipientPubkey = new solanaWeb3.PublicKey(WALLET_ADDRESS);
+        const recipientPubkey = new solanaWeb3.PublicKey(RECEIVER_ADDRESS);
         const senderPubkey = window.solana.publicKey;
         
         // Get recent blockhash
@@ -1300,7 +1300,7 @@ async function submitBatchCalculation() {
         
         const batchInput = getBatchInputData();
         // Payload logging removed for production
-        const url = new URL(`${API_BASE_URL}/api/v1/retirement/calculate-batch`);
+        const url = new URL(`${API_BASE_URL}/api/v1/batch/calculate-batch`);
         url.searchParams.append('payment_signature', signed.signature);
         url.searchParams.append('wallet_address', wallet.publicKey.toString());
         
