@@ -171,6 +171,65 @@ function updateWalletUI(address) {
     document.getElementById('walletInfo').classList.remove('hidden');
 }
 
+
+// Process Solana payment
+async function processPayment(amountSOL) {
+    if (!window.solana || !window.solana.isConnected) {
+        throw new Error('Wallet not connected');
+    }
+    
+    try {
+        const connection = new solanaWeb3.Connection(
+            solanaWeb3.clusterApiUrl('devnet'),
+            'confirmed'
+        );
+        
+        const recipientPubkey = new solanaWeb3.PublicKey(WALLET_ADDRESS);
+        const senderPubkey = window.solana.publicKey;
+        
+        // Get recent blockhash
+        const { blockhash } = await connection.getLatestBlockhash();
+        
+        // Create transaction
+        const transaction = new solanaWeb3.Transaction({
+            recentBlockhash: blockhash,
+            feePayer: senderPubkey
+        });
+        
+        // Add transfer instruction
+        const lamports = amountSOL * solanaWeb3.LAMPORTS_PER_SOL;
+        transaction.add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: senderPubkey,
+                toPubkey: recipientPubkey,
+                lamports: lamports
+            })
+        );
+        
+        // Sign and send
+        const signed = await window.solana.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signed.serialize());
+        
+        // Wait for confirmation
+        await connection.confirmTransaction(signature, 'confirmed');
+        
+        console.log('Payment successful:', signature);
+        
+        return {
+            success: true,
+            signature: signature,
+            amount: amountSOL
+        };
+        
+    } catch (error) {
+        console.error('Payment error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
 // Calculation Functions
 async function testCalculate() {
     showStatus('Testing calculation (no payment)...');
@@ -1141,7 +1200,7 @@ async function estimateBatchCost() {
         const batchInput = getBatchInputData();
         // Payload logging removed for production
         
-        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-batch-estimate`, {
+        const response = await fetch(`${API_BASE_URL}/api/v1/batch/calculate-batch-estimate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
