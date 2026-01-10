@@ -37,6 +37,12 @@ function setupEventListeners() {
     document.getElementById('connectWallet').addEventListener('click', connectWallet);
     document.getElementById('disconnectWallet')?.addEventListener('click', disconnectWallet);
     document.getElementById('testCalculate').addEventListener('click', testCalculate);
+    
+    const enhancedBtn = document.getElementById('enhancedInsightsBtn');
+    if (enhancedBtn) {
+        enhancedBtn.addEventListener('click', enhancedInsightsCalculate);
+    }
+    
     document.getElementById('retirementForm').addEventListener('submit', handleSubmit);
     
     // CPP dynamic calculation
@@ -192,6 +198,67 @@ async function testCalculate() {
     }
 }
 
+// Enhanced Insights calculation (paid tier - detailed breakdowns)
+async function enhancedInsightsCalculate() {
+    showStatus('Processing Enhanced Insights payment...');
+    clearMessages();
+    
+    const data = getFormData();
+    
+    if (!window.solana || !window.solana.isConnected) {
+        showError('Please connect your Solana wallet first');
+        return;
+    }
+    
+    try {
+        const enhancedBtn = document.getElementById('enhancedInsightsBtn');
+        enhancedBtn.disabled = true;
+        enhancedBtn.textContent = '⏳ Processing payment...';
+        
+        // Payment: 0.0005 SOL
+        const paymentAmount = 0.0005;
+        const paymentResult = await processPayment(paymentAmount);
+        
+        if (!paymentResult.success) {
+            throw new Error(paymentResult.error || 'Payment failed');
+        }
+        
+        showStatus('Payment confirmed. Calculating with enhanced insights...');
+        enhancedBtn.textContent = '⏳ Calculating...';
+        
+        // Call calculate endpoint (same as free, but with payment signature)
+        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Payment-Signature': paymentResult.signature
+            },
+            body: JSON.stringify(data),
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'Calculation failed');
+        }
+        
+        const result = await response.json();
+        
+        // Display with enhanced mode enabled (rich tooltips)
+        displayResults(result, { enhancedMode: true });
+        
+        showSuccess('✅ Enhanced Insights generated! Hover over chart for detailed income breakdowns.');
+        
+    } catch (error) {
+        console.error('Enhanced Insights error:', error);
+        showError(`Enhanced Insights failed: ${error.message}`);
+    } finally {
+        const enhancedBtn = document.getElementById('enhancedInsightsBtn');
+        enhancedBtn.disabled = false;
+        enhancedBtn.innerHTML = '🔍 Enhanced Insights (0.0005 SOL)<div style="font-size: 0.85em; opacity: 0.9; margin-top: 4px;">Detailed income breakdown & tooltips</div>';
+    }
+}
+
+
 async function handleSubmit(event) {
     event.preventDefault();
     
@@ -298,7 +365,12 @@ function getFormData() {
 }
 
 // Display Functions
-function displayResults(result) {
+function displayResults(result, options = {}) {
+    // Store projections globally for tooltip access
+    window.currentProjections = result.projections;
+    window.enhancedMode = options.enhancedMode || false;
+    
+    console.log('Display mode:', window.enhancedMode ? 'Enhanced' : 'Free');
     document.getElementById('resultsSection').classList.remove('hidden');
     
     document.getElementById('yearsToRetirement').textContent = result.years_to_retirement;
@@ -493,9 +565,91 @@ function drawChart(projections) {
                     mode: 'index',
                     intersect: false,
                     callbacks: {
+                        title: function(context) {
+                            const dataIndex = context[0].dataIndex;
+                            const age = context[0].label;
+                            const projection = window.currentProjections?.[dataIndex];
+                            
+                            if (projection) {
+                                const year = projection.year + new Date().getFullYear();
+                                return `Age ${age} (Year ${year})`;
+                            }
+                            return `Age ${age}`;
+                        },
+                        
                         label: function(context) {
+                            const dataIndex = context.dataIndex;
+                            const projection = window.currentProjections?.[dataIndex];
+                            
+                            // Enhanced mode: Show detailed breakdown
+                            if (window.enhancedMode && projection?.income_breakdown) {
+                                return null; // We'll use afterBody for custom layout
+                            }
+                            
+                            // Free mode: Simple balance display
                             return context.dataset.label + ': $' + 
                                 context.parsed.y.toLocaleString('en-CA', {maximumFractionDigits: 0});
+                        },
+                        
+                        afterBody: function(context) {
+                            const dataIndex = context[0].dataIndex;
+                            const projection = window.currentProjections?.[dataIndex];
+                            
+                            if (!window.enhancedMode || !projection?.income_breakdown) {
+                                return [];
+                            }
+                            
+                            const breakdown = projection.income_breakdown;
+                            const lines = [];
+                            
+                            lines.push('');
+                            lines.push('💰 INCOME:');
+                            
+                            if (breakdown.rrif_withdrawal > 0) {
+                                lines.push(`  RRIF: $${Math.round(breakdown.rrif_withdrawal).toLocaleString()}`);
+                            }
+                            if (breakdown.cpp_income > 0) {
+                                lines.push(`  CPP: $${Math.round(breakdown.cpp_income).toLocaleString()}`);
+                            }
+                            if (breakdown.oas_income > 0) {
+                                lines.push(`  OAS: $${Math.round(breakdown.oas_income).toLocaleString()}`);
+                            }
+                            if (breakdown.pension_total > 0) {
+                                lines.push(`  Pension: $${Math.round(breakdown.pension_total).toLocaleString()}`);
+                                breakdown.pension_streams?.forEach(stream => {
+                                    lines.push(`    • ${stream.label}: $${Math.round(stream.annual).toLocaleString()}/yr`);
+                                });
+                            }
+                            if (breakdown.additional_income_total > 0) {
+                                lines.push(`  Additional: $${Math.round(breakdown.additional_income_total).toLocaleString()}`);
+                                breakdown.additional_income_streams?.forEach(stream => {
+                                    lines.push(`    • ${stream.label}: $${Math.round(stream.annual).toLocaleString()}/yr`);
+                                });
+                            }
+                            
+                            const totalIncome = projection.gross_income;
+                            lines.push(`  ─────────────`);
+                            lines.push(`  Total: $${Math.round(totalIncome).toLocaleString()}`);
+                            
+                            lines.push('');
+                            lines.push('💸 OUTFLOWS:');
+                            lines.push(`  Spending: $${Math.round(projection.spending).toLocaleString()}`);
+                            lines.push(`  Taxes: $${Math.round(projection.taxes_estimated).toLocaleString()}`);
+                            lines.push(`  ─────────────`);
+                            lines.push(`  Total: $${Math.round(projection.spending + projection.taxes_estimated).toLocaleString()}`);
+                            
+                            const netFlow = totalIncome - projection.spending - projection.taxes_estimated;
+                            lines.push('');
+                            if (netFlow >= 0) {
+                                lines.push(`✅ Surplus: $${Math.round(netFlow).toLocaleString()}`);
+                            } else {
+                                lines.push(`⚠️  Deficit: $${Math.round(Math.abs(netFlow)).toLocaleString()}`);
+                            }
+                            
+                            lines.push('');
+                            lines.push(`💼 Balance: $${Math.round(projection.total_balance).toLocaleString()}`);
+                            
+                            return lines;
                         }
                     }
                 }
