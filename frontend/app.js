@@ -5,7 +5,7 @@ const SOLANA_NETWORK = 'devnet';
 // Price in SOL (1 SOL ≈ $20-200 depending on market)
 // Recommended: 0.001-0.01 SOL ($0.02-$2 USD)
 const PAYMENT_AMOUNT = 0.001; // 0.001 SOL ≈ $0.02-0.20 USD
-const RECEIVER_ADDRESS = 'YOUR_SOLANA_ADDRESS_HERE';
+const RECEIVER_ADDRESS = '7GavCpo9nHCGFAoEnQYDYpNAeGEyztFjbEaxZ59gWWNt';
 
 // CPP Constants
 const CPP_NORMAL_AGE = 65;
