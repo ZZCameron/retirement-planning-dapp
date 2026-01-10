@@ -7,6 +7,7 @@ from typing import List, Optional
 import logging
 
 from backend.models.retirement_plan import (
+    IncomeBreakdown,
     RetirementPlanInput,
     RetirementPlanOutput,
     YearlyProjection,
@@ -330,6 +331,48 @@ class RetirementCalculator:
                         msg = f"{property_label} sold at age {current_age}: +${sale_value:,.0f} (in today's dollars)"
                         warnings.append(msg)
 
+                # Build detailed income breakdown (for enhanced insights)
+                # Per-stream pension details
+                pension_stream_details = []
+                for idx, pension in enumerate(plan_input.pensions):
+                    if pension.start_year <= projection_year:
+                        years_active = projection_year - pension.start_year
+                        indexed_monthly = pension.monthly_amount * ((1 + pension.indexing_rate) ** years_active)
+                        pension_stream_details.append({
+                            "index": idx + 1,
+                            "label": f"Pension {idx + 1}",
+                            "monthly": indexed_monthly,
+                            "annual": indexed_monthly * 12,
+                            "start_year": pension.start_year
+                        })
+                
+                # Per-stream additional income details
+                additional_stream_details = []
+                for idx, income_stream in enumerate(plan_input.additional_income):
+                    if income_stream.start_year <= projection_year:
+                        if income_stream.end_year is None or projection_year <= income_stream.end_year:
+                            years_active = projection_year - income_stream.start_year
+                            indexed_monthly = income_stream.monthly_amount * ((1 + income_stream.indexing_rate) ** years_active)
+                            additional_stream_details.append({
+                                "index": idx + 1,
+                                "label": f"Income Stream {idx + 1}",
+                                "monthly": indexed_monthly,
+                                "annual": indexed_monthly * 12,
+                                "start_year": income_stream.start_year,
+                                "end_year": income_stream.end_year
+                            })
+                
+                # Create income breakdown object
+                breakdown = IncomeBreakdown(
+                    rrif_withdrawal=rrif_withdrawal,
+                    cpp_income=cpp_income,
+                    oas_income=oas_income,
+                    pension_total=pension_income,
+                    additional_income_total=additional_income_total,
+                    pension_streams=pension_stream_details,
+                    additional_income_streams=additional_stream_details
+                )
+
                 # Create projection for this year
                 projection = YearlyProjection(
                     year=year,
@@ -345,7 +388,8 @@ class RetirementCalculator:
                     gross_income=gross_income,
                     taxes_estimated=taxes_estimated,
                     net_income=net_income,
-                    spending=adjusted_spending
+                    spending=adjusted_spending,
+                    income_breakdown=breakdown
                     )
 
                         
