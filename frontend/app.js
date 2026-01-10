@@ -305,7 +305,7 @@ async function enhancedInsightsCalculate() {
         // Display with enhanced mode enabled (rich tooltips)
         displayResults(result, { enhancedMode: true });
         
-        showSuccess('✅ Enhanced Insights generated! Hover over chart for detailed income breakdowns.');
+        showStatus('✅ Enhanced Insights generated! Hover over chart for detailed income breakdowns.');
         
     } catch (error) {
         console.error('Enhanced Insights error:', error);
