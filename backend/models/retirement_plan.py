@@ -232,6 +232,18 @@ class RetirementPlanInput(BaseModel):
     # Note: 'province' field may already exist - check first!
     # If it exists, just update the description to mention it's used for accurate tax mode
 
+
+class IncomeBreakdown(BaseModel):
+    """Detailed breakdown of income sources for enhanced insights."""
+    rrif_withdrawal: float = 0.0
+    cpp_income: float = 0.0
+    oas_income: float = 0.0
+    pension_total: float = 0.0
+    additional_income_total: float = 0.0
+    # Per-stream details
+    pension_streams: List[dict] = Field(default_factory=list)
+    additional_income_streams: List[dict] = Field(default_factory=list)
+
 class YearlyProjection(BaseModel):
     """Financial projection for a single year."""
     
@@ -278,6 +290,9 @@ class RetirementPlanOutput(BaseModel):
     
     # Warnings & Recommendations
     warnings: list[str] = Field(default_factory=list)
+    
+    # Enhanced insights (optional, only included in paid version)
+    income_breakdown: Optional[IncomeBreakdown] = None
     recommendations: list[str] = Field(default_factory=list)
 
 
