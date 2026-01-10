@@ -139,7 +139,8 @@ class RetirementCalculator:
                     gross_income=0.0,
                     taxes_estimated=0.0,
                     net_income=0.0,
-                    spending=0.0
+                    spending=0.0,
+                    income_breakdown=None  # No income during accumulation phase
                 )
             
             # ======================
