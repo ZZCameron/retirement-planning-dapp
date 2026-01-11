@@ -166,7 +166,20 @@ async function connectWallet() {
         showStatus('Wallet connected successfully!');
     } catch (err) {
         console.error('Wallet connection error:', err);
-        showError('Failed to connect wallet: ' + (err.message || 'Unexpected error'));
+        
+        // Check if it's the Phantom "Unexpected error"
+        if (err.message && err.message.includes('Unexpected')) {
+            showError('Phantom connection failed. Try: 1) Refresh page (F5), or 2) Reload Phantom extension');
+            
+            // Offer auto-refresh after 3 seconds
+            setTimeout(() => {
+                if (confirm('Phantom seems stuck. Refresh page to reconnect?')) {
+                    window.location.reload();
+                }
+            }, 3000);
+        } else {
+            showError('Failed to connect wallet: ' + (err.message || 'Unexpected error'));
+        }
     }
 }
 
