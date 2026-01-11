@@ -191,7 +191,7 @@ function updateWalletUI(address) {
 
 // Process Solana payment
 async function processPayment(amountSOL) {
-    if (!window.solana || !window.solana.isConnected) {
+    if (!wallet || !wallet.isConnected) {
         throw new Error('Wallet not connected');
     }
     
@@ -202,7 +202,7 @@ async function processPayment(amountSOL) {
         );
         
         const recipientPubkey = new solanaWeb3.PublicKey(RECEIVER_ADDRESS);
-        const senderPubkey = window.solana.publicKey;
+        const senderPubkey = wallet.publicKey;
         
         // Get recent blockhash
         const { blockhash } = await connection.getLatestBlockhash();
@@ -224,7 +224,7 @@ async function processPayment(amountSOL) {
         );
         
         // Sign and send
-        const signed = await window.solana.signTransaction(transaction);
+        const signed = await wallet.signTransaction(transaction);
         const signature = await connection.sendRawTransaction(signed.serialize());
         
         // Wait for confirmation
