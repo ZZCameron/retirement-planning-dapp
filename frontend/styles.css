@@ -295,6 +295,67 @@ header h1 {
     cursor: not-allowed;
 }
 
+/* Action Button Styles - Retirement Planning */
+.btn-action {
+    width: 100%;
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: block;
+}
+
+.btn-action:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.btn-action:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-free {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-free:hover:not(:disabled) {
+    background: #5a6268;
+}
+
+.btn-enhanced {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.btn-enhanced:hover:not(:disabled) {
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-batch {
+    background: #28a745;
+    color: white;
+}
+
+.btn-batch:hover:not(:disabled) {
+    background: #218838;
+}
+
+.btn-subtitle {
+    display: block;
+    font-size: 0.85em;
+    opacity: 0.9;
+    margin-top: 4px;
+    font-weight: 400;
+}
+
 .form-actions {
     display: flex;
     gap: 15px;
