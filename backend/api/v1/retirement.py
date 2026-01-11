@@ -105,6 +105,47 @@ async def get_retirement_rules():
     })
 
 
+
+
+@router.post("/calculate-enhanced-estimate")
+async def estimate_enhanced_calculation(
+    plan_input: RetirementPlanInput
+) -> dict:
+    """
+    Estimate cost for enhanced insights calculation (no payment required).
+    Returns fixed cost of 0.0005 SOL for enhanced features.
+    """
+    try:
+        # Validate input parameters
+        _ = calculator.calculate_plan(plan_input)
+        
+        cost_sol = 0.0005
+        
+        return {
+            "feasible": True,
+            "cost_sol": cost_sol,
+            "cost_usd_estimate": cost_sol * 150,
+            "features": [
+                "Detailed income breakdown tooltips",
+                "Per-stream income analysis",
+                "CSV export with full data"
+            ]
+        }
+        
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid input: {str(e)}"
+        )
+    
+    except Exception as e:
+        logger.error(f"Estimation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not estimate calculation cost"
+        )
+
+
 @router.post("/calculate-paid", response_model=RetirementPlanOutput)
 async def calculate_retirement_plan_paid(
     plan_input: RetirementPlanInput,

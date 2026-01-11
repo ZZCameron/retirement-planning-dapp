@@ -289,72 +289,122 @@ async function testCalculate() {
 
 // Enhanced Insights calculation (paid tier - detailed breakdowns)
 async function enhancedInsightsCalculate() {
-    showStatus('Processing Enhanced Insights payment...');
-    clearMessages();
-    
-    const data = getFormData();
-    
-    // Check wallet connection
-    if (!window.solana) {
-        showError('Phantom wallet not detected. Please install Phantom.');
+    if (!wallet) {
+        showStatus('Please connect your Phantom wallet first', 'error');
         return;
     }
     
-    if (!window.solana.isConnected) {
-        showStatus('Connecting wallet...');
-        try {
-            await window.solana.connect();
-        } catch (err) {
-            showError('Please connect your Phantom wallet first');
+    try {
+        showStatus('📊 Preparing Enhanced Insights...', 'info');
+        const data = getFormData();
+        
+        // Step 1: Get cost estimate
+        const estimateResponse = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-enhanced-estimate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (!estimateResponse.ok) {
+            const error = await estimateResponse.json();
+            throw new Error(error.detail || 'Cost estimation failed');
+        }
+        
+        const estimate = await estimateResponse.json();
+        
+        if (!estimate.feasible) {
+            showStatus('❌ Calculation not feasible with current inputs', 'error');
             return;
         }
-    }
-    
-    try {
-        const enhancedBtn = document.getElementById('enhancedInsightsBtn');
-        enhancedBtn.disabled = true;
-        enhancedBtn.textContent = '⏳ Processing payment...';
         
-        // Payment: 0.0005 SOL
-        const paymentAmount = 0.0005;
-        const paymentResult = await processPayment(paymentAmount);
+        // Step 2: Confirm with user
+        const costSOL = estimate.cost_sol.toFixed(5);
+        const costUSD = estimate.cost_usd_estimate.toFixed(2);
         
-        if (!paymentResult.success) {
-            throw new Error(paymentResult.error || 'Payment failed');
+        const confirmed = confirm(
+            `🔍 Enhanced Insights Summary:\n\n` +
+            `Features:\n` +
+            `• Detailed income breakdown tooltips\n` +
+            `• Per-stream income analysis\n` +
+            `• CSV export with full data\n\n` +
+            `Cost: ${costSOL} SOL (~$${costUSD})\n\n` +
+            `Proceed with payment?`
+        );
+        
+        if (!confirmed) {
+            showStatus('Enhanced Insights cancelled', 'info');
+            return;
         }
         
-        showStatus('Payment confirmed. Calculating with enhanced insights...');
-        enhancedBtn.textContent = '⏳ Calculating...';
+        // Step 3: Create payment transaction
+        showStatus('💰 Creating payment transaction...', 'info');
         
-        // Call calculate endpoint (same as free, but with payment signature)
-        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate`, {
+        const connection = new window.solanaWeb3.Connection(
+            'https://api.devnet.solana.com',
+            'confirmed'
+        );
+        
+        const recipientPubkey = new window.solanaWeb3.PublicKey(
+            '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m'
+        );
+        
+        const lamports = Math.floor(estimate.cost_sol * 1000000000);
+        
+        const transaction = new window.solanaWeb3.Transaction().add(
+            window.solanaWeb3.SystemProgram.transfer({
+                fromPubkey: wallet.publicKey,
+                toPubkey: recipientPubkey,
+                lamports: lamports
+            })
+        );
+        
+        transaction.feePayer = wallet.publicKey;
+        const { blockhash } = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
+        
+        // Step 4: Sign and send
+        showStatus('✍️ Please approve the transaction in Phantom...', 'info');
+        
+        const signed = await wallet.signAndSendTransaction(transaction);
+        console.log('Transaction signature:', signed.signature);
+        
+        showStatus('⏳ Confirming transaction...', 'info');
+        
+        await connection.confirmTransaction(signed.signature, 'confirmed');
+        
+        console.log('✅ Payment confirmed');
+        
+        // Step 5: Calculate with payment proof
+        showStatus('🔄 Calculating with enhanced insights...', 'info');
+        
+        const calculateResponse = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Payment-Signature': paymentResult.signature
+                'X-Payment-Signature': signed.signature
             },
-            body: JSON.stringify(data),
+            body: JSON.stringify(data)
         });
         
-        if (!response.ok) {
-            const errorData = await response.json();
+        if (!calculateResponse.ok) {
+            const errorData = await calculateResponse.json();
             throw new Error(errorData.detail || 'Calculation failed');
         }
         
-        const result = await response.json();
+        const result = await calculateResponse.json();
         
-        // Display with enhanced mode enabled (rich tooltips)
         displayResults(result, { enhancedMode: true });
         
-        showStatus('✅ Enhanced Insights generated! Hover over chart for detailed income breakdowns.');
+        showStatus(
+            `✅ Enhanced Insights generated!\n` +
+            `Transaction: ${signed.signature.substring(0, 20)}...\n` +
+            `Hover over chart points for detailed income breakdowns.`,
+            'success'
+        );
         
     } catch (error) {
         console.error('Enhanced Insights error:', error);
-        showError(`Enhanced Insights failed: ${error.message}`);
-    } finally {
-        const enhancedBtn = document.getElementById('enhancedInsightsBtn');
-        enhancedBtn.disabled = false;
-        enhancedBtn.innerHTML = '🔍 Enhanced Insights (0.0005 SOL)<div style="font-size: 0.85em; opacity: 0.9; margin-top: 4px;">Detailed income breakdown & tooltips</div>';
+        showStatus(`❌ Error: ${error.message}`, 'error');
     }
 }
 
