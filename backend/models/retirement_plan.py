@@ -267,6 +267,9 @@ class YearlyProjection(BaseModel):
     taxes_estimated: float = Field(description="Estimated taxes")
     net_income: float = Field(description="After-tax income")
     spending: float = Field(description="Annual spending (inflation-adjusted)")
+    
+    # Enhanced insights (optional, only included in paid version)
+    income_breakdown: Optional[IncomeBreakdown] = None
 
 
 class RetirementPlanOutput(BaseModel):
@@ -290,9 +293,6 @@ class RetirementPlanOutput(BaseModel):
     
     # Warnings & Recommendations
     warnings: list[str] = Field(default_factory=list)
-    
-    # Enhanced insights (optional, only included in paid version)
-    income_breakdown: Optional[IncomeBreakdown] = None
     recommendations: list[str] = Field(default_factory=list)
 
 
