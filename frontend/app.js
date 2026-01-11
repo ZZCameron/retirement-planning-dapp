@@ -317,24 +317,7 @@ async function enhancedInsightsCalculate() {
             return;
         }
         
-        // Step 2: Confirm with user
-        const costSOL = estimate.cost_sol.toFixed(5);
-        const costUSD = estimate.cost_usd_estimate.toFixed(2);
-        
-        const confirmed = confirm(
-            `🔍 Enhanced Insights Summary:\n\n` +
-            `Features:\n` +
-            `• Detailed income breakdown tooltips\n` +
-            `• Per-stream income analysis\n` +
-            `• CSV export with full data\n\n` +
-            `Cost: ${costSOL} SOL (~$${costUSD})\n\n` +
-            `Proceed with payment?`
-        );
-        
-        if (!confirmed) {
-            showStatus('Enhanced Insights cancelled', 'info');
-            return;
-        }
+                // Step 2: Proceed directly to payment
         
         // Step 3: Create payment transaction
         showStatus('💰 Creating payment transaction...', 'info');
@@ -1338,23 +1321,7 @@ async function submitBatchCalculation() {
             return;
         }
         
-        // Step 2: Confirm with user
-        const costSOL = estimate.cost_sol.toFixed(5);
-        const costUSD = estimate.cost_usd_estimate.toFixed(2);
-        const timeEstimate = estimate.estimated_time_seconds.toFixed(1);
-        
-        const confirmed = confirm(
-            `🎯 Batch Calculation Summary:\n\n` +
-            `Scenarios: ${estimate.scenario_count.toLocaleString()}\n` +
-            `Estimated Time: ~${timeEstimate}s\n` +
-            `Cost: ${costSOL} SOL (~$${costUSD})\n\n` +
-            `Proceed with payment?`
-        );
-        
-        if (!confirmed) {
-            showStatus('Batch calculation cancelled', 'info');
-            return;
-        }
+                // Step 2: Proceed directly to payment
         
         // Step 3: Create payment transaction
         showStatus('💰 Creating payment transaction...', 'info');
