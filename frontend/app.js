@@ -145,11 +145,28 @@ async function connectWallet() {
     }
 
     try {
+        console.log('Connecting to Phantom...');
+        console.log('Wallet state:', {
+            isPhantom: wallet.isPhantom,
+            isConnected: wallet.isConnected,
+            publicKey: wallet.publicKey?.toString()
+        });
+        
+        // If already connected, just update UI
+        if (wallet.isConnected && wallet.publicKey) {
+            console.log('Wallet already connected');
+            updateWalletUI(wallet.publicKey.toString());
+            showStatus('Wallet connected successfully!');
+            return;
+        }
+        
         const resp = await wallet.connect();
+        console.log('Connection response:', resp);
         updateWalletUI(resp.publicKey.toString());
         showStatus('Wallet connected successfully!');
     } catch (err) {
-        showError('Failed to connect wallet: ' + err.message);
+        console.error('Wallet connection error:', err);
+        showError('Failed to connect wallet: ' + (err.message || 'Unexpected error'));
     }
 }
 
@@ -264,9 +281,20 @@ async function enhancedInsightsCalculate() {
     
     const data = getFormData();
     
-    if (!window.solana || !window.solana.isConnected) {
-        showError('Please connect your Solana wallet first');
+    // Check wallet connection
+    if (!window.solana) {
+        showError('Phantom wallet not detected. Please install Phantom.');
         return;
+    }
+    
+    if (!window.solana.isConnected) {
+        showStatus('Connecting wallet...');
+        try {
+            await window.solana.connect();
+        } catch (err) {
+            showError('Please connect your Phantom wallet first');
+            return;
+        }
     }
     
     try {
