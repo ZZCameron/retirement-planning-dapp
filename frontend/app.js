@@ -1,5 +1,5 @@
 // Configuration -->added to ensure the github repo was aligned
-const API_BASE_URL = 'https://web-production-c1f93.up.railway.app';
+const API_BASE_URL = 'https://api.web3-retirement-plan.com';
 const SOLANA_NETWORK = 'devnet';
 // Payment Configuration
 // Price in SOL (1 SOL ≈ $20-200 depending on market)
@@ -1411,12 +1411,12 @@ async function submitBatchCalculation() {
         templateDiv.style.cssText = 'margin: 20px 0; padding: 15px; background: #e8f5e9; border-radius: 8px; text-align: center;';
         templateDiv.innerHTML = `
             <p style="margin: 0 0 10px; font-weight: bold; color: #2e7d32;">📊 Analyze Your Results:</p>
-            <a href="https://web-production-c1f93.up.railway.app/api/v1/templates/excel" 
+            <a href="https://api.web3-retirement-plan.com/api/v1/templates/excel" 
                target="_blank" 
                style="display: inline-block; margin: 5px; padding: 10px 20px; background: #4caf50; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
                 📥 Download Excel Template
             </a>
-            <a href="https://web-production-c1f93.up.railway.app/api/v1/templates/sheets-guide" 
+            <a href="https://api.web3-retirement-plan.com/api/v1/templates/sheets-guide" 
                target="_blank" 
                style="display: inline-block; margin: 5px; padding: 10px 20px; background: #2196f3; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">
                 📄 Google Sheets Guide
