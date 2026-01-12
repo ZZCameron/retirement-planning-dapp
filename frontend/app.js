@@ -726,18 +726,7 @@ function drawChart(projections) {
                         
                         afterBody: function(context) {
                             const dataIndex = context[0].dataIndex;
-                            const projection = window.currentProjections?.[dataIndex];
-                            
-                            console.log('Tooltip debug:', {
-                                enhancedMode: window.enhancedMode,
-                                hasProjection: !!projection,
-                                hasBreakdown: !!projection?.income_breakdown,
-                                breakdown: projection?.income_breakdown
-                            });
-                            
-                            if (!window.enhancedMode || !projection?.income_breakdown) {
-                                console.log('Returning empty - enhanced mode off or no breakdown');
-                                return [];
+                            const projection = window.currentProjections?.[dataIndex];                            if (!window.enhancedMode || !projection?.income_breakdown) {                                return [];
                             }
                             
                             const breakdown = projection.income_breakdown;
