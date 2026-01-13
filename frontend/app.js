@@ -1,11 +1,28 @@
-// Configuration -->added to ensure the github repo was aligned
-const API_BASE_URL = 'https://api.web3-retirement-plan.com';
-const SOLANA_NETWORK = 'devnet';
+// Configuration - Auto-detects environment
+// Production: www.web3-retirement-plan.com → mainnet
+// Staging/Dev: Any other domain → devnet
+
+const isProduction = window.location.hostname === 'www.web3-retirement-plan.com' 
+                  || window.location.hostname === 'web3-retirement-plan.com';
+
+const SOLANA_NETWORK = isProduction ? 'mainnet-beta' : 'devnet';
+
+const API_BASE_URL = isProduction
+    ? 'https://api.web3-retirement-plan.com'
+    : 'https://api.web3-retirement-plan.com'; // Same backend for now
+
+const TREASURY_WALLET_MAINNET = 'HeXCbKQySygumakXrqEyTTuusJEnE6jvtfFpiVn9rzam';
+const TREASURY_WALLET_DEVNET = '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m';
+const RECEIVER_ADDRESS = isProduction ? TREASURY_WALLET_MAINNET : TREASURY_WALLET_DEVNET;
+
+console.log(`🌐 Environment: ${isProduction ? 'PRODUCTION (mainnet)' : 'STAGING (devnet)'}`);
+console.log(`💰 Treasury: ${RECEIVER_ADDRESS.substring(0, 8)}...`);
+console.log(`🔗 Network: ${SOLANA_NETWORK}`)
 // Payment Configuration
 // Price in SOL (1 SOL ≈ $20-200 depending on market)
 // Recommended: 0.001-0.01 SOL ($0.02-$2 USD)
 const PAYMENT_AMOUNT = 0.001; // 0.001 SOL ≈ $0.02-0.20 USD
-const RECEIVER_ADDRESS = '7GavCpo9nHCGFAoEnQYDYpNAeGEyztFjbEaxZ59gWWNt';
+
 
 // CPP Constants
 const CPP_NORMAL_AGE = 65;
@@ -210,7 +227,7 @@ async function processPayment(amountSOL) {
     
     try {
         const connection = new solanaWeb3.Connection(
-            solanaWeb3.clusterApiUrl('devnet'),
+            solanaWeb3.clusterApiUrl(SOLANA_NETWORK === 'mainnet-beta' ? 'mainnet-beta' : 'devnet'),
             'confirmed'
         );
         
@@ -323,7 +340,7 @@ async function enhancedInsightsCalculate() {
         showStatus('💰 Creating payment transaction...', 'info');
         
         const connection = new window.solanaWeb3.Connection(
-            'https://api.devnet.solana.com',
+            SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com',
             'confirmed'
         );
         
@@ -917,7 +934,7 @@ async function createPaymentTransaction() {
     const LAMPORTS_PER_SOL = window.solanaWeb3.LAMPORTS_PER_SOL;
 
     // Connect to Solana
-    const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+    const connection = new Connection(SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com', 'confirmed');
     
     // Recipient address (your treasury wallet - CHANGE THIS!)
     const recipient = new PublicKey('4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m');
@@ -943,7 +960,7 @@ async function createPaymentTransaction() {
 // Wait for transaction confirmation
 async function waitForConfirmation(signature) {
     const Connection = window.solanaWeb3.Connection;
-    const connection = new Connection('https://api.devnet.solana.com', 'confirmed');
+    const connection = new Connection(SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com', 'confirmed');
     
     const confirmation = await connection.confirmTransaction(signature, 'confirmed');
     if (confirmation.value.err) {
@@ -1316,7 +1333,7 @@ async function submitBatchCalculation() {
         showStatus('💰 Creating payment transaction...', 'info');
         
         const connection = new window.solanaWeb3.Connection(
-            'https://api.devnet.solana.com',
+            SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com',
             'confirmed'
         );
         
