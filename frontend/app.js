@@ -478,8 +478,6 @@ function getFormData() {
         tax_calculation_mode: 'accurate', // Always use accurate calculation
     };
     
-    }
-    
     // Now return the complete data object
 
     // ✅ Use pension/property arrays
