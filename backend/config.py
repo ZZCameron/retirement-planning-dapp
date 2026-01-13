@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = Field(default=30, ge=5, le=1440)
 
     # CORS
-    cors_origins: str = Field(default="http://localhost:3000,http://localhost:8000")
+    cors_origins: str = Field(default="http://localhost:3000,http://localhost:8000,https://www.web3-retirement-plan.com,https://web3-retirement-plan.com,https://retirement-planning-dapp-git-develop-robert-camerons-projects.vercel.app")
 
     # Payment Configuration (ADD HERE - same indentation as cors_origins)
     treasury_wallet: str = Field(
