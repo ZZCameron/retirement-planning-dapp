@@ -478,20 +478,6 @@ function getFormData() {
         tax_calculation_mode: 'accurate', // Always use accurate calculation
     };
     
-    // Add pension data if checkbox is checked
-    if (document.getElementById('includePension').checked) {
-        const pensionData = {
-            monthly_amount: parseFloat(document.getElementById('pensionMonthly').value),
-            start_year: parseInt(document.getElementById('pensionStartYear').value),
-            indexing_rate: parseFloat(document.getElementById('pensionIndexing').value) / 100  // Convert % to decimal
-        };
-        
-        // Add end_year if specified
-        if (document.getElementById('pensionHasEndYear').checked) {
-            pensionData.end_year = parseInt(document.getElementById('pensionEndYear').value);
-        }
-        
-        data.pension = pensionData;
     }
     
     // Now return the complete data object
