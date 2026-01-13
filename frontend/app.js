@@ -457,6 +457,7 @@ function getFormData() {
     // Build the base data object
     const data = {
         current_age: parseInt(document.getElementById('currentAge').value),
+        current_year: new Date().getFullYear(),
         retirement_age: parseInt(document.getElementById('retirementAge').value),
         life_expectancy: parseInt(document.getElementById('lifeExpectancy').value),
         province: document.getElementById('province').value,
