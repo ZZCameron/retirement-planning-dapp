@@ -345,7 +345,7 @@ async function enhancedInsightsCalculate() {
         );
         
         const recipientPubkey = new window.solanaWeb3.PublicKey(
-            '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m'
+            RECEIVER_ADDRESS
         );
         
         const lamports = Math.floor(estimate.cost_sol * 1000000000);
