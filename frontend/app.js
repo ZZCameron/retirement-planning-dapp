@@ -1792,3 +1792,4 @@ function getPropertiesData() {
 
 
 // Removed: Auto-add pension on page load (users add manually via button)
+// Force redeploy Wed Jan 14 20:17:52 EST 2026
