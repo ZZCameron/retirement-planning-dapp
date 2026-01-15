@@ -9,7 +9,7 @@ const SOLANA_NETWORK = isProduction ? 'mainnet-beta' : 'devnet';
 
 const API_BASE_URL = isProduction
     ? 'https://api.web3-retirement-plan.com'
-    : 'https://api.web3-retirement-plan.com'; // Same backend for now
+    : 'https://api-staging.web3-retirement-plan.com';
 
 const TREASURY_WALLET_MAINNET = 'HeXCbKQySygumakXrqEyTTuusJEnE6jvtfFpiVn9rzam';
 const TREASURY_WALLET_DEVNET = '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m';
