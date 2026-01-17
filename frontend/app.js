@@ -68,23 +68,16 @@ function validateFormInputs() {
     
     // Age validation (allow current_age === retirement_age for already retired users)
     if (retirement_age < current_age) {
-        return "Retirement age cannot be before your current age.
-
-If you're already retired, please set your Retirement Age equal to your Current Age. This ensures accurate calculations for your current situation.";
+        return "Retirement age cannot be before your current age.\n\nIf you're already retired, please set your Retirement Age equal to your Current Age. This ensures accurate calculations for your current situation.";
     }
     
     if (life_expectancy <= retirement_age) {
-        return "Life expectancy must be greater than retirement age.
-
-Please enter a life expectancy that extends beyond your retirement to see your full retirement projection.";
+        return "Life expectancy must be greater than retirement age.\n\nPlease enter a life expectancy that extends beyond your retirement to see your full retirement projection.";
     }
     
     // CPP validation
     if (cpp_monthly > 2000) {
-        return "CPP monthly amount cannot exceed $2,000.
-
-The maximum CPP payment in 2026 is approximately $1,364/month.
-Did you accidentally enter an annual amount?";
+        return "CPP monthly amount cannot exceed $2,000.\n\nThe maximum CPP payment in 2026 is approximately $1,364/month.\nDid you accidentally enter an annual amount?";
     }
     
     if (cpp_monthly < 0) {
