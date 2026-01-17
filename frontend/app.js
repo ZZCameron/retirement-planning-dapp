@@ -409,7 +409,11 @@ async function enhancedInsightsCalculate() {
         
         if (!estimateResponse.ok) {
             const error = await estimateResponse.json();
-            throw new Error(error.detail || 'Cost estimation failed');
+            console.error('Backend validation error:', error);
+            const errorMsg = typeof error.detail === 'string' 
+                ? error.detail 
+                : JSON.stringify(error.detail);
+            throw new Error(errorMsg || 'Cost estimation failed');
         }
         
         const estimate = await estimateResponse.json();
