@@ -33,6 +33,86 @@ const CPP_LATE_INCREASE_RATE = 0.007;   // 0.7% per month
 let wallet = null;
 let walletConnected = false;
 
+// ============================================
+// VALIDATION FUNCTIONS
+// ============================================
+
+/**
+ * Show validation error to user
+ * Phase 1: Uses browser alert() - simple but effective
+ * Phase 2: Replace with custom modal for better UX
+ */
+function showValidationError(message) {
+    alert(`⚠️ Validation Error
+
+${message}`);
+    // TODO: Replace with custom modal later
+    // showCustomModal('error', message);
+}
+
+/**
+ * Validate form inputs before submitting
+ * Returns: null if valid, error message string if invalid
+ */
+function validateFormInputs() {
+    const current_age = parseInt(document.getElementById('currentAge').value);
+    const retirement_age = parseInt(document.getElementById('retirementAge').value);
+    const life_expectancy = parseInt(document.getElementById('lifeExpectancy').value);
+    
+    const rrsp_balance = parseFloat(document.getElementById('rrspBalance').value);
+    const tfsa_balance = parseFloat(document.getElementById('tfsaBalance').value);
+    const non_registered = parseFloat(document.getElementById('nonRegistered').value);
+    const monthly_contribution = parseFloat(document.getElementById('monthlyContribution').value);
+    
+    const cpp_monthly = parseFloat(document.getElementById('cppMonthly').value);
+    
+    // Age validation (allow current_age === retirement_age for already retired users)
+    if (retirement_age < current_age) {
+        return "Retirement age cannot be before your current age.
+
+If you're already retired, please set your Retirement Age equal to your Current Age. This ensures accurate calculations for your current situation.";
+    }
+    
+    if (life_expectancy <= retirement_age) {
+        return "Life expectancy must be greater than retirement age.
+
+Please enter a life expectancy that extends beyond your retirement to see your full retirement projection.";
+    }
+    
+    // CPP validation
+    if (cpp_monthly > 2000) {
+        return "CPP monthly amount cannot exceed $2,000.
+
+The maximum CPP payment in 2026 is approximately $1,364/month.
+Did you accidentally enter an annual amount?";
+    }
+    
+    if (cpp_monthly < 0) {
+        return "CPP monthly amount cannot be negative.";
+    }
+    
+    // Balance validation
+    if (rrsp_balance < 0) {
+        return "RRSP balance cannot be negative.";
+    }
+    
+    if (tfsa_balance < 0) {
+        return "TFSA balance cannot be negative.";
+    }
+    
+    if (non_registered < 0) {
+        return "Non-registered account balance cannot be negative.";
+    }
+    
+    // Contribution validation
+    if (monthly_contribution < 0) {
+        return "Monthly contribution cannot be negative.";
+    }
+    
+    // All validations passed
+    return null;
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     try {
@@ -279,6 +359,13 @@ async function processPayment(amountSOL) {
 
 // Calculation Functions
 async function testCalculate() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
     showStatus('Testing calculation (no payment)...');
     clearMessages();
     
@@ -306,6 +393,13 @@ async function testCalculate() {
 
 // Enhanced Insights calculation (paid tier - detailed breakdowns)
 async function enhancedInsightsCalculate() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
     if (!wallet) {
         showStatus('Please connect your Phantom wallet first', 'error');
         return;
@@ -1300,6 +1394,13 @@ async function estimateBatchCost() {
 }
 
 async function submitBatchCalculation() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
     if (!wallet) {
         showStatus('Please connect your Phantom wallet first', 'error');
         return;
