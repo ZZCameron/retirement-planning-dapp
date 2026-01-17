@@ -23,7 +23,6 @@ console.log(`🔗 Network: ${SOLANA_NETWORK}`)
 // Recommended: 0.001-0.01 SOL ($0.02-$2 USD)
 const PAYMENT_AMOUNT = 0.001; // 0.001 SOL ≈ $0.02-0.20 USD
 
-
 // CPP Constants
 const CPP_NORMAL_AGE = 65;
 const CPP_EARLY_REDUCTION_RATE = 0.006; // 0.6% per month
@@ -291,7 +290,6 @@ function updateWalletUI(address) {
     document.getElementById('walletInfo').classList.remove('hidden');
 }
 
-
 // Process Solana payment
 async function processPayment(amountSOL) {
     if (!wallet || !wallet.isConnected) {
@@ -453,15 +451,19 @@ async function enhancedInsightsCalculate() {
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         
-        // Step 4: Sign and send
-        showStatus('✍️ Please approve the transaction in Phantom...', 'info');
+        // Step 4: Sign transaction (shows preview in Phantom)
+        showStatus('✍️ Please review and approve in Phantom...', 'info');
         
-        const signed = await wallet.signAndSendTransaction(transaction);
-        console.log('Transaction signature:', signed.signature);
+        const signedTx = await wallet.signTransaction(transaction);
+        console.log('Transaction signed, sending...');
+        
+        // Step 5: Send the signed transaction
+        showStatus('📤 Sending transaction...', 'info');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
-        
-        await connection.confirmTransaction(signed.signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'confirmed');
         
         console.log('✅ Payment confirmed');
         
@@ -498,7 +500,6 @@ async function enhancedInsightsCalculate() {
         showStatus(`❌ Error: ${error.message}`, 'error');
     }
 }
-
 
 async function handleSubmit(event) {
     event.preventDefault();
@@ -953,55 +954,7 @@ function clearMessages() {
 }
 
 // Calculate with Payment
-async function calculateWithPayment() {
-    if (!walletConnected) {
-        showError('Please connect your Phantom wallet first');
-        return;
-    }
 
-    showStatus('Processing payment...');
-    clearMessages();
-
-    try {
-        // 1. Create payment transaction
-        const transaction = await createPaymentTransaction();
-        
-        // 2. Request signature from user
-        const { signature } = await wallet.signAndSendTransaction(transaction);
-        showStatus('Payment sent! Verifying transaction...');
-
-        // 3. Wait for confirmation
-        await waitForConfirmation(signature);
-        
-        // 4. Send to backend for verification and calculation
-        const data = getFormData();
-
-        // Build URL with query parameters
-        const url = new URL(`${API_BASE_URL}/api/v1/retirement/calculate-paid`);
-        url.searchParams.append('payment_signature', signature);
-        url.searchParams.append('wallet_address', wallet.publicKey.toString());
-
-        const response = await fetch(url.toString(), {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || `Payment verification failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-        displayResults(result);
-        showStatus(`✅ Payment verified! Calculation complete (Tx: ${signature.slice(0, 8)}...)`);
-    } catch (error) {
-        console.error('Payment error:', error);
-        showError('Payment failed: ' + error.message);
-    }
-}
-
-// Create Solana payment transaction
 async function createPaymentTransaction() {
     const Connection = window.solanaWeb3.Connection;
     const PublicKey = window.solanaWeb3.PublicKey;
@@ -1045,7 +998,6 @@ async function waitForConfirmation(signature) {
     return confirmation;
 }
 
-
 // Mode Toggle Handler
 let currentMode = 'free';
 
@@ -1071,7 +1023,6 @@ function setupModeToggle() {
 }
 
 // ===== BATCH MODE FUNCTIONS =====
-
 
 // Update calculate button states based on mode
 function updateCalculateButtons() {
@@ -1179,7 +1130,6 @@ function transformFormForBatchMode() {
 }
 
 // Call setup on page load
-
 
 // ===== BATCH SCENARIO COUNTER =====
 
@@ -1297,7 +1247,6 @@ switchToFreeMode = function() {
 
 // Initialize counter listeners
 setupBatchCounterListeners();
-
 
 // ===== BATCH SUBMISSION FLOW =====
 
@@ -1442,15 +1391,20 @@ async function submitBatchCalculation() {
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         
-        // Step 4: Sign and send transaction
-        showStatus('✍️ Please approve the transaction in Phantom...', 'info');
+        // Step 4: Sign transaction (shows preview in Phantom)
+        showStatus('✍️ Please review and approve in Phantom...', 'info');
         
-        const signed = await wallet.signAndSendTransaction(transaction);
-        console.log('Transaction signature:', signed.signature);
+        const signedTx = await wallet.signTransaction(transaction);
+        console.log('Transaction signed, sending...');
+        
+        // Step 5: Send the signed transaction
+        showStatus('📤 Sending transaction...', 'info');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
         
-        await connection.confirmTransaction(signed.signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'confirmed');
         
         console.log('✅ Payment confirmed');
         
@@ -1556,7 +1510,6 @@ async function submitBatchCalculation() {
     }
 }
 
-
 // Update the calculate button to handle both modes
 function setupCalculateButton() {
     const calculateBtn = document.getElementById('calculateBtn');
@@ -1587,9 +1540,6 @@ function setupCalculateButton() {
 }
 
 // Call this on page load
-
-
-
 
 // ===== PENSION MANAGEMENT =====
 let pensionCounter = 0;
@@ -1840,7 +1790,6 @@ function removeProperty(id) {
     }
 }
 
-
 // ===== INITIALIZATION =====
 document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
 document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
@@ -1891,7 +1840,6 @@ function getPropertiesData() {
     });
     return properties;
 }
-
 
 // Removed: Auto-add pension on page load (users add manually via button)
 // Force redeploy Wed Jan 14 20:17:52 EST 2026
