@@ -23,7 +23,6 @@ console.log(`🔗 Network: ${SOLANA_NETWORK}`)
 // Recommended: 0.001-0.01 SOL ($0.02-$2 USD)
 const PAYMENT_AMOUNT = 0.001; // 0.001 SOL ≈ $0.02-0.20 USD
 
-
 // CPP Constants
 const CPP_NORMAL_AGE = 65;
 const CPP_EARLY_REDUCTION_RATE = 0.006; // 0.6% per month
@@ -32,6 +31,79 @@ const CPP_LATE_INCREASE_RATE = 0.007;   // 0.7% per month
 // State
 let wallet = null;
 let walletConnected = false;
+
+// ============================================
+// VALIDATION FUNCTIONS
+// ============================================
+
+/**
+ * Show validation error to user
+ * Phase 1: Uses browser alert() - simple but effective
+ * Phase 2: Replace with custom modal for better UX
+ */
+function showValidationError(message) {
+    alert(`⚠️ Validation Error
+
+${message}`);
+    // TODO: Replace with custom modal later
+    // showCustomModal('error', message);
+}
+
+/**
+ * Validate form inputs before submitting
+ * Returns: null if valid, error message string if invalid
+ */
+function validateFormInputs() {
+    const current_age = parseInt(document.getElementById('currentAge').value);
+    const retirement_age = parseInt(document.getElementById('retirementAge').value);
+    const life_expectancy = parseInt(document.getElementById('lifeExpectancy').value);
+    
+    const rrsp_balance = parseFloat(document.getElementById('rrspBalance').value);
+    const tfsa_balance = parseFloat(document.getElementById('tfsaBalance').value);
+    const non_registered = parseFloat(document.getElementById('nonRegistered').value);
+    const monthly_contribution = parseFloat(document.getElementById('monthlyContribution').value);
+    
+    const cpp_monthly = parseFloat(document.getElementById('cppMonthly').value);
+    
+    // Age validation (allow current_age === retirement_age for already retired users)
+    if (retirement_age < current_age) {
+        return "Retirement age cannot be before your current age.\n\nIf you're already retired, please set your Retirement Age equal to your Current Age. This ensures accurate calculations for your current situation.";
+    }
+    
+    if (life_expectancy <= retirement_age) {
+        return "Life expectancy must be greater than retirement age.\n\nPlease enter a life expectancy that extends beyond your retirement to see your full retirement projection.";
+    }
+    
+    // CPP validation
+    if (cpp_monthly > 2000) {
+        return "CPP monthly amount cannot exceed $2,000.\n\nThe maximum CPP payment in 2026 is approximately $1,364/month.\nDid you accidentally enter an annual amount?";
+    }
+    
+    if (cpp_monthly < 0) {
+        return "CPP monthly amount cannot be negative.";
+    }
+    
+    // Balance validation
+    if (rrsp_balance < 0) {
+        return "RRSP balance cannot be negative.";
+    }
+    
+    if (tfsa_balance < 0) {
+        return "TFSA balance cannot be negative.";
+    }
+    
+    if (non_registered < 0) {
+        return "Non-registered account balance cannot be negative.";
+    }
+    
+    // Contribution validation
+    if (monthly_contribution < 0) {
+        return "Monthly contribution cannot be negative.";
+    }
+    
+    // All validations passed
+    return null;
+}
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -218,7 +290,6 @@ function updateWalletUI(address) {
     document.getElementById('walletInfo').classList.remove('hidden');
 }
 
-
 // Process Solana payment
 async function processPayment(amountSOL) {
     if (!wallet || !wallet.isConnected) {
@@ -255,7 +326,7 @@ async function processPayment(amountSOL) {
         
         // Sign and send
         const signed = await wallet.signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signed.serialize());
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
         
         // Wait for confirmation
         await connection.confirmTransaction(signature, 'confirmed');
@@ -279,6 +350,13 @@ async function processPayment(amountSOL) {
 
 // Calculation Functions
 async function testCalculate() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
     showStatus('Testing calculation (no payment)...');
     clearMessages();
     
@@ -306,6 +384,13 @@ async function testCalculate() {
 
 // Enhanced Insights calculation (paid tier - detailed breakdowns)
 async function enhancedInsightsCalculate() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
     if (!wallet) {
         showStatus('Please connect your Phantom wallet first', 'error');
         return;
@@ -324,7 +409,11 @@ async function enhancedInsightsCalculate() {
         
         if (!estimateResponse.ok) {
             const error = await estimateResponse.json();
-            throw new Error(error.detail || 'Cost estimation failed');
+            console.error('Backend validation error:', error);
+            const errorMsg = typeof error.detail === 'string' 
+                ? error.detail 
+                : JSON.stringify(error.detail);
+            throw new Error(errorMsg || 'Cost estimation failed');
         }
         
         const estimate = await estimateResponse.json();
@@ -366,15 +455,19 @@ async function enhancedInsightsCalculate() {
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         
-        // Step 4: Sign and send
-        showStatus('✍️ Please approve the transaction in Phantom...', 'info');
+        // Step 4: Sign transaction (shows preview in Phantom)
+        showStatus('✍️ Please review and approve in Phantom...', 'info');
         
-        const signed = await wallet.signAndSendTransaction(transaction);
-        console.log('Transaction signature:', signed.signature);
+        const signedTx = await wallet.signTransaction(transaction);
+        console.log('Transaction signed, sending...');
+        
+        // Step 5: Send the signed transaction
+        showStatus('📤 Sending transaction...', 'info');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
-        
-        await connection.confirmTransaction(signed.signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'confirmed');
         
         console.log('✅ Payment confirmed');
         
@@ -385,7 +478,7 @@ async function enhancedInsightsCalculate() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Payment-Signature': signed.signature
+                'X-Payment-Signature': signature
             },
             body: JSON.stringify(data)
         });
@@ -401,7 +494,7 @@ async function enhancedInsightsCalculate() {
         
         showStatus(
             `✅ Enhanced Insights generated!\n` +
-            `Transaction: ${signed.signature.substring(0, 20)}...\n` +
+            `Transaction: ${signature.substring(0, 20)}...\n` +
             `Hover over chart points for detailed income breakdowns.`,
             'success'
         );
@@ -411,7 +504,6 @@ async function enhancedInsightsCalculate() {
         showStatus(`❌ Error: ${error.message}`, 'error');
     }
 }
-
 
 async function handleSubmit(event) {
     event.preventDefault();
@@ -866,55 +958,7 @@ function clearMessages() {
 }
 
 // Calculate with Payment
-async function calculateWithPayment() {
-    if (!walletConnected) {
-        showError('Please connect your Phantom wallet first');
-        return;
-    }
 
-    showStatus('Processing payment...');
-    clearMessages();
-
-    try {
-        // 1. Create payment transaction
-        const transaction = await createPaymentTransaction();
-        
-        // 2. Request signature from user
-        const { signature } = await wallet.signAndSendTransaction(transaction);
-        showStatus('Payment sent! Verifying transaction...');
-
-        // 3. Wait for confirmation
-        await waitForConfirmation(signature);
-        
-        // 4. Send to backend for verification and calculation
-        const data = getFormData();
-
-        // Build URL with query parameters
-        const url = new URL(`${API_BASE_URL}/api/v1/retirement/calculate-paid`);
-        url.searchParams.append('payment_signature', signature);
-        url.searchParams.append('wallet_address', wallet.publicKey.toString());
-
-        const response = await fetch(url.toString(), {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || `Payment verification failed: ${response.status}`);
-        }
-
-        const result = await response.json();
-        displayResults(result);
-        showStatus(`✅ Payment verified! Calculation complete (Tx: ${signature.slice(0, 8)}...)`);
-    } catch (error) {
-        console.error('Payment error:', error);
-        showError('Payment failed: ' + error.message);
-    }
-}
-
-// Create Solana payment transaction
 async function createPaymentTransaction() {
     const Connection = window.solanaWeb3.Connection;
     const PublicKey = window.solanaWeb3.PublicKey;
@@ -958,7 +1002,6 @@ async function waitForConfirmation(signature) {
     return confirmation;
 }
 
-
 // Mode Toggle Handler
 let currentMode = 'free';
 
@@ -984,7 +1027,6 @@ function setupModeToggle() {
 }
 
 // ===== BATCH MODE FUNCTIONS =====
-
 
 // Update calculate button states based on mode
 function updateCalculateButtons() {
@@ -1092,7 +1134,6 @@ function transformFormForBatchMode() {
 }
 
 // Call setup on page load
-
 
 // ===== BATCH SCENARIO COUNTER =====
 
@@ -1211,7 +1252,6 @@ switchToFreeMode = function() {
 // Initialize counter listeners
 setupBatchCounterListeners();
 
-
 // ===== BATCH SUBMISSION FLOW =====
 
 function getBatchInputData() {
@@ -1300,6 +1340,13 @@ async function estimateBatchCost() {
 }
 
 async function submitBatchCalculation() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
     if (!wallet) {
         showStatus('Please connect your Phantom wallet first', 'error');
         return;
@@ -1348,15 +1395,20 @@ async function submitBatchCalculation() {
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash;
         
-        // Step 4: Sign and send transaction
-        showStatus('✍️ Please approve the transaction in Phantom...', 'info');
+        // Step 4: Sign transaction (shows preview in Phantom)
+        showStatus('✍️ Please review and approve in Phantom...', 'info');
         
-        const signed = await wallet.signAndSendTransaction(transaction);
-        console.log('Transaction signature:', signed.signature);
+        const signedTx = await wallet.signTransaction(transaction);
+        console.log('Transaction signed, sending...');
+        
+        // Step 5: Send the signed transaction
+        showStatus('📤 Sending transaction...', 'info');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
         
-        await connection.confirmTransaction(signed.signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'confirmed');
         
         console.log('✅ Payment confirmed');
         
@@ -1366,7 +1418,7 @@ async function submitBatchCalculation() {
         const batchInput = getBatchInputData();
         // Payload logging removed for production
         const url = new URL(`${API_BASE_URL}/api/v1/batch/calculate-batch`);
-        url.searchParams.append('payment_signature', signed.signature);
+        url.searchParams.append('payment_signature', signature);
         url.searchParams.append('wallet_address', wallet.publicKey.toString());
         
         const batchResponse = await fetch(url.toString(), {
@@ -1451,8 +1503,8 @@ async function submitBatchCalculation() {
             `📥 Google Sheets Guide: github.com/ZZCameron/retirement-planning-dapp/blob/master/templates/GOOGLE_SHEETS_GUIDE.md
 
 ` +
-            `Transaction: ${signed.signature.substring(0, 20)}...` +
-            `Transaction: ${signed.signature.substring(0, 20)}...`,
+            `Transaction: ${signature.substring(0, 20)}...` +
+            `Transaction: ${signature.substring(0, 20)}...`,
             'success'
         );
         
@@ -1461,7 +1513,6 @@ async function submitBatchCalculation() {
         showStatus(`❌ Error: ${error.message}`, 'error');
     }
 }
-
 
 // Update the calculate button to handle both modes
 function setupCalculateButton() {
@@ -1493,9 +1544,6 @@ function setupCalculateButton() {
 }
 
 // Call this on page load
-
-
-
 
 // ===== PENSION MANAGEMENT =====
 let pensionCounter = 0;
@@ -1746,7 +1794,6 @@ function removeProperty(id) {
     }
 }
 
-
 // ===== INITIALIZATION =====
 document.getElementById('addPensionBtn')?.addEventListener('click', () => addPension());
 document.getElementById('addAdditionalIncomeBtn')?.addEventListener('click', () => addAdditionalIncome());
@@ -1797,7 +1844,6 @@ function getPropertiesData() {
     });
     return properties;
 }
-
 
 // Removed: Auto-add pension on page load (users add manually via button)
 // Force redeploy Wed Jan 14 20:17:52 EST 2026
