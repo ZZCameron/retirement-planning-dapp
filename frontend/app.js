@@ -429,7 +429,7 @@ async function enhancedInsightsCalculate() {
         showStatus('💰 Creating payment transaction...', 'info');
         
         // TODO: Move Helius API key to backend environment variable for production
-        const HELIUS_API_KEY = 'f2cd13c5-7512-4c42-987c-dd6457b10a46';
+        const HELIUS_API_KEY = 'bc36bca4-fa5a-49fa-821d-c9ed379647ac';
         const connection = new window.solanaWeb3.Connection(
             SOLANA_NETWORK === 'mainnet-beta' 
                 ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
@@ -1369,7 +1369,7 @@ async function submitBatchCalculation() {
         showStatus('💰 Creating payment transaction...', 'info');
         
         // TODO: Move Helius API key to backend environment variable for production
-        const HELIUS_API_KEY = 'f2cd13c5-7512-4c42-987c-dd6457b10a46';
+        const HELIUS_API_KEY = 'bc36bca4-fa5a-49fa-821d-c9ed379647ac';
         const connection = new window.solanaWeb3.Connection(
             SOLANA_NETWORK === 'mainnet-beta' 
                 ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
