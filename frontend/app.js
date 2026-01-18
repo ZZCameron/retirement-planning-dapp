@@ -326,7 +326,7 @@ async function processPayment(amountSOL) {
         
         // Sign and send
         const signed = await wallet.signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signed.serialize());
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
         
         // Wait for confirmation
         await connection.confirmTransaction(signature, 'confirmed');
@@ -478,7 +478,7 @@ async function enhancedInsightsCalculate() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-Payment-Signature': signed.signature
+                'X-Payment-Signature': signature
             },
             body: JSON.stringify(data)
         });
@@ -494,7 +494,7 @@ async function enhancedInsightsCalculate() {
         
         showStatus(
             `✅ Enhanced Insights generated!\n` +
-            `Transaction: ${signed.signature.substring(0, 20)}...\n` +
+            `Transaction: ${signature.substring(0, 20)}...\n` +
             `Hover over chart points for detailed income breakdowns.`,
             'success'
         );
@@ -1418,7 +1418,7 @@ async function submitBatchCalculation() {
         const batchInput = getBatchInputData();
         // Payload logging removed for production
         const url = new URL(`${API_BASE_URL}/api/v1/batch/calculate-batch`);
-        url.searchParams.append('payment_signature', signed.signature);
+        url.searchParams.append('payment_signature', signature);
         url.searchParams.append('wallet_address', wallet.publicKey.toString());
         
         const batchResponse = await fetch(url.toString(), {
@@ -1503,8 +1503,8 @@ async function submitBatchCalculation() {
             `📥 Google Sheets Guide: github.com/ZZCameron/retirement-planning-dapp/blob/master/templates/GOOGLE_SHEETS_GUIDE.md
 
 ` +
-            `Transaction: ${signed.signature.substring(0, 20)}...` +
-            `Transaction: ${signed.signature.substring(0, 20)}...`,
+            `Transaction: ${signature.substring(0, 20)}...` +
+            `Transaction: ${signature.substring(0, 20)}...`,
             'success'
         );
         
