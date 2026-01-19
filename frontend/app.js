@@ -132,7 +132,7 @@ function setupEventListeners() {
         enhancedBtn.addEventListener('click', enhancedInsightsCalculate);
     }
     
-    
+    document.getElementById('retirementForm').addEventListener('submit', handleSubmit);
     
     // CPP dynamic calculation
     document.getElementById('cppStartAge').addEventListener('input', updateCPPCalculation);
@@ -288,6 +288,265 @@ function updateWalletUI(address) {
     document.getElementById('walletAddress').textContent = shortAddress;
     document.getElementById('connectWallet').classList.add('hidden');
     document.getElementById('walletInfo').classList.remove('hidden');
+}
+
+// Process Solana payment
+async function processPayment(amountSOL) {
+    if (!wallet || !wallet.isConnected) {
+        throw new Error('Wallet not connected');
+    }
+    
+    try {
+        const connection = new solanaWeb3.Connection(
+            solanaWeb3.clusterApiUrl(SOLANA_NETWORK === 'mainnet-beta' ? 'mainnet-beta' : 'devnet'),
+            'confirmed'
+        );
+        
+        const recipientPubkey = new solanaWeb3.PublicKey(RECEIVER_ADDRESS);
+        const senderPubkey = wallet.publicKey;
+        
+        // Get recent blockhash
+        const { blockhash } = await connection.getLatestBlockhash();
+        
+        // Create transaction
+        const transaction = new solanaWeb3.Transaction({
+            recentBlockhash: blockhash,
+            feePayer: senderPubkey
+        });
+        
+        // Add transfer instruction
+        const lamports = amountSOL * solanaWeb3.LAMPORTS_PER_SOL;
+        transaction.add(
+            solanaWeb3.SystemProgram.transfer({
+                fromPubkey: senderPubkey,
+                toPubkey: recipientPubkey,
+                lamports: lamports
+            })
+        );
+        
+        // Sign and send
+        const signed = await wallet.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        
+        // Wait for confirmation
+        await connection.confirmTransaction(signature, 'confirmed');
+        
+        console.log('Payment successful:', signature);
+        
+        return {
+            success: true,
+            signature: signature,
+            amount: amountSOL
+        };
+        
+    } catch (error) {
+        console.error('Payment error:', error);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+// Calculation Functions
+async function testCalculate() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
+    showStatus('Testing calculation (no payment)...');
+    clearMessages();
+    
+    const data = getFormData();
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || `API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        displayResults(result);
+        showStatus('✅ Test calculation complete (no payment made)');
+    } catch (error) {
+        showError('Calculation failed: ' + error.message);
+    }
+}
+
+// Enhanced Insights calculation (paid tier - detailed breakdowns)
+async function enhancedInsightsCalculate() {
+    // Validate inputs first
+    const validationError = validateFormInputs();
+    if (validationError) {
+        showValidationError(validationError);
+        return;
+    }
+    
+    if (!wallet) {
+        showStatus('Please connect your Phantom wallet first', 'error');
+        return;
+    }
+    
+    try {
+        showStatus('📊 Preparing Enhanced Insights...', 'info');
+        const data = getFormData();
+        
+        // Step 1: Get cost estimate
+        const estimateResponse = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate-enhanced-estimate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (!estimateResponse.ok) {
+            const error = await estimateResponse.json();
+            console.error('Backend validation error:', error);
+            const errorMsg = typeof error.detail === 'string' 
+                ? error.detail 
+                : JSON.stringify(error.detail);
+            throw new Error(errorMsg || 'Cost estimation failed');
+        }
+        
+        const estimate = await estimateResponse.json();
+        
+        if (!estimate.feasible) {
+            showStatus('❌ Calculation not feasible with current inputs', 'error');
+            return;
+        }
+        
+                // Step 2: Proceed directly to payment
+        
+        // Step 3: Create payment transaction
+        showStatus('💰 Creating payment transaction...', 'info');
+        
+        // TODO: Move Helius API key to backend environment variable for production
+        const HELIUS_API_KEY = 'bc36bca4-fa5a-49fa-821d-c9ed379647ac';
+        const connection = new window.solanaWeb3.Connection(
+            SOLANA_NETWORK === 'mainnet-beta' 
+                ? `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`
+                : 'https://api.devnet.solana.com',
+            'confirmed'
+        );
+        
+        const recipientPubkey = new window.solanaWeb3.PublicKey(
+            '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m'
+        );
+        
+        const lamports = Math.floor(estimate.cost_sol * 1000000000);
+        
+        const transaction = new window.solanaWeb3.Transaction().add(
+            window.solanaWeb3.SystemProgram.transfer({
+                fromPubkey: wallet.publicKey,
+                toPubkey: recipientPubkey,
+                lamports: lamports
+            })
+        );
+        
+        transaction.feePayer = wallet.publicKey;
+        const { blockhash } = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
+        
+        // Step 4: Sign transaction (shows preview in Phantom)
+        showStatus('✍️ Please review and approve in Phantom...', 'info');
+        
+        const signedTx = await wallet.signTransaction(transaction);
+        console.log('Transaction signed, sending...');
+        
+        // Step 5: Send the signed transaction
+        showStatus('📤 Sending transaction...', 'info');
+        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        console.log('Transaction signature:', signature);
+        
+        showStatus('⏳ Confirming transaction...', 'info');
+        await connection.confirmTransaction(signature, 'confirmed');
+        
+        console.log('✅ Payment confirmed');
+        
+        // Step 5: Calculate with payment proof
+        showStatus('🔄 Calculating with enhanced insights...', 'info');
+        
+        const calculateResponse = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Payment-Signature': signature
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (!calculateResponse.ok) {
+            const errorData = await calculateResponse.json();
+            throw new Error(errorData.detail || 'Calculation failed');
+        }
+        
+        const result = await calculateResponse.json();
+        
+        displayResults(result, { enhancedMode: true });
+        
+        showStatus(
+            `✅ Enhanced Insights generated!\n` +
+            `Transaction: ${signature.substring(0, 20)}...\n` +
+            `Hover over chart points for detailed income breakdowns.`,
+            'success'
+        );
+        
+    } catch (error) {
+        console.error('Enhanced Insights error:', error);
+        showStatus(`❌ Error: ${error.message}`, 'error');
+    }
+}
+
+async function handleSubmit(event) {
+    event.preventDefault();
+    
+    if (!walletConnected) {
+        showError('Please connect your wallet first');
+        return;
+    }
+
+    showStatus('Processing payment...');
+    clearMessages();
+
+    try {
+        await makePayment();
+        const data = getFormData();
+        
+        const response = await fetch(`${API_BASE_URL}/api/v1/retirement/calculate`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || `API error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        displayResults(result);
+        showStatus('✅ Calculation complete! Payment received.');
+    } catch (error) {
+        showError('Transaction failed: ' + error.message);
+    }
+}
+
+async function makePayment() {
+    // Simulated payment for now
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            console.log('Payment simulated');
+            resolve();
+        }, 1000);
+    });
 }
 
 function getFormData() {
@@ -700,6 +959,52 @@ function clearMessages() {
 
 // Calculate with Payment
 
+async function createPaymentTransaction() {
+    const Connection = window.solanaWeb3.Connection;
+    const PublicKey = window.solanaWeb3.PublicKey;
+    const Transaction = window.solanaWeb3.Transaction;
+    const SystemProgram = window.solanaWeb3.SystemProgram;
+    const LAMPORTS_PER_SOL = window.solanaWeb3.LAMPORTS_PER_SOL;
+
+    // Connect to Solana
+    const connection = new Connection(SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com', 'confirmed');
+    
+    // Recipient address (your treasury wallet - CHANGE THIS!)
+    const recipient = new PublicKey('4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m');
+    
+    // Get recent blockhash
+    const { blockhash } = await connection.getLatestBlockhash();
+    
+    // Create transfer instruction
+    const transaction = new Transaction({
+        recentBlockhash: blockhash,
+        feePayer: wallet.publicKey,
+    }).add(
+        SystemProgram.transfer({
+            fromPubkey: wallet.publicKey,
+            toPubkey: recipient,
+            lamports: PAYMENT_AMOUNT * LAMPORTS_PER_SOL,
+        })
+    );
+
+    return transaction;
+}
+
+// Wait for transaction confirmation
+async function waitForConfirmation(signature) {
+    const Connection = window.solanaWeb3.Connection;
+    const connection = new Connection(SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com', 'confirmed');
+    
+    const confirmation = await connection.confirmTransaction(signature, 'confirmed');
+    if (confirmation.value.err) {
+        throw new Error('Transaction failed');
+    }
+    return confirmation;
+}
+
+// Mode Toggle Handler
+let currentMode = 'free';
+
 function setupModeToggle() {
     const freeModeRadio = document.getElementById('freeModeRadio');
     const batchModeRadio = document.getElementById('batchModeRadio');
@@ -1087,22 +1392,16 @@ async function submitBatchCalculation() {
         );
         
         transaction.feePayer = wallet.publicKey;
+        const { blockhash } = await connection.getLatestBlockhash();
+        transaction.recentBlockhash = blockhash;
         
-        // Step 4: Get initial blockhash for transaction preview
-        const { blockhash: previewBlockhash } = await connection.getLatestBlockhash();
-        transaction.recentBlockhash = previewBlockhash;
-        
-        // Step 5: Sign transaction (shows preview in Phantom)
+        // Step 4: Sign transaction (shows preview in Phantom)
         showStatus('✍️ Please review and approve in Phantom...', 'info');
         
         const signedTx = await wallet.signTransaction(transaction);
-        console.log('Transaction signed, getting fresh blockhash...');
+        console.log('Transaction signed, sending...');
         
-        // Step 6: Get FRESH blockhash right before sending (prevents expiration)
-        const { blockhash: freshBlockhash } = await connection.getLatestBlockhash();
-        signedTx.recentBlockhash = freshBlockhash;
-        
-        // Step 7: Send with fresh blockhash
+        // Step 5: Send the signed transaction
         showStatus('📤 Sending transaction...', 'info');
         const signature = await connection.sendRawTransaction(signedTx.serialize());
         console.log('Transaction signature:', signature);
