@@ -458,12 +458,7 @@ async function enhancedInsightsCalculate() {
         // Step 4: Sign transaction (shows preview in Phantom)
         showStatus('✍️ Please review and approve in Phantom...', 'info');
         
-        const signedTx = await wallet.signTransaction(transaction);
-        console.log('Transaction signed, sending...');
-        
-        // Step 5: Send the signed transaction
-        showStatus('📤 Sending transaction...', 'info');
-        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        const { signature } = await wallet.signAndSendTransaction(transaction);
         console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
@@ -1398,12 +1393,7 @@ async function submitBatchCalculation() {
         // Step 4: Sign transaction (shows preview in Phantom)
         showStatus('✍️ Please review and approve in Phantom...', 'info');
         
-        const signedTx = await wallet.signTransaction(transaction);
-        console.log('Transaction signed, sending...');
-        
-        // Step 5: Send the signed transaction
-        showStatus('📤 Sending transaction...', 'info');
-        const signature = await connection.sendRawTransaction(signedTx.serialize());
+        const { signature } = await wallet.signAndSendTransaction(transaction);
         console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
