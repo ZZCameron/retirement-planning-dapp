@@ -101,6 +101,31 @@ function validateFormInputs() {
         return "Monthly contribution cannot be negative.";
     }
     
+
+    // Additional Income year validation
+    const includeAdditionalIncome = document.getElementById('includeAdditionalIncome')?.checked;
+    if (includeAdditionalIncome) {
+        const additionalIncomeData = getAdditionalIncomeData();
+        for (let i = 0; i < additionalIncomeData.length; i++) {
+            const stream = additionalIncomeData[i];
+            if (stream.end_year <= stream.start_year) {
+                return `Additional Income Stream ${i + 1}: End year (${stream.end_year}) must be after start year (${stream.start_year}).\n\nPlease adjust the years so that the income stream has a valid duration.`;
+            }
+        }
+    }
+
+    // Pension year validation
+    const includePension = document.getElementById('includePension')?.checked;
+    if (includePension) {
+        const pensionData = getPensionsData();
+        for (let i = 0; i < pensionData.length; i++) {
+            const pension = pensionData[i];
+            if (pension.end_year <= pension.start_year) {
+                return `Pension ${i + 1}: End year (${pension.end_year}) must be after start year (${pension.start_year}).\n\nPlease adjust the years so that the pension has a valid duration.`;
+            }
+        }
+    }
+
     // All validations passed
     return null;
 }
@@ -185,11 +210,18 @@ function updateCPPCalculation() {
 function togglePensionFields() {
     const checkbox = document.getElementById('includePension');
     const fields = document.getElementById('pensionFields');
+    const container = document.getElementById('pensionsContainer');
     
     if (checkbox.checked) {
         fields.classList.remove('hidden');
+        // Add first pension if none exist (matches Additional Income behavior)
+        if (document.querySelectorAll('.pension-entry').length === 0) {
+            addPension({ monthly: 1000, startYear: 2034, endYear: 2054 });
+        }
     } else {
         fields.classList.add('hidden');
+        // Clear all pension entries when unchecked
+        container.innerHTML = '';
     }
 }
 
