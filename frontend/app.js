@@ -41,6 +41,27 @@ let walletConnected = false;
  * Phase 1: Uses browser alert() - simple but effective
  * Phase 2: Replace with custom modal for better UX
  */
+
+// Helper function to highlight invalid field
+function highlightInvalidField(selector) {
+    // Clear any existing highlights
+    document.querySelectorAll('.validation-error').forEach(el => {
+        el.classList.remove('validation-error');
+    });
+    
+    // Highlight the invalid field
+    const field = document.querySelector(selector);
+    if (field) {
+        field.classList.add('validation-error');
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Remove highlight when user starts typing
+        field.addEventListener('input', function() {
+            this.classList.remove('validation-error');
+        }, { once: true });
+    }
+}
+
 function showValidationError(message) {
     alert(`⚠️ Validation Error
 
@@ -101,6 +122,33 @@ function validateFormInputs() {
         return "Monthly contribution cannot be negative.";
     }
     
+
+    // Additional Income year validation
+    const includeAdditionalIncome = document.getElementById('includeAdditionalIncome')?.checked;
+    if (includeAdditionalIncome) {
+        const additionalIncomeData = getAdditionalIncomeData();
+        for (let i = 0; i < additionalIncomeData.length; i++) {
+            const stream = additionalIncomeData[i];
+            if (stream.end_year <= stream.start_year) {
+                highlightInvalidField(`.income-end-year[data-income-id="${i}"]`);
+                return `Additional Income Stream ${i + 1}: End year (${stream.end_year}) must be after start year (${stream.start_year}).\n\nPlease adjust the years so that the income stream has a valid duration.`;
+            }
+        }
+    }
+
+    // Pension year validation
+    const includePension = document.getElementById('includePension')?.checked;
+    if (includePension) {
+        const pensionData = getPensionsData();
+        for (let i = 0; i < pensionData.length; i++) {
+            const pension = pensionData[i];
+            if (pension.end_year <= pension.start_year) {
+                highlightInvalidField(`.pension-end-year[data-pension-id="${i}"]`);
+                return `Pension ${i + 1}: End year (${pension.end_year}) must be after start year (${pension.start_year}).\n\nPlease adjust the years so that the pension has a valid duration.`;
+            }
+        }
+    }
+
     // All validations passed
     return null;
 }
@@ -185,11 +233,18 @@ function updateCPPCalculation() {
 function togglePensionFields() {
     const checkbox = document.getElementById('includePension');
     const fields = document.getElementById('pensionFields');
+    const container = document.getElementById('pensionsContainer');
     
     if (checkbox.checked) {
         fields.classList.remove('hidden');
+        // Add first pension if none exist (matches Additional Income behavior)
+        if (document.querySelectorAll('.pension-entry').length === 0) {
+            addPension({ monthly: 1000, startYear: 2034, endYear: 2054 });
+        }
     } else {
         fields.classList.add('hidden');
+        // Clear all pension entries when unchecked
+        container.innerHTML = '';
     }
 }
 
@@ -1602,12 +1657,21 @@ function getPensionsData() {
         const monthlyEl = document.querySelector(`.pension-monthly[data-pension-id="${id}"]`);
         const startYearEl = document.querySelector(`.pension-start-year[data-pension-id="${id}"]`);
         const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
+        const hasEndYearEl = document.querySelector(`.pension-has-end-year[data-pension-id="${id}"]`);
+        const endYearEl = document.querySelector(`.pension-end-year[data-pension-id="${id}"]`);
         
-        pensions.push({
+        const pensionData = {
             monthly_amount: parseFloat(monthlyEl?.value || 0),
             start_year: parseInt(startYearEl?.value || new Date().getFullYear()),
             indexing_rate: parseFloat(indexingEl?.value || 0) / 100
-        });
+        };
+        
+        // Include end_year if checkbox is checked
+        if (hasEndYearEl?.checked) {
+            pensionData.end_year = parseInt(endYearEl?.value || 2100);
+        }
+        
+        pensions.push(pensionData);
     });
     
     return pensions;
