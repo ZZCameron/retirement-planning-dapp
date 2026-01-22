@@ -1634,12 +1634,21 @@ function getPensionsData() {
         const monthlyEl = document.querySelector(`.pension-monthly[data-pension-id="${id}"]`);
         const startYearEl = document.querySelector(`.pension-start-year[data-pension-id="${id}"]`);
         const indexingEl = document.querySelector(`.pension-indexing[data-pension-id="${id}"]`);
+        const hasEndYearEl = document.querySelector(`.pension-has-end-year[data-pension-id="${id}"]`);
+        const endYearEl = document.querySelector(`.pension-end-year[data-pension-id="${id}"]`);
         
-        pensions.push({
+        const pensionData = {
             monthly_amount: parseFloat(monthlyEl?.value || 0),
             start_year: parseInt(startYearEl?.value || new Date().getFullYear()),
             indexing_rate: parseFloat(indexingEl?.value || 0) / 100
-        });
+        };
+        
+        // Include end_year if checkbox is checked
+        if (hasEndYearEl?.checked) {
+            pensionData.end_year = parseInt(endYearEl?.value || 2100);
+        }
+        
+        pensions.push(pensionData);
     });
     
     return pensions;
