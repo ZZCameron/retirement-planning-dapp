@@ -910,3 +910,17 @@ header h1 {
     transform: scale(1.1);
     transition: all 0.2s ease;
 }
+
+
+/* Validation error highlighting */
+.validation-error {
+    border: 2px solid #e74c3c !important;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+    animation: shake 0.3s ease-in-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}

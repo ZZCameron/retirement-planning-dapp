@@ -41,6 +41,27 @@ let walletConnected = false;
  * Phase 1: Uses browser alert() - simple but effective
  * Phase 2: Replace with custom modal for better UX
  */
+
+// Helper function to highlight invalid field
+function highlightInvalidField(selector) {
+    // Clear any existing highlights
+    document.querySelectorAll('.validation-error').forEach(el => {
+        el.classList.remove('validation-error');
+    });
+    
+    // Highlight the invalid field
+    const field = document.querySelector(selector);
+    if (field) {
+        field.classList.add('validation-error');
+        field.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Remove highlight when user starts typing
+        field.addEventListener('input', function() {
+            this.classList.remove('validation-error');
+        }, { once: true });
+    }
+}
+
 function showValidationError(message) {
     alert(`⚠️ Validation Error
 
@@ -109,6 +130,7 @@ function validateFormInputs() {
         for (let i = 0; i < additionalIncomeData.length; i++) {
             const stream = additionalIncomeData[i];
             if (stream.end_year <= stream.start_year) {
+                highlightInvalidField(`.income-end-year[data-income-id="${i}"]`);
                 return `Additional Income Stream ${i + 1}: End year (${stream.end_year}) must be after start year (${stream.start_year}).\n\nPlease adjust the years so that the income stream has a valid duration.`;
             }
         }
@@ -121,6 +143,7 @@ function validateFormInputs() {
         for (let i = 0; i < pensionData.length; i++) {
             const pension = pensionData[i];
             if (pension.end_year <= pension.start_year) {
+                highlightInvalidField(`.pension-end-year[data-pension-id="${i}"]`);
                 return `Pension ${i + 1}: End year (${pension.end_year}) must be after start year (${pension.start_year}).\n\nPlease adjust the years so that the pension has a valid duration.`;
             }
         }
