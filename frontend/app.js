@@ -666,6 +666,9 @@ function showDetailedBreakdown(projection) {
     if (breakdown.rrif_withdrawal > 0) {
         html += `<div class="breakdown-line"><span>RRIF Withdrawal</span><span>$${Math.round(breakdown.rrif_withdrawal).toLocaleString()}</span></div>`;
     }
+    if (breakdown.tfsa_withdrawal > 0) {
+        html += `<div class="breakdown-line"><span>TFSA Withdrawal (tax-free)</span><span>$${Math.round(breakdown.tfsa_withdrawal).toLocaleString()}</span></div>`;
+    }
     if (breakdown.cpp_income > 0) {
         html += `<div class="breakdown-line"><span>CPP</span><span>$${Math.round(breakdown.cpp_income).toLocaleString()}</span></div>`;
     }
@@ -975,6 +978,9 @@ function drawChart(projections) {
                             
                             if (breakdown.rrif_withdrawal > 0) {
                                 lines.push(`  RRIF: $${Math.round(breakdown.rrif_withdrawal).toLocaleString()}`);
+                            }
+                            if (breakdown.tfsa_withdrawal > 0) {
+                                lines.push(`  TFSA: $${Math.round(breakdown.tfsa_withdrawal).toLocaleString()}`);
                             }
                             if (breakdown.cpp_income > 0) {
                                 lines.push(`  CPP: $${Math.round(breakdown.cpp_income).toLocaleString()}`);

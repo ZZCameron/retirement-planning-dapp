@@ -236,6 +236,7 @@ class RetirementPlanInput(BaseModel):
 class IncomeBreakdown(BaseModel):
     """Detailed breakdown of income sources for enhanced insights."""
     rrif_withdrawal: float = 0.0
+    tfsa_withdrawal: float = 0.0
     cpp_income: float = 0.0
     oas_income: float = 0.0
     pension_total: float = 0.0

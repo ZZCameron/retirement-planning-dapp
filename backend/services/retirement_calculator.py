@@ -98,6 +98,7 @@ class RetirementCalculator:
         for year in range(total_years + 1):
             current_age = plan_input.current_age + year
             is_retired = current_age >= plan_input.retirement_age
+            tfsa_withdrawal_amount = 0.0  # Track TFSA withdrawals for this year
             
             # Calculate inflation-adjusted spending
             inflation_factor = 1.0  # Real $ mode: constant purchasing power
@@ -249,10 +250,10 @@ class RetirementCalculator:
                     shortfall = adjusted_spending - gross_income
                     
                     # Withdraw from TFSA first (tax-free)
-                    tfsa_withdrawal = min(shortfall, tfsa_balance)
-                    tfsa_balance -= tfsa_withdrawal
-                    other_withdrawals += tfsa_withdrawal
-                    shortfall -= tfsa_withdrawal
+                    tfsa_withdrawal_amount = min(shortfall, tfsa_balance)
+                    tfsa_balance -= tfsa_withdrawal_amount
+                    other_withdrawals += tfsa_withdrawal_amount
+                    shortfall -= tfsa_withdrawal_amount
                     
                     # Then from non-registered if needed
                     if shortfall > 0:
@@ -366,6 +367,7 @@ class RetirementCalculator:
                 # Create income breakdown object
                 breakdown = IncomeBreakdown(
                     rrif_withdrawal=rrif_withdrawal,
+                    tfsa_withdrawal=tfsa_withdrawal_amount,
                     cpp_income=cpp_income,
                     oas_income=oas_income,
                     pension_total=pension_income,
