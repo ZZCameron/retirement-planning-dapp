@@ -1111,3 +1111,9 @@ header h1 {
         font-size: 0.9rem;
     }
 }
+
+
+/* Chart cursor hint */
+#retirementChart {
+    cursor: pointer;
+}

@@ -923,7 +923,7 @@ function drawChart(projections) {
                     yAlign: 'center',
                     xAlign: 'center',
                     displayColors: false,
-                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.85)',
                     padding: 12,
                     cornerRadius: 8,
                     titleFont: {
@@ -1073,6 +1073,15 @@ function drawChart(projections) {
                 mode: 'nearest',
                 axis: 'x',
                 intersect: false
+            },
+            onClick: function(event, activeElements) {
+                if (activeElements.length > 0 && window.enhancedMode) {
+                    const dataIndex = activeElements[0].index;
+                    const projection = window.currentProjections?.[dataIndex];
+                    if (projection?.income_breakdown) {
+                        showDetailedBreakdown(projection);
+                    }
+                }
             }
         }
     });
