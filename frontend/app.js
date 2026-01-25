@@ -646,6 +646,80 @@ function getFormData() {
 }
 
 // Display Functions
+
+// Show detailed income breakdown in modal
+function showDetailedBreakdown(projection) {
+    const breakdown = projection.income_breakdown;
+    
+    let html = `
+        <div class="breakdown-modal-overlay" onclick="closeBreakdownModal()">
+            <div class="breakdown-modal" onclick="event.stopPropagation()">
+                <div class="breakdown-header">
+                    <h3>Age ${projection.age} - Detailed Breakdown</h3>
+                    <button class="breakdown-close" onclick="closeBreakdownModal()">✖</button>
+                </div>
+                <div class="breakdown-content">
+                    <div class="breakdown-section">
+                        <h4>💰 INCOME SOURCES</h4>
+    `;
+    
+    if (breakdown.rrif_withdrawal > 0) {
+        html += `<div class="breakdown-line"><span>RRIF Withdrawal</span><span>$${Math.round(breakdown.rrif_withdrawal).toLocaleString()}</span></div>`;
+    }
+    if (breakdown.cpp_income > 0) {
+        html += `<div class="breakdown-line"><span>CPP</span><span>$${Math.round(breakdown.cpp_income).toLocaleString()}</span></div>`;
+    }
+    if (breakdown.oas_income > 0) {
+        html += `<div class="breakdown-line"><span>OAS</span><span>$${Math.round(breakdown.oas_income).toLocaleString()}</span></div>`;
+    }
+    
+    if (breakdown.pension_total > 0) {
+        html += `<div class="breakdown-line breakdown-total"><span>Pensions (${breakdown.pension_streams?.length || 0})</span><span>$${Math.round(breakdown.pension_total).toLocaleString()}</span></div>`;
+        breakdown.pension_streams?.forEach(stream => {
+            html += `<div class="breakdown-subline"><span>• ${stream.label}</span><span>$${Math.round(stream.annual).toLocaleString()}/yr</span></div>`;
+        });
+    }
+    
+    if (breakdown.additional_income_total > 0) {
+        html += `<div class="breakdown-line breakdown-total"><span>Additional Income (${breakdown.additional_income_streams?.length || 0})</span><span>$${Math.round(breakdown.additional_income_total).toLocaleString()}</span></div>`;
+        breakdown.additional_income_streams?.forEach(stream => {
+            html += `<div class="breakdown-subline"><span>• ${stream.label}</span><span>$${Math.round(stream.annual).toLocaleString()}/yr</span></div>`;
+        });
+    }
+    
+    const totalIncome = projection.gross_income;
+    html += `<div class="breakdown-line breakdown-total-final"><span>Total Income</span><span>$${Math.round(totalIncome).toLocaleString()}</span></div>`;
+    
+    html += `</div><div class="breakdown-section">
+                        <h4>💸 OUTFLOWS</h4>
+                        <div class="breakdown-line"><span>Annual Spending</span><span>$${Math.round(projection.spending).toLocaleString()}</span></div>
+                        <div class="breakdown-line"><span>Taxes</span><span>$${Math.round(projection.taxes_estimated).toLocaleString()}</span></div>
+                        <div class="breakdown-line breakdown-total-final"><span>Total Outflows</span><span>$${Math.round(projection.spending + projection.taxes_estimated).toLocaleString()}</span></div>
+                    </div>`;
+    
+    const netFlow = totalIncome - projection.spending - projection.taxes_estimated;
+    const netClass = netFlow >= 0 ? 'breakdown-surplus' : 'breakdown-deficit';
+    const netLabel = netFlow >= 0 ? '✅ Net Surplus' : '⚠️ Net Deficit';
+    
+    html += `<div class="breakdown-section">
+                        <div class="breakdown-line ${netClass}"><span>${netLabel}</span><span>$${Math.round(Math.abs(netFlow)).toLocaleString()}</span></div>
+                        <div class="breakdown-line breakdown-balance"><span>💼 Ending Balance</span><span>$${Math.round(projection.total_balance).toLocaleString()}</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function closeBreakdownModal() {
+    const modal = document.querySelector('.breakdown-modal-overlay');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 function displayResults(result, options = {}) {
     // Store projections globally for tooltip access
     window.currentProjections = result.projections;
@@ -909,16 +983,14 @@ function drawChart(projections) {
                                 lines.push(`  OAS: $${Math.round(breakdown.oas_income).toLocaleString()}`);
                             }
                             if (breakdown.pension_total > 0) {
-                                lines.push(`  Pension: $${Math.round(breakdown.pension_total).toLocaleString()}`);
-                                breakdown.pension_streams?.forEach(stream => {
-                                    lines.push(`    • ${stream.label}: $${Math.round(stream.annual).toLocaleString()}/yr`);
-                                });
+                                const count = breakdown.pension_streams?.length || 0;
+                                const label = count > 1 ? ` (${count} sources)` : '';
+                                lines.push(`  Pension: $${Math.round(breakdown.pension_total).toLocaleString()}${label}`);
                             }
                             if (breakdown.additional_income_total > 0) {
-                                lines.push(`  Additional: $${Math.round(breakdown.additional_income_total).toLocaleString()}`);
-                                breakdown.additional_income_streams?.forEach(stream => {
-                                    lines.push(`    • ${stream.label}: $${Math.round(stream.annual).toLocaleString()}/yr`);
-                                });
+                                const count = breakdown.additional_income_streams?.length || 0;
+                                const label = count > 1 ? ` (${count} sources)` : '';
+                                lines.push(`  Additional: $${Math.round(breakdown.additional_income_total).toLocaleString()}${label}`);
                             }
                             
                             const totalIncome = projection.gross_income;
@@ -942,6 +1014,8 @@ function drawChart(projections) {
                             
                             lines.push('');
                             lines.push(`💼 Balance: $${Math.round(projection.total_balance).toLocaleString()}`);
+                            lines.push('');
+                            lines.push('💡 Click point for detailed breakdown');
                             
                             return lines;
                         }
