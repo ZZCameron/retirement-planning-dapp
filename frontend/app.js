@@ -384,7 +384,7 @@ async function processPayment(amountSOL) {
         const signature = await connection.sendRawTransaction(signedTx.serialize());
         
         // Wait for confirmation
-        await connection.confirmTransaction(signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'processed'); // Faster: ~400ms vs 30s
         
         console.log('Payment successful:', signature);
         
@@ -517,7 +517,7 @@ async function enhancedInsightsCalculate() {
         console.log('Transaction signature:', signature);
         
         showStatus('⏳ Confirming transaction...', 'info');
-        await connection.confirmTransaction(signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'processed'); // Faster: ~400ms vs 30s
         
         console.log('✅ Payment confirmed');
         
@@ -1045,7 +1045,7 @@ async function waitForConfirmation(signature) {
     const Connection = window.solanaWeb3.Connection;
     const connection = new Connection(SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com', 'confirmed');
     
-    const confirmation = await connection.confirmTransaction(signature, 'confirmed');
+    const confirmation = await connection.confirmTransaction(signature, 'processed'); // Faster: ~400ms vs 30s
     if (confirmation.value.err) {
         throw new Error('Transaction failed');
     }
@@ -1453,7 +1453,7 @@ async function submitBatchCalculation() {
         
         showStatus('⏳ Confirming transaction...', 'info');
         
-        await connection.confirmTransaction(signature, 'confirmed');
+        await connection.confirmTransaction(signature, 'processed'); // Faster: ~400ms vs 30s
         
         console.log('✅ Payment confirmed');
         
