@@ -924,3 +924,19 @@ header h1 {
     25% { transform: translateX(-5px); }
     75% { transform: translateX(5px); }
 }
+
+
+/* Chart.js tooltip max height and scrolling */
+.chartjs-tooltip {
+    max-height: 70vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Mobile: smaller max height */
+@media (max-width: 768px) {
+    .chartjs-tooltip {
+        max-height: 50vh !important;
+        font-size: 10px !important;
+    }
+}

@@ -845,6 +845,22 @@ function drawChart(projections) {
                 tooltip: {
                     mode: 'index',
                     intersect: false,
+                    position: 'nearest',
+                    yAlign: 'center',
+                    xAlign: 'center',
+                    displayColors: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 13,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 11,
+                        family: 'monospace'
+                    },
+                    bodySpacing: 4,
                     callbacks: {
                         title: function(context) {
                             const dataIndex = context[0].dataIndex;
