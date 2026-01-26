@@ -2537,37 +2537,10 @@ header h1 {
 }
 
 
-/* Checkbox labels - STRONG override for mobile */
-@media (max-width: 768px) {
-    /* Override inline styles with !important */
-    label[style*="inline-flex"] {
-        display: flex !important;
-        flex-direction: row !important;
-        align-items: flex-start !important;
-        flex-wrap: nowrap !important;
-        gap: 8px !important;
-    }
-    
-    /* Force span text to wrap */
-    label[style*="inline-flex"] span {
-        white-space: normal !important;
-        word-wrap: break-word !important;
-        overflow-wrap: break-word !important;
-        flex: 1 1 auto !important;
-        max-width: calc(100vw - 80px) !important;
-    }
-    
-    /* Keep checkbox stable */
-    label[style*="inline-flex"] input[type="checkbox"] {
-        flex-shrink: 0 !important;
-        margin-top: 2px !important;
-    }
-}
-
-/* Clean checkbox label styling (no inline style conflicts) */
+/* Checkbox label styling - mobile friendly */
 .checkbox-label {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
     cursor: pointer;
 }
