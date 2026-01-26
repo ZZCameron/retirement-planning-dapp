@@ -1251,35 +1251,31 @@ header h1 {
 }
 
 
-/* Checkbox labels - allow text wrapping on mobile */
+
+
+
+/* Checkbox labels - fix text wrapping on mobile */
 @media (max-width: 768px) {
-    /* Pension and Additional Income checkbox containers */
+    /* Target the span inside checkbox labels */
+    label[for="includePension"] span,
+    label[for="includeAdditionalIncome"] span {
+        white-space: normal !important;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        display: inline-block;
+        max-width: calc(100% - 30px);
+    }
+    
+    /* Keep checkbox aligned */
     label[for="includePension"],
     label[for="includeAdditionalIncome"] {
         display: flex;
         align-items: flex-start;
-        white-space: normal;
-        word-wrap: break-word;
-        line-height: 1.4;
     }
     
-    /* Checkbox input */
     input[type="checkbox"] {
         flex-shrink: 0;
         margin-right: 8px;
         margin-top: 2px;
-    }
-    
-    /* Info icon next to checkbox */
-    .info-icon {
-        flex-shrink: 0;
-        margin-left: 5px;
-    }
-    
-    /* Ensure label text can wrap */
-    label {
-        white-space: normal;
-        word-wrap: break-word;
-        overflow-wrap: break-word;
     }
 }
