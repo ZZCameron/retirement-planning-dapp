@@ -2563,3 +2563,32 @@ header h1 {
         margin-top: 2px !important;
     }
 }
+
+/* Clean checkbox label styling (no inline style conflicts) */
+.checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-label span {
+    flex: 1;
+}
+
+/* Mobile: ensure proper wrapping */
+@media (max-width: 768px) {
+    .checkbox-label {
+        align-items: flex-start;
+    }
+    
+    .checkbox-label span {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+}
