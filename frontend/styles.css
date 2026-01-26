@@ -2544,7 +2544,7 @@ header h1 {
         display: flex !important;
         flex-direction: row !important;
         align-items: flex-start !important;
-        flex-wrap: wrap !important;
+        flex-wrap: nowrap !important;
         gap: 8px !important;
     }
     
