@@ -2565,3 +2565,16 @@ header h1 {
         overflow-wrap: break-word;
     }
 }
+
+/* Override form-group label for checkboxes */
+.form-group .checkbox-label {
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+}
+
+@media (max-width: 768px) {
+    .form-group .checkbox-label {
+        align-items: flex-start;
+    }
+}
