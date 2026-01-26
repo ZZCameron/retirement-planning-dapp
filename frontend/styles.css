@@ -2578,3 +2578,17 @@ header h1 {
         align-items: flex-start;
     }
 }
+
+/* Fix checkbox dimensions */
+input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    max-width: 18px !important;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0;
+}
