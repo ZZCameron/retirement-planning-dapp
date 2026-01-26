@@ -292,6 +292,7 @@ class RetirementCalculator:
                     if tfsa_balance > 0:
                         tfsa_tax_withdrawal = min(tax_coverage_needed, tfsa_balance)
                         tfsa_balance -= tfsa_tax_withdrawal
+                        tfsa_withdrawal_amount += tfsa_tax_withdrawal  # Track for breakdown
                         other_withdrawals += tfsa_tax_withdrawal
                         tax_coverage_needed -= tfsa_tax_withdrawal
                     
