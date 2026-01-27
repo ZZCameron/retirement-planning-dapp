@@ -137,15 +137,15 @@ async def calculate_batch_scenarios(
     
     logger.info(f"✅ Completed {len(results)} calculations")
     
-    # 5. Format as CSV
-    csv_content = format_results_as_csv(results, batch_input)
+    # 5. Generate professional XLSX with 3 tabs
+    xlsx_buffer = create_batch_analysis_xlsx(results, batch_input, payment_signature)
     
     # 6. Return as downloadable file
     return StreamingResponse(
-        io.StringIO(csv_content),
-        media_type="text/csv",
+        xlsx_buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={
-            "Content-Disposition": f"attachment; filename=retirement_scenarios_{payment_signature[:8]}.csv"
+            "Content-Disposition": f"attachment; filename=retirement_analysis_{payment_signature[:8]}.xlsx"
         }
     )
 
@@ -290,6 +290,277 @@ def format_results_as_csv(results: List[dict], batch_input: BatchRetirementPlanI
                 warnings_str
             ]
             writer.writerow(row)
+    
+    return output.getvalue()
+
+
+
+
+
+
+def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirementPlanInput, payment_signature: str) -> io.BytesIO:
+    """
+    Generate professional XLSX with 3 tabs:
+    1. Summary - Customer-friendly scenario comparison
+    2. Detailed Data - Year-by-year breakdown (for B2B clients)
+    3. Analysis Guide - Recommendations and formulas
+    """
+    from openpyxl import Workbook
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    
+    wb = Workbook()
+    
+    # ====================================
+    # TAB 1: SUMMARY
+    # ====================================
+    ws_summary = wb.active
+    ws_summary.title = "Summary"
+    
+    # Headers
+    headers = [
+        'Scenario', 'Retirement Age', 'Starting RRSP', 'Starting TFSA', 
+        'Starting Non-Reg', 'Annual Spending', 'Monthly Savings',
+        'CPP Start Age', 'OAS Start Age', '# Pensions', '# Income Streams',
+        'Success?', 'Money Lasts To Age', 'Final Balance', 'Total Years'
+    ]
+    
+    # Style headers
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    
+    for col_num, header in enumerate(headers, 1):
+        cell = ws_summary.cell(row=1, column=col_num)
+        cell.value = header
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+    
+    # Data rows
+    success_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+    failure_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+    
+    for row_num, result in enumerate(results, 2):
+        scenario_id = result['scenario_id']
+        
+        if 'error' in result:
+            ws_summary.cell(row=row_num, column=1).value = scenario_id
+            ws_summary.cell(row=row_num, column=2).value = 'ERROR'
+            continue
+        
+        scenario_input = result['input']
+        scenario_output = result['output']
+        
+        # Calculate money_lasts_to_age
+        projections = scenario_output.projections
+        money_lasts_to_age = scenario_input.life_expectancy
+        for proj in projections:
+            if proj.total_balance <= 0:
+                money_lasts_to_age = proj.age
+                break
+        
+        total_years = money_lasts_to_age - scenario_input.retirement_age
+        success = scenario_output.success
+        
+        # Write row data
+        row_data = [
+            scenario_id,
+            scenario_input.retirement_age,
+            scenario_input.rrsp_balance,
+            scenario_input.tfsa_balance,
+            scenario_input.non_registered,
+            scenario_input.desired_annual_spending,
+            scenario_input.monthly_contribution,
+            scenario_input.cpp_start_age,
+            scenario_input.oas_start_age,
+            len(scenario_input.pensions) if scenario_input.pensions else 0,
+            len(scenario_input.additional_income) if scenario_input.additional_income else 0,
+            'YES' if success else 'NO',
+            money_lasts_to_age,
+            scenario_output.final_balance,
+            total_years
+        ]
+        
+        for col_num, value in enumerate(row_data, 1):
+            cell = ws_summary.cell(row=row_num, column=col_num)
+            cell.value = value
+            
+            # Currency formatting for money columns
+            if col_num in [3, 4, 5, 6, 7, 14]:  # RRSP, TFSA, Non-Reg, Spending, Savings, Final Balance
+                cell.number_format = '"$"#,##0'
+            
+            # Color code success/failure
+            if col_num == 12:  # Success column
+                if success:
+                    cell.fill = success_fill
+                    cell.font = Font(bold=True, color="006100")
+                else:
+                    cell.fill = failure_fill
+                    cell.font = Font(bold=True, color="9C0006")
+    
+    # Auto-size columns
+    for col in range(1, len(headers) + 1):
+        ws_summary.column_dimensions[get_column_letter(col)].width = 15
+    
+    # ====================================
+    # TAB 2: DETAILED DATA
+    # ====================================
+    ws_detailed = wb.create_sheet("Detailed Data")
+    
+    # Use existing CSV format function to get detailed data
+    detailed_csv = format_results_as_csv(results, batch_input)
+    
+    # Parse CSV and write to sheet
+    import csv
+    csv_reader = csv.reader(io.StringIO(detailed_csv))
+    for row_num, row_data in enumerate(csv_reader, 1):
+        for col_num, value in enumerate(row_data, 1):
+            cell = ws_detailed.cell(row=row_num, column=col_num)
+            try:
+                cell.value = float(value)
+            except (ValueError, TypeError):
+                cell.value = value
+            
+            # Header styling
+            if row_num == 1:
+                cell.fill = header_fill
+                cell.font = header_font
+    
+    # ====================================
+    # TAB 3: ANALYSIS GUIDE
+    # ====================================
+    ws_guide = wb.create_sheet("Analysis Guide")
+    ws_guide.column_dimensions['A'].width = 80
+    
+    guide_content = [
+        ("📊 RETIREMENT ANALYSIS RESULTS", Font(bold=True, size=16, color="1F4E78")),
+        ("", None),
+        ("═" * 60, None),
+        ("", None),
+        ("🎯 HOW TO FIND YOUR BEST SCENARIO:", Font(bold=True, size=12, color="1F4E78")),
+        ("", None),
+        ("Your goal: Retire as EARLY as possible while money lasts to life expectancy!", None),
+        ("", None),
+        ("Look for scenarios marked 'YES' in the Success column (Summary tab).", None),
+        ("Among successful scenarios, choose the one with:", None),
+        ("   1. ✅ EARLIEST retirement age (retire sooner!)", None),
+        ("   2. ✅ HIGHEST annual spending (if tied on age)", None),
+        ("   3. ✅ LARGEST final balance (safety cushion)", None),
+        ("", None),
+        ("═" * 60, None),
+        ("", None),
+        ("💡 KEY INSIGHTS:", Font(bold=True, size=12, color="1F4E78")),
+        ("", None),
+        ("✅ SUCCESS = Money lasts to your life expectancy or beyond", None),
+        ("❌ FAILURE = Money runs out too early", None),
+        ("", None),
+        ("═" * 60, None),
+        ("", None),
+        ("📈 IF NO SCENARIOS SUCCEED, TRY:", Font(bold=True, size=12, color="C00000")),
+        ("", None),
+        ("   1. Increase monthly savings before retirement", None),
+        ("   2. Reduce annual spending in retirement", None),
+        ("   3. Delay retirement by 1-2 years", None),
+        ("   4. Adjust investment returns (risk tolerance)", None),
+        ("", None),
+        ("═" * 60, None),
+        ("", None),
+        ("🔍 TABS EXPLAINED:", Font(bold=True, size=12, color="1F4E78")),
+        ("", None),
+        ("• Summary - Quick scenario comparison (start here!)", None),
+        ("• Detailed Data - Year-by-year breakdown (for detailed analysis)", None),
+        ("• Analysis Guide - This tab (how to use the results)", None),
+        ("", None),
+        ("═" * 60, None),
+        ("", None),
+        (f"📅 Generated: {payment_signature[:8]}...", Font(italic=True, size=9, color="7F7F7F")),
+    ]
+    
+    for row_num, (text, font) in enumerate(guide_content, 1):
+        cell = ws_guide.cell(row=row_num, column=1)
+        cell.value = text
+        if font:
+            cell.font = font
+        cell.alignment = Alignment(wrap_text=True, vertical='top')
+    
+    # Save to BytesIO
+    xlsx_buffer = io.BytesIO()
+    wb.save(xlsx_buffer)
+    xlsx_buffer.seek(0)
+    
+    return xlsx_buffer
+
+
+def format_summary_as_csv(results: List[dict]) -> str:
+    """
+    Format scenario results as summary CSV - one row per scenario.
+    Customer-friendly view with key metrics only.
+    """
+    output = io.StringIO()
+    writer = csv.writer(output)
+    
+    # Simple, readable headers
+    header = [
+        'Scenario',
+        'Retirement Age',
+        'Starting RRSP',
+        'Starting TFSA',
+        'Starting Non-Reg',
+        'Annual Spending',
+        'Monthly Savings',
+        'CPP Start Age',
+        'OAS Start Age',
+        '# Pensions',
+        '# Income Streams',
+        'Success?',
+        'Money Lasts To Age',
+        'Final Balance',
+        'Total Years',
+        'Warnings'
+    ]
+    writer.writerow(header)
+    
+    # One row per scenario
+    for result in results:
+        scenario_id = result['scenario_id']
+        
+        if 'error' in result:
+            row = [scenario_id, 'ERROR'] + [''] * (len(header) - 2)
+            writer.writerow(row)
+            continue
+        
+        scenario_input = result['input']
+        scenario_output = result['output']
+        
+        # Calculate money_lasts_to_age
+        projections = scenario_output.projections
+        money_lasts_to_age = scenario_input.life_expectancy
+        for proj in projections:
+            if proj.total_balance <= 0:
+                money_lasts_to_age = proj.age
+                break
+        
+        total_years = money_lasts_to_age - scenario_input.retirement_age
+        
+        row = [
+            scenario_id,
+            scenario_input.retirement_age,
+            f'${scenario_input.rrsp_balance:,.0f}',
+            f'${scenario_input.tfsa_balance:,.0f}',
+            f'${scenario_input.non_registered:,.0f}',
+            f'${scenario_input.desired_annual_spending:,.0f}',
+            f'${scenario_input.monthly_contribution:,.0f}',
+            scenario_input.cpp_start_age,
+            scenario_input.oas_start_age,
+            len(scenario_input.pensions) if scenario_input.pensions else 0,
+            len(scenario_input.additional_income) if scenario_input.additional_income else 0,
+            'YES' if scenario_output.success else 'NO',
+            money_lasts_to_age,
+            f'${scenario_output.final_balance:,.0f}',
+            total_years,
+            '; '.join(scenario_output.warnings) if scenario_output.warnings else ''
+        ]
+        writer.writerow(row)
     
     return output.getvalue()
 
