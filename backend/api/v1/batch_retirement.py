@@ -325,14 +325,48 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
         'Success?', 'Money Lasts To Age', 'Final Balance', 'Total Years'
     ]
     
-    # Style headers
-    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    # Detect which columns vary across scenarios
+    varying_columns = set()
+    input_column_indices = list(range(2, 12))  # Columns B-K (inputs only, not outputs)
+    
+    if len(results) > 1:
+        # Check each input column to see if values vary
+        for col_idx in input_column_indices:
+            values = []
+            for result in results:
+                if 'error' not in result:
+                    scenario_input = result['input']
+                    # Map column index to input field
+                    if col_idx == 2: values.append(scenario_input.retirement_age)
+                    elif col_idx == 3: values.append(scenario_input.rrsp_balance)
+                    elif col_idx == 4: values.append(scenario_input.tfsa_balance)
+                    elif col_idx == 5: values.append(scenario_input.non_registered)
+                    elif col_idx == 6: values.append(scenario_input.desired_annual_spending)
+                    elif col_idx == 7: values.append(scenario_input.monthly_contribution)
+                    elif col_idx == 8: values.append(scenario_input.cpp_start_age)
+                    elif col_idx == 9: values.append(scenario_input.oas_start_age)
+                    elif col_idx == 10: values.append(len(scenario_input.pensions) if scenario_input.pensions else 0)
+                    elif col_idx == 11: values.append(len(scenario_input.additional_income) if scenario_input.additional_income else 0)
+            
+            # If values differ, mark as varying
+            if len(set(values)) > 1:
+                varying_columns.add(col_idx)
+    
+    # Style headers: black for varying, blue for fixed
+    varying_header_fill = PatternFill(start_color="000000", end_color="000000", fill_type="solid")
+    fixed_header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
     header_font = Font(bold=True, color="FFFFFF", size=11)
     
     for col_num, header in enumerate(headers, 1):
         cell = ws_summary.cell(row=1, column=col_num)
         cell.value = header
-        cell.fill = header_fill
+        
+        # Black header if column varies, blue if fixed
+        if col_num in varying_columns:
+            cell.fill = varying_header_fill
+        else:
+            cell.fill = fixed_header_fill
+        
         cell.font = header_font
         cell.alignment = Alignment(horizontal='center', vertical='center')
     
@@ -398,13 +432,48 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
                     cell.fill = failure_fill
                     cell.font = Font(bold=True, color="9C0006")
         
-        # Add alternating row shading for better readability
+        # Highlight cells that changed from previous row (orange)
+        change_fill = PatternFill(start_color="FFE0B2", end_color="FFE0B2", fill_type="solid")
+        
+        if row_num > 2:  # Compare to previous row
+            prev_result = results[row_num - 3]  # -3 because row_num starts at 2
+            if 'error' not in prev_result and 'error' not in result:
+                prev_input = prev_result['input']
+                curr_input = scenario_input
+                
+                # Check each input column for changes
+                for col_num, value in enumerate(row_data, 1):
+                    if col_num in input_column_indices:  # Only highlight input columns
+                        changed = False
+                        
+                        if col_num == 2: changed = (prev_input.retirement_age != curr_input.retirement_age)
+                        elif col_num == 3: changed = (prev_input.rrsp_balance != curr_input.rrsp_balance)
+                        elif col_num == 4: changed = (prev_input.tfsa_balance != curr_input.tfsa_balance)
+                        elif col_num == 5: changed = (prev_input.non_registered != curr_input.non_registered)
+                        elif col_num == 6: changed = (prev_input.desired_annual_spending != curr_input.desired_annual_spending)
+                        elif col_num == 7: changed = (prev_input.monthly_contribution != curr_input.monthly_contribution)
+                        elif col_num == 8: changed = (prev_input.cpp_start_age != curr_input.cpp_start_age)
+                        elif col_num == 9: changed = (prev_input.oas_start_age != curr_input.oas_start_age)
+                        elif col_num == 10: 
+                            prev_pensions = len(prev_input.pensions) if prev_input.pensions else 0
+                            curr_pensions = len(curr_input.pensions) if curr_input.pensions else 0
+                            changed = (prev_pensions != curr_pensions)
+                        elif col_num == 11:
+                            prev_income = len(prev_input.additional_income) if prev_input.additional_income else 0
+                            curr_income = len(curr_input.additional_income) if curr_input.additional_income else 0
+                            changed = (prev_income != curr_income)
+                        
+                        if changed:
+                            cell = ws_summary.cell(row=row_num, column=col_num)
+                            cell.fill = change_fill
+        
+        # Add alternating row shading for better readability (but don't override orange highlights)
         if row_num % 2 == 0:  # Even rows
             alt_fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
             for col in range(1, len(headers) + 1):
                 cell = ws_summary.cell(row=row_num, column=col)
-                # Don't override success/failure colors
-                if col != 12 or not cell.fill or cell.fill.start_color.rgb == '00000000':
+                # Don't override success/failure colors or change highlights
+                if col != 12 and not (cell.fill and cell.fill.start_color.rgb in ['00FFC7CE', '00C6EFCE', '00FFE0B2']):
                     cell.fill = alt_fill
     
     # Optimized column widths for readability
