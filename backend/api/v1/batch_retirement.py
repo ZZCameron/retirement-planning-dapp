@@ -397,10 +397,40 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
                 else:
                     cell.fill = failure_fill
                     cell.font = Font(bold=True, color="9C0006")
+        
+        # Add alternating row shading for better readability
+        if row_num % 2 == 0:  # Even rows
+            alt_fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
+            for col in range(1, len(headers) + 1):
+                cell = ws_summary.cell(row=row_num, column=col)
+                # Don't override success/failure colors
+                if col != 12 or not cell.fill or cell.fill.start_color.rgb == '00000000':
+                    cell.fill = alt_fill
     
-    # Auto-size columns
-    for col in range(1, len(headers) + 1):
-        ws_summary.column_dimensions[get_column_letter(col)].width = 15
+    # Optimized column widths for readability
+    column_widths = {
+        'A': 10,  # Scenario
+        'B': 14,  # Retirement Age
+        'C': 15,  # Starting RRSP
+        'D': 15,  # Starting TFSA
+        'E': 17,  # Starting Non-Reg
+        'F': 16,  # Annual Spending
+        'G': 15,  # Monthly Savings
+        'H': 13,  # CPP Start Age
+        'I': 13,  # OAS Start Age
+        'J': 11,  # # Pensions
+        'K': 14,  # # Income Streams
+        'L': 10,  # Success?
+        'M': 18,  # Money Lasts To Age
+        'N': 15,  # Final Balance
+        'O': 12,  # Total Years
+    }
+    
+    for col_letter, width in column_widths.items():
+        ws_summary.column_dimensions[col_letter].width = width
+    
+    # Freeze top row for easier scrolling
+    ws_summary.freeze_panes = 'A2'
     
     # ====================================
     # TAB 2: DETAILED DATA
@@ -430,7 +460,7 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
     # TAB 3: ANALYSIS GUIDE
     # ====================================
     ws_guide = wb.create_sheet("Analysis Guide")
-    ws_guide.column_dimensions['A'].width = 80
+    ws_guide.column_dimensions['A'].width = 100  # Wider for better readability
     
     guide_content = [
         ("📊 RETIREMENT ANALYSIS RESULTS", Font(bold=True, size=16, color="1F4E78")),
@@ -476,12 +506,20 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
         (f"📅 Generated: {payment_signature[:8]}...", Font(italic=True, size=9, color="7F7F7F")),
     ]
     
+    # Define border style for separators
+    thick_border = Border(bottom=Side(style='thick', color='4472C4'))
+    
     for row_num, (text, font) in enumerate(guide_content, 1):
         cell = ws_guide.cell(row=row_num, column=1)
         cell.value = text
         if font:
             cell.font = font
         cell.alignment = Alignment(wrap_text=True, vertical='top')
+        
+        # Add bottom border for section separators (replace ═══ lines)
+        if text and text.startswith("═"):
+            cell.value = ""  # Remove the text separator
+            cell.border = thick_border
     
     # Save to BytesIO
     xlsx_buffer = io.BytesIO()
@@ -613,5 +651,5 @@ async def calculate_batch_test(
     return StreamingResponse(
         io.StringIO(csv_content),
         media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=test_scenarios.csv"}
+        headers={"Content-Disposition": "attachment; filename=test_scenarios.xlsx"}
     )
