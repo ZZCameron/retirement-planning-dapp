@@ -1589,7 +1589,7 @@ async function submitBatchCalculation() {
         const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = downloadUrl;
-        a.download = `retirement_scenarios_${Date.now()}.csv`;
+        a.download = `retirement_analysis_${Date.now()}.xlsx`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
