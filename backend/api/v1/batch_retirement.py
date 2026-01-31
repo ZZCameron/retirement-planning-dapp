@@ -427,6 +427,10 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
             cell = ws_summary.cell(row=row_num, column=col_num)
             cell.value = value
             
+            # Center align return % columns and Success column
+            if col_num in [8, 9, 10, 15]:  # RRSP Return %, TFSA Return %, Non-Reg Return %, Success
+                cell.alignment = Alignment(horizontal='center')
+            
             # Currency formatting for money columns
             if col_num in [3, 4, 5, 6, 7, 17]:  # RRSP, TFSA, Non-Reg, Spending, Savings, Final Balance
                 cell.number_format = '"$"#,##0'
@@ -495,11 +499,11 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
         'G': 15,  # Monthly Savings
         'H': 14,  # RRSP Return %
         'I': 13,  # TFSA Return %
-        'J': 14,  # Non-Reg Return %
+        'J': 16,  # Non-Reg Return %
         'K': 14,  # CPP Start Age
         'L': 15,  # OAS Start Age (wider for header)
         'M': 11,  # # Pensions
-        'N': 15,  # # Income Streams (wider)
+        'N': 16,  # # Income Streams
         'O': 10,  # Success?
         'P': 18,  # Money Lasts To Age
         'Q': 15,  # Final Balance
