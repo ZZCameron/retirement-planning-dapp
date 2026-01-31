@@ -321,13 +321,14 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
     headers = [
         'Scenario', 'Retirement Age', 'Starting RRSP', 'Starting TFSA', 
         'Starting Non-Reg', 'Annual Spending', 'Monthly Savings',
+        'RRSP Return %', 'TFSA Return %', 'Non-Reg Return %',
         'CPP Start Age', 'OAS Start Age', '# Pensions', '# Income Streams',
         'Success?', 'Money Lasts To Age', 'Final Balance', 'Total Years'
     ]
     
     # Detect which columns vary across scenarios
     varying_columns = set()
-    input_column_indices = list(range(2, 12))  # Columns B-K (inputs only, not outputs)
+    input_column_indices = list(range(2, 15))  # Columns B-N (inputs only, not outputs)
     
     if len(results) > 1:
         # Check each input column to see if values vary
@@ -343,10 +344,13 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
                     elif col_idx == 5: values.append(scenario_input.non_registered)
                     elif col_idx == 6: values.append(scenario_input.desired_annual_spending)
                     elif col_idx == 7: values.append(scenario_input.monthly_contribution)
-                    elif col_idx == 8: values.append(scenario_input.cpp_start_age)
-                    elif col_idx == 9: values.append(scenario_input.oas_start_age)
-                    elif col_idx == 10: values.append(len(scenario_input.pensions) if scenario_input.pensions else 0)
-                    elif col_idx == 11: values.append(len(scenario_input.additional_income) if scenario_input.additional_income else 0)
+                    elif col_idx == 8: values.append(scenario_input.rrsp_real_return)
+                    elif col_idx == 9: values.append(scenario_input.tfsa_real_return)
+                    elif col_idx == 10: values.append(scenario_input.non_reg_real_return)
+                    elif col_idx == 11: values.append(scenario_input.cpp_start_age)
+                    elif col_idx == 12: values.append(scenario_input.oas_start_age)
+                    elif col_idx == 13: values.append(len(scenario_input.pensions) if scenario_input.pensions else 0)
+                    elif col_idx == 14: values.append(len(scenario_input.additional_income) if scenario_input.additional_income else 0)
             
             # If values differ, mark as varying
             if len(set(values)) > 1:
@@ -406,6 +410,9 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
             scenario_input.non_registered,
             scenario_input.desired_annual_spending,
             scenario_input.monthly_contribution,
+            f"{scenario_input.rrsp_real_return * 100:.1f}%",
+            f"{scenario_input.tfsa_real_return * 100:.1f}%",
+            f"{scenario_input.non_reg_real_return * 100:.1f}%",
             scenario_input.cpp_start_age,
             scenario_input.oas_start_age,
             len(scenario_input.pensions) if scenario_input.pensions else 0,
@@ -421,11 +428,11 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
             cell.value = value
             
             # Currency formatting for money columns
-            if col_num in [3, 4, 5, 6, 7, 14]:  # RRSP, TFSA, Non-Reg, Spending, Savings, Final Balance
+            if col_num in [3, 4, 5, 6, 7, 17]:  # RRSP, TFSA, Non-Reg, Spending, Savings, Final Balance
                 cell.number_format = '"$"#,##0'
             
             # Color code success/failure
-            if col_num == 12:  # Success column
+            if col_num == 15:  # Success column
                 if success:
                     cell.fill = success_fill
                     cell.font = Font(bold=True, color="006100")
@@ -455,11 +462,11 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
                         elif col_num == 7: changed = (prev_input.monthly_contribution != curr_input.monthly_contribution)
                         elif col_num == 8: changed = (prev_input.cpp_start_age != curr_input.cpp_start_age)
                         elif col_num == 9: changed = (prev_input.oas_start_age != curr_input.oas_start_age)
-                        elif col_num == 10: 
+                        elif col_num == 13: 
                             prev_pensions = len(prev_input.pensions) if prev_input.pensions else 0
                             curr_pensions = len(curr_input.pensions) if curr_input.pensions else 0
                             changed = (prev_pensions != curr_pensions)
-                        elif col_num == 11:
+                        elif col_num == 14:
                             prev_income = len(prev_input.additional_income) if prev_input.additional_income else 0
                             curr_income = len(curr_input.additional_income) if curr_input.additional_income else 0
                             changed = (prev_income != curr_income)
@@ -486,14 +493,17 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
         'E': 17,  # Starting Non-Reg
         'F': 16,  # Annual Spending
         'G': 15,  # Monthly Savings
-        'H': 13,  # CPP Start Age
-        'I': 13,  # OAS Start Age
-        'J': 11,  # # Pensions
-        'K': 14,  # # Income Streams
-        'L': 10,  # Success?
-        'M': 18,  # Money Lasts To Age
-        'N': 15,  # Final Balance
-        'O': 12,  # Total Years
+        'H': 13,  # RRSP Return %
+        'I': 13,  # TFSA Return %
+        'J': 13,  # Non-Reg Return %
+        'K': 13,  # CPP Start Age
+        'L': 13,  # OAS Start Age
+        'M': 11,  # # Pensions
+        'N': 14,  # # Income Streams
+        'O': 10,  # Success?
+        'P': 18,  # Money Lasts To Age
+        'Q': 15,  # Final Balance
+        'R': 12,  # Total Years
     }
     
     for col_letter, width in column_widths.items():
