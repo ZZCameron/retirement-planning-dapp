@@ -481,7 +481,7 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
             for col in range(1, len(headers) + 1):
                 cell = ws_summary.cell(row=row_num, column=col)
                 # Don't override success/failure colors or change highlights
-                if col != 12 and not (cell.fill and cell.fill.start_color.rgb in ['00FFC7CE', '00C6EFCE', '00FFE0B2']):
+                if col != 15 and not (cell.fill and cell.fill.start_color.rgb in ['00FFC7CE', '00C6EFCE', '00FFE0B2']):
                     cell.fill = alt_fill
     
     # Optimized column widths for readability
@@ -493,13 +493,13 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
         'E': 17,  # Starting Non-Reg
         'F': 16,  # Annual Spending
         'G': 15,  # Monthly Savings
-        'H': 13,  # RRSP Return %
+        'H': 14,  # RRSP Return %
         'I': 13,  # TFSA Return %
-        'J': 13,  # Non-Reg Return %
-        'K': 13,  # CPP Start Age
-        'L': 13,  # OAS Start Age
+        'J': 14,  # Non-Reg Return %
+        'K': 14,  # CPP Start Age
+        'L': 15,  # OAS Start Age (wider for header)
         'M': 11,  # # Pensions
-        'N': 14,  # # Income Streams
+        'N': 15,  # # Income Streams (wider)
         'O': 10,  # Success?
         'P': 18,  # Money Lasts To Age
         'Q': 15,  # Final Balance
