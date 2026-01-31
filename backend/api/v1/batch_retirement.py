@@ -507,6 +507,10 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
     # ====================================
     ws_detailed = wb.create_sheet("Detailed Data")
     
+    # Define header styling for detailed tab (reuse from summary)
+    header_fill = PatternFill(start_color="4472C4", end_color="4472C4", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=11)
+    
     # Use existing CSV format function to get detailed data
     detailed_csv = format_results_as_csv(results, batch_input)
     
