@@ -373,6 +373,7 @@ def create_batch_analysis_xlsx(results: List[dict], batch_input: BatchRetirement
     # Data rows
     success_fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
     failure_fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+    input_column_indices = list(range(2, 12))  # Columns B-K (inputs only)
     
     for row_num, result in enumerate(results, 2):
         scenario_id = result['scenario_id']
