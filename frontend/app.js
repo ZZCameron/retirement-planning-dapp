@@ -11,8 +11,8 @@ const API_BASE_URL = isProduction
     ? 'https://api.web3-retirement-plan.com'
     : 'https://api-staging.web3-retirement-plan.com';
 
-const TREASURY_WALLET_MAINNET = 'HeXCbKQySygumakXrqEyTTuusJEnE6jvtfFpiVn9rzam';
 const TREASURY_WALLET_DEVNET = '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m';
+const TREASURY_WALLET_MAINNET = 'HeXCbKQySygumakXrqEyTTuusJEnE6jvtfFpiVn9rzam';
 const RECEIVER_ADDRESS = isProduction ? TREASURY_WALLET_MAINNET : TREASURY_WALLET_DEVNET;
 
 console.log(`🌐 Environment: ${isProduction ? 'PRODUCTION (mainnet)' : 'STAGING (devnet)'}`);
@@ -1125,7 +1125,7 @@ async function createPaymentTransaction() {
     const connection = new Connection(SOLANA_NETWORK === 'mainnet-beta' ? 'https://api.mainnet-beta.solana.com' : 'https://api.devnet.solana.com', 'confirmed');
     
     // Recipient address (your treasury wallet - CHANGE THIS!)
-    const recipient = new PublicKey('4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m');
+    const recipient = new PublicKey(RECEIVER_ADDRESS);
     
     // Get recent blockhash
     const { blockhash } = await connection.getLatestBlockhash();
@@ -1533,7 +1533,7 @@ async function submitBatchCalculation() {
         );
         
         const recipientPubkey = new window.solanaWeb3.PublicKey(
-            '4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m' // Treasury wallet
+            RECEIVER_ADDRESS
         );
         
         const lamports = Math.floor(estimate.cost_sol * 1000000000);
