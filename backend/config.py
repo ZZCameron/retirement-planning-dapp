@@ -44,7 +44,8 @@ class Settings(BaseSettings):
 
     # Payment Configuration (ADD HERE - same indentation as cors_origins)
     treasury_wallet: str = Field(
-        default="4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m",
+        default="4m5yJZMSYK2N6htdkwQ8t4dsmuRSxuZ2rDba51cFc25m",  # Staging default
+        env="TREASURY_WALLET",  # Reads from Railway environment variable
         description="Treasury wallet for receiving payments"
     )
     payment_amount_sol: float = Field(
