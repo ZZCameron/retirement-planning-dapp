@@ -56,8 +56,14 @@ class Settings(BaseSettings):
     )
 
     # Solana
-    solana_network: Literal["devnet", "testnet", "mainnet-beta"] = "devnet"
-    solana_rpc_url: str = Field(default="https://api.devnet.solana.com")
+    solana_network: Literal["devnet", "testnet", "mainnet-beta"] = Field(
+        default="devnet",
+        env="SOLANA_NETWORK"
+    )
+    solana_rpc_url: str = Field(
+        default="https://api.devnet.solana.com",
+        env="SOLANA_RPC_URL"
+    )
 
     # Database
     database_url: str = Field(default="sqlite:///./retirement_planning.db")
