@@ -38,6 +38,34 @@ class SolanaPaymentVerifier:
         Returns:
             PaymentVerification with verification result
         """
+        import asyncio
+        
+        # Retry logic for mainnet timing issues (0.5s, 1s, 2s, 4s = ~7.5s total)
+        for attempt in range(4):
+            try:
+                result = await self._verify_transaction_attempt(signature, sender)
+                if result.verified or attempt == 3:  # Success or final attempt
+                    return result
+                # Transaction not found yet, wait before retry
+                await asyncio.sleep(0.5 * (2 ** attempt))
+            except Exception as e:
+                if attempt == 3:  # Final attempt
+                    logger.error(f"Payment verification failed after 4 attempts: {e}")
+                    return PaymentVerification(
+                        verified=False,
+                        signature=signature,
+                        error=f"Verification failed: {str(e)}"
+                    )
+                await asyncio.sleep(0.5 * (2 ** attempt))
+        
+        return PaymentVerification(
+            verified=False,
+            signature=signature,
+            error="Transaction not found after retries"
+        )
+    
+    async def _verify_transaction_attempt(self, signature: str, sender: str) -> PaymentVerification:
+        """Single verification attempt (internal method)"""
         try:
             async with httpx.AsyncClient(timeout=60.0) as client:
                 # Get transaction details from Solana RPC
