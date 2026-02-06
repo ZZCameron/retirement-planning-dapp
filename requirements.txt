@@ -1,27 +1,33 @@
-# Core Framework
+# Production Dependencies for Retirement Planning DApp
+# Python 3.10+
+
+# Web Framework
 fastapi==0.109.2
+uvicorn[standard]==0.27.1
+
+# Data Validation & Settings
 pydantic==2.6.1
 pydantic-settings==2.1.0
 
-# ASGI Server
-uvicorn[standard]==0.27.0
-gunicorn==21.2.0
-
-# HTTP Client
-httpx==0.26.0
-
-# Testing
-pytest==8.0.2
-pytest-asyncio==0.23.5
-pytest-cov==4.1.0
-pytest-mock==3.12.0
-
-# Development
+# Environment Configuration
 python-dotenv==1.0.1
 
-# Solana SDK for payment verification
-solders==0.20.0
-base58==2.1.1
+# Authentication & Security
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==5.0.0
 
-# Excel File Generation
-openpyxl==3.1.2
+# Financial Calculations
+numpy==1.26.4
+pandas==2.2.0
+numpy-financial==1.0.0
+scipy==1.12.0
+
+# HTTP Client (if needed for external APIs)
+httpx==0.26.0
+
+# File Upload Support
+python-multipart==0.0.7
+
+# Vercel Serverless Adapter
+mangum==0.17.0

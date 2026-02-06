@@ -28,3 +28,6 @@ httpx==0.26.0
 
 # File Upload Support
 python-multipart==0.0.7
+
+# Vercel Serverless Adapter
+mangum==0.17.0
