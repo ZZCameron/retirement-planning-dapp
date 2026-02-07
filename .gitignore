@@ -54,3 +54,5 @@ Thumbs.db
 # Test environment files
 .env.test
 backend/tests/.env.test
+.vercel
+.env*.local
