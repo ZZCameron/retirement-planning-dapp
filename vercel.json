@@ -9,19 +9,12 @@
       }
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "api/index.py"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "frontend/$1"
+      "source": "/api/(.*)",
+      "destination": "/api/index.py"
     }
   ],
-  "env": {
-    "PYTHONPATH": "$PYTHONPATH:."
-  },
   "headers": [
     {
       "source": "/api/(.*)",
@@ -40,5 +33,8 @@
         }
       ]
     }
-  ]
+  ],
+  "env": {
+    "PYTHONPATH": "$PYTHONPATH:."
+  }
 }
